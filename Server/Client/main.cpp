@@ -12,6 +12,8 @@
 #include <vector>
 #include <map>
 #include <iterator>
+#include <cstring>
+#include <string>
 
 typedef std::pair<int, int> pair_t;
 
@@ -20,7 +22,7 @@ struct point_t
 	point_t()
 		:x(0), y(0)
 	{}
-	point_t(int x, int y)
+	point_t(std::string x, std::string y)
 		:x(x), y(y)
 	{}
 	bool operator< (point_t const &other) const
@@ -31,17 +33,17 @@ struct point_t
 			return true;
 		return false;
 	}
-	int x;
-	int y;
+	std::string x;
+	std::string y;
 };
 
 class Plays
 {
 public:
   Plays()
-
+:message("*")
   {
-    char message[] = "*";
+
     for (int i = 0; i < 3; ++i)
        for (int j = 0; j < 3; ++j)
          {
@@ -86,16 +88,16 @@ public:
     std::cout << "Input message" << std::endl;
     std::cin >> message;
     char buf[sizeof(message)];
-    pos.x = (int)message;
-    send(sock, message, sizeof(message), 0);
+    pos.x = message;
+    send(sock, message.c_str(), message.size() + 1, 0);
     recv(sock, buf, sizeof(message), 0);
     printf(buf);
 
     std::cout << "\nInput message" << std::endl;
     std::cin >> message;
     buf[sizeof(message)];
-    pos.y = (int)message;
-    send(sock, message, sizeof(message), 0);
+    pos.y = message;
+    send(sock, message.c_str(), message.size() + 1, 0);
     recv(sock, buf, sizeof(message), 0);
     printf(buf);
     pair_pos.insert(std::pair<point_t, char>(pos,'x'));
@@ -127,7 +129,7 @@ private:
   std::map <point_t, char> pair_pos;
   std::map <point_t, char>::iterator iter;
   point_t pos;
-  char message[];
+  std::string message;
 
 };
 
@@ -144,4 +146,3 @@ int main()
   plays.closing();
   return 0;
 }
-
