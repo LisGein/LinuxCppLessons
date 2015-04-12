@@ -14,6 +14,8 @@
 #include <iterator>
 #include <cstring>
 #include <string>
+#include <stdlib.h>
+
 
 typedef std::pair<int, int> pair_t;
 
@@ -22,7 +24,7 @@ struct point_t
 	point_t()
 		:x(0), y(0)
 	{}
-	point_t(std::string x, std::string y)
+	point_t(int x, int y)
 		:x(x), y(y)
 	{}
 	bool operator< (point_t const &other) const
@@ -33,28 +35,36 @@ struct point_t
 			return true;
 		return false;
 	}
-	std::string x;
-	std::string y;
+	int x;
+	int y;
 };
 
 class Plays
 {
 public:
   Plays()
-:message("*")
+  : message("*")
+  , end_game(false)
   {
 
-    for (int i = 0; i < 3; ++i)
-       for (int j = 0; j < 3; ++j)
+    for (int i = 1; i <= 3; ++i)
+       for (int j = 1; j <= 3; ++j)
          {
-         pos.x = i;
-         pos.y = j;
-         pair_pos.insert(std::pair<point_t, char>(pos,'*'));
+          pos.x = j;
+          pos.y = i;
+          pair_pos.insert(std::pair<point_t, char>(pos,'*'));
          }
 
   }
   ~Plays()
   {}
+
+  void game()
+  {
+    out_play();
+    input_pos();
+    forming_check();
+  }
 
   void closing()
   {
@@ -66,7 +76,6 @@ public:
     addr.sin_family = AF_INET;
     addr.sin_port = htons(3425);
     addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-
     sock = socket(AF_INET, SOCK_STREAM, 0);
 
     if(sock < 0)
@@ -82,34 +91,48 @@ public:
     }
   }
 
+  bool finish_play()
+  {
+    return end_game;
+  }
+private:
   void input_pos()
   {
 
     std::cout << "Input message" << std::endl;
     std::cin >> message;
-    char buf[sizeof(message)];
-    pos.x = message;
-    send(sock, message.c_str(), message.size() + 1, 0);
-    recv(sock, buf, sizeof(message), 0);
-    printf(buf);
+    message += ";";
+    std::string temp_mess;
+    std::cin >> temp_mess;
+    message += temp_mess;
+    char buf[message.size()];
 
-    std::cout << "\nInput message" << std::endl;
-    std::cin >> message;
-    buf[sizeof(message)];
-    pos.y = message;
+    temp_mess = message.substr(0, message.find(";"));
+    pos.x = atoi (temp_mess.c_str());
+    temp_mess = message.substr(message.find(";")+1);
+    pos.y = atoi (temp_mess.c_str());
+
     send(sock, message.c_str(), message.size() + 1, 0);
     recv(sock, buf, sizeof(message), 0);
-    printf(buf);
-    pair_pos.insert(std::pair<point_t, char>(pos,'x'));
 
     std::cout << "\033[2J\033[1;1H";
+    if ((pos.x <=3)&&(pos.y<=3))
+      {
+        pair_pos.erase(pos);
+        pair_pos.insert(std::pair<point_t, char>(pos,'x'));
+      }
+    else
+      {
+        std::cout << "Invalid input. Try again:\n";
+        input_pos();
+      }
   }
 
   void out_play()
   {
 
     int id = 1;
-      for (iter=pair_pos.begin(); iter!=pair_pos.end(); ++iter)
+      for (std::map <point_t, char>::iterator iter=pair_pos.begin(); iter!=pair_pos.end(); ++iter)
         {
           if(id%3!= 0)
             {
@@ -123,13 +146,80 @@ public:
             }
         }
   }
-private:
+
+  void forming_check()
+  {
+    temp_pos_f.y = 1;
+    temp_pos_s.y = 2;
+    temp_pos_t.y = 3;
+
+    temp_pos_f.x = 1;
+    temp_pos_s.x = 2;
+    temp_pos_t.x = 3;
+    check();
+
+    temp_pos_f.x = 3;
+    temp_pos_t.x = 1;
+    check();
+
+    temp_pos_f.x = 1;
+    temp_pos_s.x = 1;
+    check();
+
+    temp_pos_f.x = 2;
+    temp_pos_s.x = 2;
+    temp_pos_t.x = 2;
+    check();
+
+    temp_pos_f.x = 3;
+    temp_pos_s.x = 3;
+    temp_pos_t.x = 3;
+    check();
+
+    temp_pos_f.x = 1;
+    temp_pos_s.x = 2;
+    temp_pos_t.x = 3;
+
+    temp_pos_f.y = 1;
+    temp_pos_s.y = 1;
+    temp_pos_t.y = 1;
+    check();
+
+    temp_pos_f.y = 2;
+    temp_pos_s.y = 2;
+    temp_pos_t.y = 2;
+    check();
+
+    temp_pos_f.y = 3;
+    temp_pos_s.y = 3;
+    temp_pos_t.y = 3;
+    check();
+  }
+
+  void check()
+  {
+std::map <point_t, char>::iterator iter = pair_pos.find(temp_pos_f);
+    if (iter->second == 'x')
+      {
+        iter = pair_pos.find(temp_pos_s);
+        if(iter->second == 'x')
+          {
+          iter = pair_pos.find(temp_pos_t);
+          if(iter->second == 'x')
+            end_game = true;
+          }
+      }
+  }
+
   struct sockaddr_in addr;
   int sock;
   std::map <point_t, char> pair_pos;
-  std::map <point_t, char>::iterator iter;
+  bool end_game;
   point_t pos;
   std::string message;
+  point_t temp_pos_f;
+  point_t temp_pos_s;
+  point_t temp_pos_t;
 
 };
 
@@ -137,12 +227,11 @@ int main()
 {
   Plays plays;
   plays.connected();
-  plays.out_play();
-  while (true)
+  while (!plays.finish_play())
   {
-    plays.input_pos();
-    plays.out_play();
+    plays.game();
   }
   plays.closing();
+  std::cout << "You win!\n";
   return 0;
 }
