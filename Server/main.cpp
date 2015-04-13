@@ -15,7 +15,6 @@ int main()
   struct sockaddr_in addr;
   char buf[1024];
   int bytes_read;
-
   listener = socket(AF_INET, SOCK_STREAM, 0);
   if (listener < 0)
     {
@@ -31,7 +30,7 @@ int main()
       perror("bind");
       exit(2);
     }
-  listen(listener, 1);
+  listen(listener, 2);
   while(1)
     {
       sock = accept(listener, NULL, NULL);
@@ -50,9 +49,11 @@ int main()
           close(listener);
           while(1)
             {
+              std::cout << "sedfwef";
               bytes_read = recv(sock, buf, 1024, 0);
               if(bytes_read <= 0)
                 break;
+              std::cout << buf << std::endl;
               send(sock, buf, bytes_read, 0);
             }
 

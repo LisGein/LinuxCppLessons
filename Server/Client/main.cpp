@@ -16,8 +16,10 @@
 #include <string>
 #include <stdlib.h>
 
-
 typedef std::pair<int, int> pair_t;
+
+const int width = 12;
+const int height = 12;
 
 struct point_t
 {
@@ -45,10 +47,12 @@ public:
   Plays()
   : message("*")
   , end_game(false)
+  , player_f("x")
+  , player_s("o")
   {
 
-    for (int i = 1; i <= 3; ++i)
-       for (int j = 1; j <= 3; ++j)
+    for (int i = 1; i <= width; ++i)
+       for (int j = 1; j <= height; ++j)
          {
           pos.x = j;
           pos.y = i;
@@ -59,6 +63,18 @@ public:
   ~Plays()
   {}
 
+  void set_data()
+  {
+    std::cout << "Input port second player\n";
+    std::cin >> listport;
+
+    std::cout << "x or o?\n";
+    char colibrate_step;
+    std::cin >> colibrate_step;
+
+    connected();
+  }
+
   void game()
   {
     out_play();
@@ -68,16 +84,16 @@ public:
 
   void closing()
   {
+    out_play();
     close(sock);
   }
 
   void connected()
   {
     addr.sin_family = AF_INET;
-    addr.sin_port = htons(3425);
+    addr.sin_port = htons(listport);
     addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
     sock = socket(AF_INET, SOCK_STREAM, 0);
-
     if(sock < 0)
     {
       perror("socket");
@@ -105,133 +121,300 @@ private:
     std::string temp_mess;
     std::cin >> temp_mess;
     message += temp_mess;
-    char buf[message.size()];
 
     temp_mess = message.substr(0, message.find(";"));
     pos.x = atoi (temp_mess.c_str());
     temp_mess = message.substr(message.find(";")+1);
     pos.y = atoi (temp_mess.c_str());
 
-    send(sock, message.c_str(), message.size() + 1, 0);
-    recv(sock, buf, sizeof(message), 0);
-
-    std::cout << "\033[2J\033[1;1H";
-    if ((pos.x <=3)&&(pos.y<=3))
+    if ((pos.x <=width)&&(pos.y<=height))
       {
+        char buf[message.size()];
+        send(sock, message.c_str(), message.size() + 1, 0);
+        //recv(sock, buf, sizeof(message), 0);
+        std::cout << buf;
+
+        std::cout << "\033[2J\033[1;1H";
         pair_pos.erase(pos);
         pair_pos.insert(std::pair<point_t, char>(pos,'x'));
       }
     else
       {
+        std::cout << "\033[2J\033[1;1H";
         std::cout << "Invalid input. Try again:\n";
         input_pos();
       }
+  }
+
+  void listen_other()
+  {
+
   }
 
   void out_play()
   {
 
     int id = 1;
-      for (std::map <point_t, char>::iterator iter=pair_pos.begin(); iter!=pair_pos.end(); ++iter)
+      for (auto iter=pair_pos.begin(); iter!=pair_pos.end(); ++iter)
         {
-          if(id%3!= 0)
+          if(id != width)
             {
-             std::cout << iter->second;
+             std::cout << iter->second << " ";
              id++;
             }
           else
             {
-              std::cout << iter->second << '\n';
-              id++;
+              std::cout << iter->second << " " << '\n';
+              id=1;
             }
         }
   }
 
   void forming_check()
   {
-    temp_pos_f.y = 1;
-    temp_pos_s.y = 2;
-    temp_pos_t.y = 3;
+    //проверка по горизонтали
+    int numb_char = 1;
+    temp_pos.y = pos.y;
+    temp_pos.x = pos.x+1;
 
-    temp_pos_f.x = 1;
-    temp_pos_s.x = 2;
-    temp_pos_t.x = 3;
-    check();
+    while(temp_pos.x < width)
+    {
+      auto it =  pair_pos.find(pos);
+      auto iter = pair_pos.find(temp_pos);
+           if (iter->second == it->second)
+             {
+              numb_char++;
+              temp_pos.x++;
+             }
+           else
+             {
+              break;
+             }
+    }
+    temp_pos.x = pos.x-1;
+    while(temp_pos.x > 0)
+    {
 
-    temp_pos_f.x = 3;
-    temp_pos_t.x = 1;
-    check();
+      auto it = pair_pos.find(pos);
+      auto iter = pair_pos.find(temp_pos);
+           if (iter->second == it->second)
+             {
+              numb_char++;
+              temp_pos.x--;
+             }
+           else
+             {
+              break;
+             }
+    }
+    if (numb_char >=4)
+       end_game = true;
 
-    temp_pos_f.x = 1;
-    temp_pos_s.x = 1;
-    check();
-
-    temp_pos_f.x = 2;
-    temp_pos_s.x = 2;
-    temp_pos_t.x = 2;
-    check();
-
-    temp_pos_f.x = 3;
-    temp_pos_s.x = 3;
-    temp_pos_t.x = 3;
-    check();
-
-    temp_pos_f.x = 1;
-    temp_pos_s.x = 2;
-    temp_pos_t.x = 3;
-
-    temp_pos_f.y = 1;
-    temp_pos_s.y = 1;
-    temp_pos_t.y = 1;
-    check();
-
-    temp_pos_f.y = 2;
-    temp_pos_s.y = 2;
-    temp_pos_t.y = 2;
-    check();
-
-    temp_pos_f.y = 3;
-    temp_pos_s.y = 3;
-    temp_pos_t.y = 3;
-    check();
-  }
-
-  void check()
-  {
-std::map <point_t, char>::iterator iter = pair_pos.find(temp_pos_f);
-    if (iter->second == 'x')
+    //проверка по вертикали
+      numb_char = 1;
+      temp_pos.y = pos.y+1;
+      temp_pos.x = pos.x;
+      while(temp_pos.y < height)
       {
-        iter = pair_pos.find(temp_pos_s);
-        if(iter->second == 'x')
-          {
-          iter = pair_pos.find(temp_pos_t);
-          if(iter->second == 'x')
-            end_game = true;
-          }
+        auto it = pair_pos.find(pos);
+        auto iter = pair_pos.find(temp_pos);
+             if (iter->second == it->second)
+               {
+                  numb_char++;
+                  temp_pos.y++;
+               }
+             else
+               {
+                break;
+               }
       }
+       temp_pos.y = pos.y-1;
+       while(temp_pos.y > 0)
+       {
+         auto it = pair_pos.find(pos);
+         auto iter = pair_pos.find(temp_pos);
+              if (iter->second == it->second)
+                {
+                   numb_char++;
+                   temp_pos.y--;
+                }
+              else
+                {
+                 break;
+                }
+       }
+      if (numb_char >=4)
+         end_game = true;
+
+ //проверка по вертикали вниз
+      numb_char = 1;
+      temp_pos.x = pos.x+1;
+      temp_pos.y = pos.y+1;
+      while ((temp_pos.x < width)&&(temp_pos.y < height))
+      {
+        auto it = pair_pos.find(pos);
+        auto iter = pair_pos.find(temp_pos);
+             if (iter->second == it->second)
+               {
+                numb_char++;
+                temp_pos.x++;
+                temp_pos.y++;
+               }
+             else
+             {
+              break;
+             }
+      }
+      temp_pos.x = pos.x-1;
+      temp_pos.y = pos.y-1;
+      while ((temp_pos.x > 0)&&(temp_pos.y > 0))
+      {
+        auto it = pair_pos.find(pos);
+        auto iter = pair_pos.find(temp_pos);
+             if (iter->second == it->second)
+               {
+                numb_char++;
+                temp_pos.x--;
+                temp_pos.y--;
+               }
+             else
+               {
+                break;
+               }
+      }
+      if (numb_char >=4)
+         end_game = true;
+
+      //проверка по вертикали вверх
+           numb_char = 1;
+           temp_pos.x = pos.x+1;
+           temp_pos.y = pos.y-1;
+           while ((temp_pos.x < width)&&(temp_pos.y > 0))
+           {
+             auto it = pair_pos.find(pos);
+             auto iter = pair_pos.find(temp_pos);
+                  if (iter->second == it->second)
+                    {
+                     numb_char++;
+                     temp_pos.x++;
+                     temp_pos.y--;
+                    }
+                  else
+                    {
+                     break;
+                    }
+           }
+           temp_pos.x = pos.x-1;
+           temp_pos.y = pos.y+1;
+           while ((temp_pos.x > 0)&&(temp_pos.y < height))
+           {
+             auto it = pair_pos.find(pos);
+             auto iter = pair_pos.find(temp_pos);
+                  if (iter->second == it->second)
+                    {
+                     numb_char++;
+                     temp_pos.x--;
+                     temp_pos.y++;
+                    }
+                  else
+                    {
+                     break;
+                    }
+           }
+           if (numb_char >=4)
+              end_game = true;
+
   }
 
+  int port;
+  int listport;
   struct sockaddr_in addr;
-  int sock;
+  int sock, sock_lis;
   std::map <point_t, char> pair_pos;
+  std::map <int, char> users;
   bool end_game;
   point_t pos;
   std::string message;
-  point_t temp_pos_f;
-  point_t temp_pos_s;
-  point_t temp_pos_t;
+  std::string player_f;
+  std::string player_s;
+  point_t temp_pos;
 
 };
 
 int main()
 {
-  Plays plays;
-  plays.connected();
-  while (!plays.finish_play())
-  {
-    plays.game();
-  }
+  int port;
+  std::cout << "Input your port\n";
+  std::cin >> port;
+Plays plays;
+
+  int sock, listener;
+  struct sockaddr_in addr;
+  char buf[1024];
+  int bytes_read;
+  listener = socket(AF_INET, SOCK_STREAM, 0);
+  if (listener < 0)
+    {
+      perror("socket");
+      exit(1);
+    }
+
+  addr.sin_family = AF_INET;
+  addr.sin_port = htons(port);
+  addr.sin_addr.s_addr = INADDR_ANY;
+  if (bind(listener, (struct sockaddr *)&addr, sizeof(addr))<0)
+    {
+      perror("bind");
+      exit(2);
+    }
+  listen(listener, 2);
+  while(1)
+    {
+
+      plays.set_data();
+      while (!plays.finish_play())
+      {
+        plays.game();
+
+      sock = accept(listener, NULL, NULL);
+      if(sock < 0)
+        {
+          perror("accept");
+          exit(3);
+        }
+
+      switch (fork())
+        {
+        case -1:
+          perror("fork");
+          break;
+        case 0:
+          close(listener);
+          while(1)
+            {
+
+
+              bytes_read = recv(sock, buf, 1024, 0);
+              if(bytes_read <= 0)
+                break;
+              std::cout << buf << std::endl;
+              send(sock, buf, bytes_read, 0);
+
+            }
+
+          close(sock);
+          _exit(0);
+
+        default:
+          {
+
+
+            close(sock);
+          }
+        }
+      }
+    }
   plays.closing();
-  std::cout << "You win!\n";
+  close(listener);
   return 0;
 }
