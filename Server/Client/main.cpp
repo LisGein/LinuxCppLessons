@@ -41,42 +41,50 @@ struct point_t
 	int y;
 };
 
-class Plays
+class Games
 {
 public:
-  Plays()
-  : message("*")
-  , end_game(false)
-  , player_f("x")
-  , player_s("o")
+  Games()
+  : end_game_(false)
   {
 
     for (int i = 1; i <= width; ++i)
-       for (int j = 1; j <= height; ++j)
-         {
-          pos.x = j;
-          pos.y = i;
-          pair_pos.insert(std::pair<point_t, char>(pos,'*'));
-         }
-
+      for (int j = 1; j <= height; ++j)
+      {
+        pos_.x = j;
+        pos_.y = i;
+        pair_pos_.insert(std::pair<point_t, char>(pos_,'*'));
+      }
   }
-  ~Plays()
+  ~Games()
   {}
 
-  void set_data()
+  void set_data(char &sumb)
   {
+    sumb_x_ = sumb;
+    if (sumb_x_ == 'x')
+      sumb_o_ = 'o';
+    else
+      sumb_o_ = 'x';
     std::cout << "Input port second player\n";
-    std::cin >> listport;
-
-    std::cout << "x or o?\n";
-    char colibrate_step;
-    std::cin >> colibrate_step;
-
+    std::cin >> listen_port_;
     connected();
+  }
+
+  void send_data(std::string &bu)
+  {
+    std::string temp_mess;
+    temp_mess = bu.substr(0, bu.find(";"));
+    pos_.x = atoi (temp_mess.c_str());
+    temp_mess = bu.substr(bu.find(";")+1);
+    pos_.y = atoi (temp_mess.c_str());
+    pair_pos_.erase(pos_);
+    pair_pos_.insert(std::pair<point_t, char>(pos_, sumb_o_));
   }
 
   void game()
   {
+    std::cout << "\033[2J\033[1;1H";
     out_play();
     input_pos();
     forming_check();
@@ -85,36 +93,54 @@ public:
   void closing()
   {
     out_play();
-    close(sock);
+    close(sock_);
   }
 
+  bool finish_play()
+  {
+    return end_game_;
+  }
+
+private:
   void connected()
   {
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(listport);
-    addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-    sock = socket(AF_INET, SOCK_STREAM, 0);
-    if(sock < 0)
+    addr_.sin_family = AF_INET;
+    addr_.sin_port = htons(listen_port_);
+    addr_.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    sock_ = socket(AF_INET, SOCK_STREAM, 0);
+    if(sock_ < 0)
     {
       perror("socket");
       exit(1);
     }
-
-    if(connect(sock, (struct sockaddr *)&addr, sizeof(addr)) < 0)
+    if(connect(sock_, (struct sockaddr *)&addr_, sizeof(addr_)) < 0)
     {
       perror ("connect");
       exit(2);
     }
   }
 
-  bool finish_play()
+  void out_play()
   {
-    return end_game;
+    int id = 1;
+    for (auto iter=pair_pos_.begin(); iter!=pair_pos_.end(); ++iter)
+    {
+      if(id != width)
+      {
+        std::cout << iter->second << " ";
+        id++;
+      }
+      else
+      {
+        std::cout << iter->second << " " << '\n';
+        id=1;
+      }
+    }
   }
-private:
+
   void input_pos()
   {
-
+    std::string message;
     std::cout << "Input message" << std::endl;
     std::cin >> message;
     message += ";";
@@ -123,222 +149,191 @@ private:
     message += temp_mess;
 
     temp_mess = message.substr(0, message.find(";"));
-    pos.x = atoi (temp_mess.c_str());
+    pos_.x = atoi (temp_mess.c_str());
     temp_mess = message.substr(message.find(";")+1);
-    pos.y = atoi (temp_mess.c_str());
+    pos_.y = atoi (temp_mess.c_str());
 
-    if ((pos.x <=width)&&(pos.y<=height))
-      {
-        char buf[message.size()];
-        send(sock, message.c_str(), message.size() + 1, 0);
-        //recv(sock, buf, sizeof(message), 0);
-        std::cout << buf;
-
-        std::cout << "\033[2J\033[1;1H";
-        pair_pos.erase(pos);
-        pair_pos.insert(std::pair<point_t, char>(pos,'x'));
-      }
+    if ((pos_.x <=width)&&(pos_.y<=height))
+    {
+      send(sock_, message.c_str(), message.size() + 1, 0);
+      std::cout << "\033[2J\033[1;1H";
+      pair_pos_.erase(pos_);
+      pair_pos_.insert(std::pair<point_t, char>(pos_, sumb_x_));
+      out_play();
+    }
     else
-      {
-        std::cout << "\033[2J\033[1;1H";
-        std::cout << "Invalid input. Try again:\n";
-        input_pos();
-      }
-  }
-
-  void listen_other()
-  {
-
-  }
-
-  void out_play()
-  {
-
-    int id = 1;
-      for (auto iter=pair_pos.begin(); iter!=pair_pos.end(); ++iter)
-        {
-          if(id != width)
-            {
-             std::cout << iter->second << " ";
-             id++;
-            }
-          else
-            {
-              std::cout << iter->second << " " << '\n';
-              id=1;
-            }
-        }
+    {
+      std::cout << "\033[2J\033[1;1H";
+      std::cout << "Invalid input. Try again:\n";
+      input_pos();
+    }
   }
 
   void forming_check()
   {
+    point_t temp_pos;
     //проверка по горизонтали
     int numb_char = 1;
-    temp_pos.y = pos.y;
-    temp_pos.x = pos.x+1;
+    temp_pos.y = pos_.y;
+    temp_pos.x = pos_.x+1;
 
     while(temp_pos.x < width)
     {
-      auto it =  pair_pos.find(pos);
-      auto iter = pair_pos.find(temp_pos);
+      auto it =  pair_pos_.find(pos_);
+      auto iter = pair_pos_.find(temp_pos);
            if (iter->second == it->second)
-             {
-              numb_char++;
-              temp_pos.x++;
-             }
+           {
+             numb_char++;
+             temp_pos.x++;
+           }
            else
-             {
-              break;
-             }
+           {
+             break;
+           }
     }
-    temp_pos.x = pos.x-1;
+    temp_pos.x = pos_.x-1;
     while(temp_pos.x > 0)
     {
 
-      auto it = pair_pos.find(pos);
-      auto iter = pair_pos.find(temp_pos);
+      auto it = pair_pos_.find(pos_);
+      auto iter = pair_pos_.find(temp_pos);
            if (iter->second == it->second)
-             {
+           {
               numb_char++;
               temp_pos.x--;
-             }
+           }
            else
-             {
+           {
               break;
-             }
+           }
     }
     if (numb_char >=4)
-       end_game = true;
+       end_game_ = true;
 
     //проверка по вертикали
-      numb_char = 1;
-      temp_pos.y = pos.y+1;
-      temp_pos.x = pos.x;
-      while(temp_pos.y < height)
+    numb_char = 1;
+    temp_pos.y = pos_.y+1;
+    temp_pos.x = pos_.x;
+    while(temp_pos.y < height)
+    {
+      auto it = pair_pos_.find(pos_);
+      auto iter = pair_pos_.find(temp_pos);
+      if (iter->second == it->second)
       {
-        auto it = pair_pos.find(pos);
-        auto iter = pair_pos.find(temp_pos);
-             if (iter->second == it->second)
-               {
-                  numb_char++;
-                  temp_pos.y++;
-               }
-             else
-               {
-                break;
-               }
+         numb_char++;
+         temp_pos.y++;
       }
-       temp_pos.y = pos.y-1;
-       while(temp_pos.y > 0)
-       {
-         auto it = pair_pos.find(pos);
-         auto iter = pair_pos.find(temp_pos);
-              if (iter->second == it->second)
-                {
-                   numb_char++;
-                   temp_pos.y--;
-                }
-              else
-                {
-                 break;
-                }
-       }
-      if (numb_char >=4)
-         end_game = true;
+      else
+      {
+         break;
+      }
+    }
+    temp_pos.y = pos_.y-1;
+    while(temp_pos.y > 0)
+    {
+         auto it = pair_pos_.find(pos_);
+         auto iter = pair_pos_.find(temp_pos);
+         if (iter->second == it->second)
+         {
+             numb_char++;
+             temp_pos.y--;
+         }
+         else
+         {
+            break;
+         }
+    }
+    if (numb_char >=4)
+      end_game_ = true;
 
  //проверка по вертикали вниз
-      numb_char = 1;
-      temp_pos.x = pos.x+1;
-      temp_pos.y = pos.y+1;
-      while ((temp_pos.x < width)&&(temp_pos.y < height))
+    numb_char = 1;
+    temp_pos.x = pos_.x+1;
+    temp_pos.y = pos_.y+1;
+    while ((temp_pos.x < width)&&(temp_pos.y < height))
+    {
+      auto it = pair_pos_.find(pos_);
+      auto iter = pair_pos_.find(temp_pos);
+      if (iter->second == it->second)
       {
-        auto it = pair_pos.find(pos);
-        auto iter = pair_pos.find(temp_pos);
-             if (iter->second == it->second)
-               {
-                numb_char++;
-                temp_pos.x++;
-                temp_pos.y++;
-               }
-             else
-             {
-              break;
-             }
+          numb_char++;
+          temp_pos.x++;
+          temp_pos.y++;
       }
-      temp_pos.x = pos.x-1;
-      temp_pos.y = pos.y-1;
-      while ((temp_pos.x > 0)&&(temp_pos.y > 0))
+      else
       {
-        auto it = pair_pos.find(pos);
-        auto iter = pair_pos.find(temp_pos);
-             if (iter->second == it->second)
-               {
-                numb_char++;
-                temp_pos.x--;
-                temp_pos.y--;
-               }
-             else
-               {
-                break;
-               }
+          break;
       }
-      if (numb_char >=4)
-         end_game = true;
+    }
+    temp_pos.x = pos_.x-1;
+    temp_pos.y = pos_.y-1;
+    while ((temp_pos.x > 0)&&(temp_pos.y > 0))
+    {
+      auto it = pair_pos_.find(pos_);
+      auto iter = pair_pos_.find(temp_pos);
+      if (iter->second == it->second)
+      {
+          numb_char++;
+          temp_pos.x--;
+          temp_pos.y--;
+      }
+      else
+      {
+          break;
+      }
+    }
+    if (numb_char >=4)
+       end_game_ = true;
 
       //проверка по вертикали вверх
-           numb_char = 1;
-           temp_pos.x = pos.x+1;
-           temp_pos.y = pos.y-1;
-           while ((temp_pos.x < width)&&(temp_pos.y > 0))
-           {
-             auto it = pair_pos.find(pos);
-             auto iter = pair_pos.find(temp_pos);
-                  if (iter->second == it->second)
-                    {
-                     numb_char++;
-                     temp_pos.x++;
-                     temp_pos.y--;
-                    }
-                  else
-                    {
-                     break;
-                    }
-           }
-           temp_pos.x = pos.x-1;
-           temp_pos.y = pos.y+1;
-           while ((temp_pos.x > 0)&&(temp_pos.y < height))
-           {
-             auto it = pair_pos.find(pos);
-             auto iter = pair_pos.find(temp_pos);
-                  if (iter->second == it->second)
-                    {
-                     numb_char++;
-                     temp_pos.x--;
-                     temp_pos.y++;
-                    }
-                  else
-                    {
-                     break;
-                    }
-           }
-           if (numb_char >=4)
-              end_game = true;
+    numb_char = 1;
+    temp_pos.x = pos_.x+1;
+    temp_pos.y = pos_.y-1;
+    while ((temp_pos.x < width)&&(temp_pos.y > 0))
+    {
+      auto it = pair_pos_.find(pos_);
+      auto iter = pair_pos_.find(temp_pos);
+      if (iter->second == it->second)
+      {
+          numb_char++;
+          temp_pos.x++;
+          temp_pos.y--;
+      }
+      else
+      {
+          break;
+      }
+    }
+    temp_pos.x = pos_.x-1;
+    temp_pos.y = pos_.y+1;
+    while ((temp_pos.x > 0)&&(temp_pos.y < height))
+    {
+      auto it = pair_pos_.find(pos_);
+      auto iter = pair_pos_.find(temp_pos);
+      if (iter->second == it->second)
+      {
+          numb_char++;
+          temp_pos.x--;
+          temp_pos.y++;
+      }
+      else
+      {
+          break;
+      }
+    }
+    if (numb_char >=4)
+        end_game_ = true;
 
   }
 
-  int port;
-  int listport;
-  struct sockaddr_in addr;
-  int sock, sock_lis;
-  std::map <point_t, char> pair_pos;
-  std::map <int, char> users;
-  bool end_game;
-  point_t pos;
-  std::string message;
-  std::string player_f;
-  std::string player_s;
-  point_t temp_pos;
-
+  int listen_port_;
+  struct sockaddr_in addr_;
+  int sock_;
+  std::map <point_t, char> pair_pos_;
+  bool end_game_;
+  point_t pos_;
+  char sumb_x_;
+  char sumb_o_;
 };
 
 int main()
@@ -346,75 +341,63 @@ int main()
   int port;
   std::cout << "Input your port\n";
   std::cin >> port;
-Plays plays;
+  Games games;
 
   int sock, listener;
   struct sockaddr_in addr;
-  char buf[1024];
+  std::string buf;
   int bytes_read;
   listener = socket(AF_INET, SOCK_STREAM, 0);
   if (listener < 0)
-    {
-      perror("socket");
-      exit(1);
-    }
-
+  {
+    perror("socket");
+    exit(1);
+  }
   addr.sin_family = AF_INET;
   addr.sin_port = htons(port);
   addr.sin_addr.s_addr = INADDR_ANY;
   if (bind(listener, (struct sockaddr *)&addr, sizeof(addr))<0)
-    {
-      perror("bind");
-      exit(2);
-    }
+  {
+    perror("bind");
+    exit(2);
+  }
   listen(listener, 2);
-  while(1)
-    {
 
-      plays.set_data();
-      while (!plays.finish_play())
-      {
-        plays.game();
+  std::cout << "x or o?\n";
+  char colibrate_sumb;
+  std::cin >> colibrate_sumb;
+  games.set_data(colibrate_sumb);
 
-      sock = accept(listener, NULL, NULL);
-      if(sock < 0)
-        {
-          perror("accept");
-          exit(3);
-        }
-
-      switch (fork())
-        {
-        case -1:
-          perror("fork");
-          break;
-        case 0:
-          close(listener);
-          while(1)
-            {
-
-
-              bytes_read = recv(sock, buf, 1024, 0);
-              if(bytes_read <= 0)
-                break;
-              std::cout << buf << std::endl;
-              send(sock, buf, bytes_read, 0);
-
-            }
-
-          close(sock);
-          _exit(0);
-
-        default:
-          {
-
-
-            close(sock);
-          }
-        }
-      }
-    }
-  plays.closing();
+  sock = accept(listener, NULL, NULL);
+  if(sock < 0)
+  {
+    perror("accept");
+    exit(3);
+  }
+  while (!games.finish_play())
+  {
+  if (colibrate_sumb == 'o')
+  {
+    char mes[buf.size()];
+    bytes_read = recv(sock, mes, sizeof(buf), 0);
+          if(bytes_read <= 0)
+            break;
+    send(sock, buf.c_str(), bytes_read, 0);
+    std::string sdr = mes;
+    games.send_data(sdr);
+    std::cout << "\033[2J\033[1;1H";
+  }
+    games.game();
+    char mes[buf.size()];
+    bytes_read = recv(sock, mes, sizeof(buf), 0);
+    if(bytes_read <= 0)
+      break;
+    send(sock, buf.c_str(), bytes_read, 0);
+    std::string sdr = mes;
+    games.send_data(sdr);
+  }
+  games.closing();
+  close(sock);
   close(listener);
   return 0;
 }
