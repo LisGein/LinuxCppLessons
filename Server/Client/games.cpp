@@ -19,11 +19,9 @@ bool point_t::operator< (point_t const &other) const
 	}
 
 Games::Games()
-  : end_game_(false)
   {
-
-    for (int i = 1; i <= width; ++i)
-      for (int j = 1; j <= height; ++j)
+    for (int i = 1; i <= WIDTH; ++i)
+      for (int j = 1; j <= HEIGHT; ++j)
       {
         pos_.x = j;
         pos_.y = i;
@@ -31,16 +29,21 @@ Games::Games()
       }
   }
 
- Games::~Games(){}
+Games::~Games(){}
 
-  void  Games::set_data(char &sumb, int &sock)
+  void Games::set_sock(int &sock)
   {
-    sumb_x_ = sumb;
-    if (sumb_x_ == 'x')
-      sumb_o_ = 'o';
+   sock_=sock;
+  }
+
+  void  Games::set_symb(char &symb)
+  {
+    my_symb_ = symb;
+    if (my_symb_ == 'x')
+      oponent_symb_ = 'o';
     else
-      sumb_o_ = 'x';
-    sock_=sock;
+      oponent_symb_ = 'x';
+    end_game_ = false;
   }
 
   void  Games::send_data(std::string &buf)
@@ -51,15 +54,18 @@ Games::Games()
     temp_mess = buf.substr(buf.find(";")+1);
     pos_.y = atoi (temp_mess.c_str());
     pair_pos_.erase(pos_);
-    pair_pos_.insert(std::pair<point_t, char>(pos_, sumb_o_));
+    pair_pos_.insert(std::pair<point_t, char>(pos_, oponent_symb_));
   }
 
-  void  Games::game()
+  std::string  Games::make_step()
   {
     std::cout << "\033[2J\033[1;1H";
+    pos_.x = WIDTH + 1;
+    pos_.y = HEIGHT + 1;
     out_play();
-    input_pos();
+    input_pos_ = input_pos();
     forming_check();
+    return input_pos_;
   }
 
   bool  Games::finish_play()
@@ -72,7 +78,7 @@ Games::Games()
     int id = 1;
     for (auto iter=pair_pos_.begin(); iter!=pair_pos_.end(); ++iter)
     {
-      if(id != width)
+      if(id != WIDTH)
       {
         std::cout << iter->second << " ";
         id++;
@@ -85,35 +91,30 @@ Games::Games()
     }
   }
 
-  void  Games::input_pos()
+  std::string Games::input_pos()
   {
     std::string message;
-    std::cout << "Input message" << std::endl;
-    std::cin >> message;
-    message += ";";
-    std::string temp_mess;
-    std::cin >> temp_mess;
-    message += temp_mess;
-
-    temp_mess = message.substr(0, message.find(";"));
-    pos_.x = atoi (temp_mess.c_str());
-    temp_mess = message.substr(message.find(";")+1);
-    pos_.y = atoi (temp_mess.c_str());
-
-    if ((pos_.x <=width)&&(pos_.y<=height))
+    while ((pos_.x > WIDTH)||(pos_.y > HEIGHT))
     {
-      send(sock_, message.c_str(), message.size() + 1, 0);
+      std::cout << "Input message" << std::endl;
+      std::cin >> message;
+      message += ";";
+      std::string temp_mess;
+      std::cin >> temp_mess;
+      message += temp_mess;
+
+      temp_mess = message.substr(0, message.find(";"));
+      pos_.x = atoi (temp_mess.c_str());
+      temp_mess = message.substr(message.find(";")+1);
+      pos_.y = atoi (temp_mess.c_str());
       std::cout << "\033[2J\033[1;1H";
-      pair_pos_.erase(pos_);
-      pair_pos_.insert(std::pair<point_t, char>(pos_, sumb_x_));
-      out_play();
+      if ((pos_.x > WIDTH)||(pos_.y > HEIGHT))
+        std::cout << "Invalid input. Try again:\n";
     }
-    else
-    {
-      std::cout << "\033[2J\033[1;1H";
-      std::cout << "Invalid input. Try again:\n";
-      input_pos();
-    }
+        pair_pos_.erase(pos_);
+        pair_pos_.insert(std::pair<point_t, char>(pos_, my_symb_));
+        out_play();
+        return message;
   }
 
   void  Games::forming_check()
@@ -124,7 +125,7 @@ Games::Games()
     temp_pos.y = pos_.y;
     temp_pos.x = pos_.x+1;
 
-    while(temp_pos.x < width)
+    while(temp_pos.x < WIDTH)
     {
       auto it =  pair_pos_.find(pos_);
       auto iter = pair_pos_.find(temp_pos);
@@ -161,7 +162,7 @@ Games::Games()
     numb_char = 1;
     temp_pos.y = pos_.y+1;
     temp_pos.x = pos_.x;
-    while(temp_pos.y < height)
+    while(temp_pos.y < HEIGHT)
     {
       auto it = pair_pos_.find(pos_);
       auto iter = pair_pos_.find(temp_pos);
@@ -197,7 +198,7 @@ Games::Games()
     numb_char = 1;
     temp_pos.x = pos_.x+1;
     temp_pos.y = pos_.y+1;
-    while ((temp_pos.x < width)&&(temp_pos.y < height))
+    while ((temp_pos.x < WIDTH)&&(temp_pos.y < HEIGHT))
     {
       auto it = pair_pos_.find(pos_);
       auto iter = pair_pos_.find(temp_pos);
@@ -236,7 +237,7 @@ Games::Games()
     numb_char = 1;
     temp_pos.x = pos_.x+1;
     temp_pos.y = pos_.y-1;
-    while ((temp_pos.x < width)&&(temp_pos.y > 0))
+    while ((temp_pos.x < WIDTH)&&(temp_pos.y > 0))
     {
       auto it = pair_pos_.find(pos_);
       auto iter = pair_pos_.find(temp_pos);
@@ -253,7 +254,7 @@ Games::Games()
     }
     temp_pos.x = pos_.x-1;
     temp_pos.y = pos_.y+1;
-    while ((temp_pos.x > 0)&&(temp_pos.y < height))
+    while ((temp_pos.x > 0)&&(temp_pos.y < HEIGHT))
     {
       auto it = pair_pos_.find(pos_);
       auto iter = pair_pos_.find(temp_pos);

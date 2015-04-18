@@ -1,5 +1,4 @@
-#pragma once
-#include "games.h"
+#include <string>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -7,21 +6,26 @@
 class NetworkClient
 {
 private:
-  Games games;
   int port_;
-  char colibrate_sumb_;
+  char player_symb_;
   int sock_server_, listener_;
   int bytes_read_;
   int listen_port_;
   struct sockaddr_in addr_;
   int sock_;
+  const int MAX_LEN_RANDOM = 10;
+  std::string buf_;
 
 public:
   NetworkClient();
   ~NetworkClient();
-  void connecting();
-  void send_recv();
-  void end_connect();
+  void create_serv(int &port_);
+  void create_connect(int &listen_port_);
+  int return_sock();
+  char selection_first_player(int &input_symb);
+  void send_data(std::string &input_pos, std::string &finish_game)
+  ;
+  std::string recv_data();
 };
 
 

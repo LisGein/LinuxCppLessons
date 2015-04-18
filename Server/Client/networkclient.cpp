@@ -3,18 +3,20 @@
 #include <cstdio>
 #include <cstdlib>
 #include <sstream>
-
+#include <cctype>
 
   NetworkClient::NetworkClient()
+
   {}
   NetworkClient::~NetworkClient()
-  {}
-  void NetworkClient::connecting()
   {
-    std::cout << "Input your port\n";
-    std::cin >> port_;
-    std::cout << "Input port second player\n";
-    std::cin >> listen_port_;
+    close(sock_);
+    close(sock_server_);
+    close(listener_);
+  }
+
+  void NetworkClient::create_serv(int &port_)
+  {
     listener_ = socket(AF_INET, SOCK_STREAM, 0);
     if (listener_ < 0)
     {
@@ -31,12 +33,13 @@
     }
     listen(listener_, 2);
     addr_.sin_family = AF_INET;
+  }
+
+  void NetworkClient::create_connect(int &listen_port_)
+  {
     addr_.sin_port = htons(listen_port_);
     addr_.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
     sock_ = socket(AF_INET, SOCK_STREAM, 0);
-    std::cout << "x or o?\n";
-    std::cin >> colibrate_sumb_;
-    games.set_data(colibrate_sumb_, sock_);
     if(sock_ < 0)
     {
       perror("socket");
@@ -55,29 +58,35 @@
     }
   }
 
-  void NetworkClient::send_recv()
+  int NetworkClient::return_sock()
   {
-    std::string buf;
-    if (colibrate_sumb_ == 'o')
-    {
-      char mes[buf.size()];
-      bytes_read_ = recv(sock_server_, mes, sizeof(buf), 0);
-      std::string sdr = mes;
-      games.send_data(sdr);
-      colibrate_sumb_ = 'x';
-      std::cout << "\033[2J\033[1;1H";
-    }
-    games.game();
-    char mes[buf.size()];
-    bytes_read_ = recv(sock_server_, mes, sizeof(buf), 0);
-    send(sock_server_, buf.c_str(), bytes_read_, 0);
-    std::string sdr = mes;
-    games.send_data(sdr);
+    return sock_;
   }
 
-  void NetworkClient::end_connect()
+  char NetworkClient::selection_first_player(int &random_numb)
   {
-    close(sock_);
-    close(sock_server_);
-    close(listener_);
+    char buf[MAX_LEN_RANDOM];
+    sprintf(buf, "%d", random_numb);
+    send(sock_, buf, MAX_LEN_RANDOM, 0);
+    recv(sock_server_, buf, sizeof(buf), 0);
+    int random_oponent = atoi (buf);
+    if (random_numb > random_oponent)
+       player_symb_ = 'x';
+    else
+       player_symb_ = 'o';
+    return player_symb_;
+  }
+
+  void NetworkClient::send_data(std::string &input_pos, std::string &finish_game)
+  {
+    send(sock_, input_pos.c_str(), input_pos.size() + 1, 0);
+    send(sock_, finish_game.c_str(), finish_game.size() + 1, 0);
+  }
+
+  std::string NetworkClient::recv_data()
+  {
+    char mes[buf_.size()];
+    bytes_read_ = recv(sock_server_, mes, sizeof(buf_), 0);
+    std::string messege = mes;
+    return messege;
   }
