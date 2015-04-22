@@ -13,7 +13,7 @@ private:
   int listen_port_;
   struct sockaddr_in addr_;
   int sock_;
-  const int MAX_LEN_RANDOM = 10;
+  const int MAX_LEN_RANDOM = 1;
   std::string buf_;
 
 public:
@@ -21,10 +21,8 @@ public:
   ~NetworkClient();
   void create_serv(int &port_);
   void create_connect(int &listen_port_);
-  int return_sock();
   char selection_first_player(int &input_symb);
-  void send_data(std::string &input_pos, std::string &finish_game)
-  ;
+  void send_data(std::string &input_pos, std::string &finish_game);
   std::string recv_data();
 };
 

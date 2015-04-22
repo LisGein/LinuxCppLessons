@@ -58,11 +58,6 @@
     }
   }
 
-  int NetworkClient::return_sock()
-  {
-    return sock_;
-  }
-
   char NetworkClient::selection_first_player(int &random_numb)
   {
     char buf[MAX_LEN_RANDOM];

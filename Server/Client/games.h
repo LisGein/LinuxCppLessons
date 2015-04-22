@@ -38,12 +38,10 @@ private:
   
   const int WIDTH = 12;
   const int HEIGHT = 12;
-  int sock_;
   std::string input_pos_;
   std::map <point_t, char> pair_pos_;
   bool end_game_;
   point_t pos_;
-  char player_symb_;
   char my_symb_;
   char oponent_symb_;
   point_t temp_pos;

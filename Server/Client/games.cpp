@@ -31,10 +31,7 @@ Games::Games()
 
 Games::~Games(){}
 
-  void Games::set_sock(int &sock)
-  {
-   sock_=sock;
-  }
+
 
   void  Games::set_symb(char &symb)
   {

@@ -20,8 +20,6 @@ int main()
   std::cout << "Input port second player\n";
   std::cin >> listen_port;
   client.create_connect(listen_port);
-  int sock = client.return_sock();
-  games.set_sock(sock);
   char player_symb = client.selection_first_player(random_numb);
   games.set_symb(player_symb);
   std::string status_game;
@@ -36,21 +34,21 @@ int main()
           player_symb = 'x';
       }
     std::string input_pos = games.make_step();
-    if (games.finish_play() == true)
-      status_game = "1";
+//    if (games.finish_play() == true)
+//      status_game = "1";
     client.send_data(input_pos, status_game);
-    if (status_game == "1")
-      {
-        std::cout << "You win!\n";
-        break;
-      }
+//    if (status_game == "1")
+//      {
+//        std::cout << "You win!\n";
+//        break;
+//      }
     std::string buf = client.recv_data();
-    status_game = client.recv_data();
-    if (status_game == "1")
-      {
-        std::cout << "You lose!\n";
-        break;
-      }
+//    status_game = client.recv_data();
+//    if (status_game == "1")
+//      {
+//        std::cout << "You lose!\n";
+//        break;
+//      }
     games.send_data(buf);
   }
   return 0;
