@@ -1,10 +1,10 @@
 #pragma once
 
-struct Point_t
+struct point_t
 {
-	Point_t();
-	Point_t(int x, int y);
-	bool operator< (Point_t const &other) const;
+	point_t();
+	point_t(int x, int y);
+	bool operator< (point_t const &other) const;
 	int x;
 	int y;
 };

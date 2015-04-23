@@ -5,7 +5,6 @@ CONFIG -= qt
 
 SOURCES += main.cpp \
     networkclient.cpp \
-    iconnection.cpp \
     game.cpp \
     networkserver.cpp \
     point_t.cpp

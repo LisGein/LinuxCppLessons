@@ -19,11 +19,10 @@ class NetworkServer
 public:
   NetworkServer(int port);
   ~NetworkServer();
-  bool first_step();
-  void send_step(std::string &input_pos);
-  point_t revc_step();
+  bool first_turn();
+  void send_step(point_t const &input_pos);
+  point_t recv_step();
 private:
-  Point_t point_t;
   int port_;
   int sock_;
   int listener_;

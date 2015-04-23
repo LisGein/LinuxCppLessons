@@ -6,7 +6,7 @@ Game::Game(IConnection *connection)
   :end_game_(false)
   , connection_(connection)
 {
-  if(connection_->first_step())
+  if(connection_->first_turn())
     {
     player_symb_ = 'x';
     op_symb_ = 'o';
@@ -35,7 +35,7 @@ void Game::make_step()
 {
   if (second_player_ == true)
     {
-      pos_ = (connection_->revc_step());
+      pos_ = (connection_->recv_step());
       send_data(pos_);
       second_player_ = false;
     }
@@ -44,9 +44,9 @@ void Game::make_step()
   pos_.y = HEIGHT + 1;
   input_pos();
   forming_check();
-  connection_->send_step(input_pos_);
+  connection_->send_step(pos_);
 
-  pos_ = connection_->revc_step();
+  pos_ = connection_->recv_step();
   send_data(pos_);
   forming_check();
 
@@ -76,7 +76,7 @@ void Game::send_data(point_t &pos_)
 
 void Game::input_pos()
 {
-  std::string message;
+    std::string message;
   while ((pos_.x > WIDTH)||(pos_.y > HEIGHT))
   {
     std::cout << "Input message" << std::endl;
@@ -97,7 +97,6 @@ void Game::input_pos()
       pair_pos_.erase(pos_);
       pair_pos_.insert(std::pair<point_t, char>(pos_, player_symb_));
       show_result();
-
 }
 
 void  Game::forming_check()
