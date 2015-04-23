@@ -39,9 +39,11 @@ bool NetworkClient::first_step()
   return my_roll > op_roll;
 
 }
-void NetworkClient::send_step(std::string &input_pos)
+void NetworkClient::send_step(point_t const & pos)
 {
-  send(sock_, input_pos.c_str(), input_pos.size() + 1, 0);
+  std::string msg;
+  // сериализация pos должна быть тут
+  send(sock_, msg.c_str(), msg.size() + 1, 0);
 }
 point_t NetworkClient::revc_step()
 {
@@ -50,7 +52,7 @@ point_t NetworkClient::revc_step()
   std::string buf = messege;
   std::string temp_mess;
   temp_mess = buf.substr(0, buf.find(";"));
-  point pos;
+  point_t pos;
   pos.x = atoi (temp_mess.c_str());
   temp_mess = buf.substr(buf.find(";")+1);
   pos.y = atoi (temp_mess.c_str());

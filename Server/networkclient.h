@@ -21,10 +21,10 @@ public:
   NetworkClient(int port);
   ~NetworkClient();
   bool first_step();
-  void send_step(std::string &input_pos);
+  void send_step(const point_t &pos);
   point_t revc_step();
 private:
-  Point_t point_t;
+  point_t point_;
   int port_;
   int sock_;
   int listener_;

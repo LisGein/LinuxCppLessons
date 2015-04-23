@@ -20,7 +20,7 @@ public:
 
 private:
   IConnection *connection_;
-  Point_t point_t;
+  point_t point_;
   bool end_game_;
   char player_symb_;
   bool second_player_;

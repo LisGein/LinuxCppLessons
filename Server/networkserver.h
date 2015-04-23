@@ -20,10 +20,10 @@ public:
   NetworkServer(int port);
   ~NetworkServer();
   bool first_step();
-  void send_step(std::string &input_pos);
+  void send_step(point_t const & pos);
   point_t revc_step();
 private:
-  Point_t point_t;
+  point_t point_;
   int port_;
   int sock_;
   int listener_;

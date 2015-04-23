@@ -33,22 +33,22 @@ bool Game::finish()
 }
 void Game::make_step()
 {
-  if (second_player_ == true)
+    if (second_player_ == true)
     {
-      pos_ = (connection_->revc_step());
-      send_data(pos_);
-      second_player_ = false;
+        pos_ = (connection_->revc_step());
+        send_data(pos_);
+        second_player_ = false;
     }
-  std::cout << "\033[2J\033[1;1H";
-  pos_.x = WIDTH + 1;
-  pos_.y = HEIGHT + 1;
-  input_pos();
-  forming_check();
-  connection_->send_step(input_pos_);
+    std::cout << "\033[2J\033[1;1H";
+    pos_.x = WIDTH + 1;
+    pos_.y = HEIGHT + 1;
+    input_pos();
+    forming_check();
+    connection_->send_step(pos_);
 
-  pos_ = connection_->revc_step();
-  send_data(pos_);
-  forming_check();
+    pos_ = connection_->revc_step();
+    send_data(pos_);
+    forming_check();
 
 }
 void Game::show_result()
