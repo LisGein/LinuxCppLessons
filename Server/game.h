@@ -16,21 +16,22 @@ public:
   ~Game();
   bool finish();
   void make_step();
+  void show_result();
 
 private:
+  IConnection *connection_;
+  point_t point_;
+  bool end_game_;
+  char player_symb_;
+  bool second_player_;
+  char op_symb_;
   const int WIDTH = 12;
   const int HEIGHT = 12;
-  IConnection *connection_;
-  bool end_game_;
-  bool second_player_;
-  char player_symb_;
-  char op_symb_;
-  std::vector<point_t> directions;
   std::string input_pos_;
   std::map <point_t, char> pair_pos_;
   point_t pos_;
+  point_t temp_pos;
 
-  void show_result();
   void send_data(point_t &pos_);
   void input_pos();
   void forming_check();

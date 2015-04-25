@@ -24,11 +24,11 @@ public:
   point_t recv_step();
 private:
   int port_;
-  int sock_, sock_list_;
+  int sock_;
   int listener_;
   int bytes_read_;
   struct sockaddr_in addr_;
   std::string buf_;
-  const int MAX_LEN_RANDOM = 2;
+  const int MAX_LEN_RANDOM = 1;
 };
 

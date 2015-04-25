@@ -30,7 +30,6 @@ private:
   int listener_;
   int bytes_read_;
   struct sockaddr_in addr_;
-
   std::string buf_;
-  const int MAX_LEN_RANDOM = 2;
+  const int MAX_LEN_RANDOM = 1;
 };
