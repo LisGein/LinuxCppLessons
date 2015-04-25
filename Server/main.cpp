@@ -16,8 +16,8 @@ int main(int argc, char ** argv)
     connection.reset(new NetworkClient(atoi(argv[2])));
   Game game(connection.get());
   while(!game.finish())
-  {
-    game.make_step();
-  }
+    {
+      game.make_step();
+    }
   return 0;
 }

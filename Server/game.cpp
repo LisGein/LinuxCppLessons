@@ -19,6 +19,8 @@ Game::Game(IConnection *connection)
       second_player_ = true;
     }
 
+  std::cout << "\033[2J\033[1;1H"
+            << "You symb:" << player_symb_ << std::endl;;
   for (int i = 1; i <= WIDTH; ++i)//заполнения поля для игры
     for (int j = 1; j <= HEIGHT; ++j)
       {
@@ -51,11 +53,12 @@ void Game::make_step()
 {
   if (second_player_ == true)
     {
+      show_result();
       pos_ = (connection_->recv_step());
       send_data(pos_);
       second_player_ = false;
     }
-  std::cout << "\033[2J\033[1;1H";
+  show_result();
   pos_.x = WIDTH + 1;
   pos_.y = HEIGHT + 1;
   input_pos();
@@ -63,14 +66,28 @@ void Game::make_step()
   connection_->send_step(pos_);
   if (!end_game_)
     {
+      show_result();
       pos_ = connection_->recv_step();
       send_data(pos_);
       forming_check();
+      show_result();
+      if (end_game_)
+        std::cout << "You lose\n"
+                  << "You symb:" << player_symb_
+                  << std::endl;
+    }
+  else
+    {
+      show_result();
+      std::cout << "You win\n"
+                << "You symb:" << player_symb_
+                << std::endl;
     }
 }
 
 void Game::show_result()
 {
+  std::cout << "\033[2J\033[1;1H";
   int id = 1;
   for (auto iter=pair_pos_.begin(); iter!=pair_pos_.end(); ++iter)
     {
@@ -99,6 +116,7 @@ void Game::input_pos()
   while ((pos_.x > WIDTH)||(pos_.y > HEIGHT))
     {
       std::cout << "Input message" << std::endl;
+      std::cout <<  "You symb:" << player_symb_ << std::endl;
       std::cin >> message;
       message += ";";
       std::string temp_mess;
@@ -109,13 +127,23 @@ void Game::input_pos()
       pos_.x = atoi (temp_mess.c_str());
       temp_mess = message.substr(message.find(";")+1);
       pos_.y = atoi (temp_mess.c_str());
-      std::cout << "\033[2J\033[1;1H";
-      if ((pos_.x > WIDTH)||(pos_.y > HEIGHT))
-        std::cout << "Invalid input. Try again:\n";
+
+      auto iter = pair_pos_.find(pos_);
+      if(iter->second != '*')
+        {
+          show_result();
+          std::cout << "Invalid input. Try again:\n";
+          pos_.x = WIDTH+1;
+          pos_.y = HEIGHT+1;
+        }
+      else if ((pos_.x > WIDTH)||(pos_.y > HEIGHT))
+        {
+          show_result();
+          std::cout << "Invalid input. Try again:\n";
+        }
     }
   pair_pos_.erase(pos_);
   pair_pos_.insert(std::pair<point_t, char>(pos_, player_symb_));
-  show_result();
 }
 
 void  Game::forming_check()
@@ -141,7 +169,9 @@ void  Game::forming_check()
           else
             {
               if (numb_char >=4)
-                end_game_ = true;
+                {
+                  end_game_ = true;
+                }
               if (sign % 2 == 0)
                 numb_char = 1;
               break;

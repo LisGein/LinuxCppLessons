@@ -19,7 +19,7 @@ class NetworkClient
 {
 public:
   NetworkClient(int port);
-  ~NetworkClient(); 
+  ~NetworkClient();
   bool first_turn();
   void send_step(point_t const &input_pos);
   point_t recv_step();
