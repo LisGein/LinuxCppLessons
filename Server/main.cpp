@@ -9,8 +9,6 @@
 int main(int argc, char ** argv)
 {
   std::string role(argv[1]);
-  std::cout << "Input cmd\n";
-  std::cin >> role;
   std::unique_ptr<IConnection> connection;
   if (role == "host")
     connection.reset(new NetworkServer(atoi(argv[2])));
@@ -21,6 +19,5 @@ int main(int argc, char ** argv)
   {
     game.make_step();
   }
-  game.show_result();
   return 0;
 }
