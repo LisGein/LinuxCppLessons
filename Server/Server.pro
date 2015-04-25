@@ -7,13 +7,14 @@ SOURCES += main.cpp \
     networkclient.cpp \
     game.cpp \
     networkserver.cpp \
-    point_t.cpp
+    point_t.cpp \
+    baseconnection.cpp
 
 QMAKE_CXXFLAGS += -std=c++0x
 
 HEADERS += \
     networkclient.h \
-    iconnection.h \
     game.h \
     networkserver.h \
-    point_t.h
+    point_t.h \
+    baseconnection.h

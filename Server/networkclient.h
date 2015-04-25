@@ -1,5 +1,5 @@
 #pragma once
-#include "iconnection.h"
+#include "baseconnection.h"
 #include <random>
 #include <string>
 #include <iostream>
@@ -15,21 +15,21 @@
 #include "point_t.h"
 
 class NetworkClient
-    :public IConnection
+        :public BaseConnection
 {
 public:
-  NetworkClient(int port);
-  ~NetworkClient();
-  bool first_turn();
-  void send_step(point_t const &input_pos);
-  point_t recv_step();
+    NetworkClient(int port);
+    ~NetworkClient();
+    bool first_turn();
+    void send_step(point_t const &input_pos);
+    point_t recv_step();
 private:
-  point_t point_;
-  int port_;
-  int sock_;
-  int listener_;
-  int bytes_read_;
-  struct sockaddr_in addr_;
-  std::string buf_;
-  const int MAX_LEN_RANDOM = 1;
+    point_t point_;
+    int port_;
+    int listener_;
+    int bytes_read_;
+    struct sockaddr_in addr_;
+
+    std::string buf_;
+    const int MAX_LEN_RANDOM = 10;
 };

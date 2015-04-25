@@ -1,5 +1,5 @@
 #pragma once
-#include "iconnection.h"
+#include "baseconnection.h"
 #include <cstring>
 #include <utility>
 #include <vector>
@@ -12,29 +12,26 @@
 class Game
 {
 public:
-  Game(IConnection *iconnection);
-  ~Game();
-  bool finish();
-  void make_step();
-  void show_result();
-
+    Game(BaseConnection *iconnection);
+    ~Game();
+    bool finish();
+    void make_step();
 private:
-  IConnection *connection_;
-  point_t point_;
-  bool end_game_;
-  char player_symb_;
-  bool second_player_;
-  char op_symb_;
-  const int WIDTH = 12;
-  const int HEIGHT = 12;
-  std::string input_pos_;
-  std::map <point_t, char> pair_pos_;
-  point_t pos_;
-  point_t temp_pos;
-
-  void send_data(point_t &pos_);
-  void input_pos();
-  void forming_check();
+    void put_symbol_on_field(const point_t &pos, char symb);
+    void make_oponent_step();
+    void make_my_step();
+    void draw_field();
+    point_t read_pos();
+    void check_win_combination(const point_t &pos);
+private:
+    const int WIDTH = 5;
+    const int HEIGHT = 5;
+    std::vector<point_t> directions;
+private:
+    bool end_game_;
+    BaseConnection *connection_;
+    bool first_player_;
+    std::map <point_t, char> pair_pos_;
 };
 
 
