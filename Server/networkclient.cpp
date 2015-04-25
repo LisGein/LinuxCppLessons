@@ -30,18 +30,15 @@ NetworkClient::~NetworkClient()
 
 bool NetworkClient::first_turn()
 {
-    return true;
     char op_roll;
-    int len = recv(sock_, &op_roll, 1, 0);
-    std::cout << "first recv returns " << len << std::endl;
+    recv(sock_, &op_roll, 1, 0);
 
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<int> random_range(0, 255);
+    std::uniform_int_distribution<int> random_range(0, 128);
     char my_roll = random_range(gen);
     send(sock_, &my_roll, 1, 0);
-
-    return my_roll > op_roll;
+    return my_roll-0 > op_roll-0;
 
 }
 

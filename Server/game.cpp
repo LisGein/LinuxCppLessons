@@ -7,6 +7,10 @@ Game::Game(BaseConnection *connection)
     , connection_(connection)
 {
     first_player_ = connection_->first_turn();
+    if (first_player_)
+      player_step_ = true;
+    else
+      player_step_ = false;
 
     std::cout << "first_turn = " << first_player_<< std::endl;
 
@@ -46,6 +50,8 @@ void Game::make_oponent_step()
     put_symbol_on_field(pos, (!first_player_) ? 'X' : 'O');
     draw_field();
     check_win_combination(pos);
+    if (end_game_)
+      std::cout << "You lose!\n";
 }
 
 void Game::make_my_step()
@@ -55,18 +61,21 @@ void Game::make_my_step()
     put_symbol_on_field(pos, first_player_ ? 'X' : 'O');
     draw_field();
     check_win_combination(pos);
+    if (end_game_)
+      std::cout << "You win!\n";
 }
 void Game::make_step()
 {
-    if (first_player_)
+  if (player_step_)
     {
-        make_my_step();
-        make_oponent_step();
+      make_my_step();
+      player_step_ = false;
+
     }
-    else
+  else
     {
-        make_oponent_step();
-        make_my_step();
+      make_oponent_step();
+      player_step_ = true;
     }
 }
 
@@ -87,6 +96,8 @@ void Game::draw_field()
             id=1;
         }
     }
+    std::cout << "You symbol - "
+                 <<(first_player_ ? 'X' : 'O')<<std::endl;
 }
 
 void Game::put_symbol_on_field(point_t const & pos, char symb)
@@ -103,7 +114,8 @@ point_t Game::read_pos()
         std::cout << "Your turn:" << std::endl;
         std::cin >> pos.x >> pos.y;
 
-        if ((pos.x > WIDTH)||(pos.y > HEIGHT))
+        auto it =  pair_pos_.find(pos);
+        if ((it->second != '*')||(pos.x > WIDTH)||(pos.y > HEIGHT))
             std::cout << "Invalid input. Try again:\n";
         else
             return pos;

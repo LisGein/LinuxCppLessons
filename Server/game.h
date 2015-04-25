@@ -24,13 +24,14 @@ private:
     point_t read_pos();
     void check_win_combination(const point_t &pos);
 private:
-    const int WIDTH = 5;
-    const int HEIGHT = 5;
+    const int WIDTH = 12;
+    const int HEIGHT = 12;
     std::vector<point_t> directions;
 private:
     bool end_game_;
     BaseConnection *connection_;
     bool first_player_;
+    bool player_step_;
     std::map <point_t, char> pair_pos_;
 };
 
