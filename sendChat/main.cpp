@@ -29,7 +29,7 @@ int main()
       exit(2);
     }
 
-  std::string nickName;
+  /*std::string nickName;
   do
     {
       std::cout << "Input nick\n"
@@ -52,7 +52,7 @@ int main()
         }
 
       start += len;
-    }
+    }*/
   std::string message;
   while (true)
     {

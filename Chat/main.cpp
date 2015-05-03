@@ -26,7 +26,7 @@ int main()
       perror("connect");
       exit(2);
     }
-  std::string message = "nameChat";
+  /*std::string message = "nameChat";
   unsigned char size_byte = message.size();
   message.insert(message.begin(), size_byte);
 
@@ -40,7 +40,7 @@ int main()
           exit(5);
         }
       start += len;
-    }
+    }*/
   while (true)
     {
       char buf[100];
