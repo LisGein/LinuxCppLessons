@@ -22,7 +22,7 @@ NetworkServer::NetworkServer(int port)
         exit(7);
     }
 
-    if (bind(listener_, (struct sockaddr *)&addr, sizeof(addr))<0)
+    if (bind(listener_, (struct sockaddr *)&addr, sizeof(addr)) < 0)
     {
         perror("bind");
         exit(2);
