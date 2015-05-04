@@ -10,112 +10,79 @@
 #include <utility>//for pair
 
 typedef std::pair<int, std::string> pairMap;
+typedef std::pair<unsigned char, std::string> pairMapMess;
 
 int main()
 {
-  int listener;
-  struct sockaddr_in addr;
-  int bytes_read;
+  int listener_;
+  int bytes_read_;
 
-  listener = socket(AF_INET, SOCK_STREAM, 0);
-  if(listener < 0)
+  listener_ = socket(AF_INET, SOCK_STREAM, 0);
+  if(listener_ < 0)
     {
       perror("socket");
       exit(1);
     }
+  struct sockaddr_in addr;
   addr.sin_family = AF_INET;
   addr.sin_port = htons(3425);
   addr.sin_addr.s_addr = INADDR_ANY;
-  if(bind(listener, (struct sockaddr *)&addr, sizeof(addr)) < 0)
+  if(bind(listener_, (struct sockaddr *)&addr, sizeof(addr)) < 0)
     {
       perror("bind");
       exit(2);
     }
+  listen(listener_, 2);
+  pollfd fds_[10];
+  memset(fds_, 0 , sizeof(fds_));
+  fds_[0].fd = listener_;
+  fds_[0].events = POLLIN;
+  std::map <int, std::string> clients_;
+  int timeout_ = -1;
 
-  listen(listener, 2);
-  //fcntl(listener, F_SETFL, O_NONBLOCK);
+  int id_ = 1;
 
-  pollfd fds[4];
-  int nfds = 10;
-  memset(fds, 0 , sizeof(fds));
-  fds[0].fd = listener;
-  fds[0].events = POLLIN;
-  std::map <int, std::string> clients;
-  clients.clear();
-  int timeout = -1;
-  pairMap tempPair;
-  int id = 0;
+
   while(true)
     {
-      //if(
-         poll(fds, nfds, timeout);//<= 0)
-       // {
-        //  perror("  poll() failed");
-         // exit(3);
-       //}
-      if (fds[0].revents & POLLIN)
+      poll(fds_, id_, timeout_);
+      if (fds_[0].revents & POLLIN)
         {
-          int sock = accept(listener, NULL, NULL);
-          id++;
-          fds[id].fd = sock;
-          fds[id].events = POLLIN||POLLOUT;
-          fds[id].revents = 0;
+          int sock = accept(listener_, NULL, NULL);
+          fds_[id_].fd = sock;
+          fds_[id_].events = POLLIN||POLLOUT;
+          fds_[id_].revents = 0;
           std::string nameUser = "unknown";
-          tempPair = std::make_pair(sock, nameUser);
-          clients.insert(tempPair);
+          pairMap tempPair = std::make_pair(sock, nameUser);
+          clients_.insert(tempPair);
+          id_++;
           std::cout << "connected\n";
         }
-      char buf[10];
-      bool first_recv;
-      unsigned char size;
-      for (int it = 1; it < nfds; it++)
-         {
-          if (fds[it].revents & POLLIN)
+      for (int it = 0; it < id_; it++)
+        {
+          if (fds_[it].revents & POLLIN)
             {
-              first_recv = true;
-              size = 0;
-              std::string msg;
-              bytes_read = recv(fds[it].fd, buf, 10, 0);
-              if(bytes_read > 0)
+              char buf_[100];
+              bytes_read_ = recv(fds_[it].fd, buf_, 100, 0);
+              if(bytes_read_ > 0)
                 {
-                  do
+
+                  std::string msg_;
+                  msg_.insert(msg_.end(), buf_, buf_ + bytes_read_);
+
+                  std::string messageSend = msg_;
+
+                  std::cout << messageSend;
+                  unsigned char size_byte = messageSend.size();
+                  messageSend.insert(messageSend.begin(), size_byte);
+                  for (std::map<int, std::string>::iterator is=clients_.begin(); is!=clients_.end(); ++is)
                     {
-                      if(first_recv)
-                        {
-                          size = buf[0];
-                          msg.insert(msg.end(), buf + 1, buf + bytes_read);
-                          first_recv = false;
-                        }
-                      else
-                        msg.insert(msg.end(), buf, buf + bytes_read);
-                    } while (msg.size() < size);
-
-                  std::string msg1 = clients.find(fds[it].fd)->second + ": " +
-                      msg + "\n";
-
-                  std::cout << msg1;
-                  unsigned char size_byte = msg1.size();
-                  msg1.insert(msg1.begin(), size_byte);
-
-                  size_t start = 0;
-                  for (std::map<int, std::string>::iterator is=clients.begin(); is!=clients.end(); ++is)
-                    {
-                      while (start != msg1.size())
-                        {
-                          int len = send(is->first, msg1.c_str() + start, msg1.size() - start, 0);
-                          if (len < 0)
-                            {
-                              perror("send failed");
-                              exit(5);
-                            }
-
-                          start += len;
-                        }
+                      send(is->first, messageSend.c_str(), messageSend.size()+1, 0);
                     }
                 }
             }
         }
     }
-  close(listener);
+  close(listener_);
   return 0;
 }

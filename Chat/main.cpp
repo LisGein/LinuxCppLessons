@@ -50,18 +50,21 @@ int main()
       int bytes_read = recv(sock, buf, 100, 0);
       if(bytes_read > 0)
         {
-          do
-            {
-              if(first_recv)
-                {
-                  size = buf[0];
-                  msg.insert(msg.end(), buf + 1, buf + bytes_read);
-                  first_recv = false;
-                }
-              else
+          //do
+           // {
+              //if(first_recv)
+                //{
+                  //size = buf[0];
+                  //msg.insert(msg.end(), buf , buf + bytes_read);
+                  //first_recv = false;
+               // }
+              //else
                 msg.insert(msg.end(), buf, buf + bytes_read);
-            } while (msg.size() < size);
-          std::cout << msg;
+           // } while (msg.size() < size);
+                 // msg = buf;
+                std::string asd = msg;
+          std::cout << "message:" << asd;
+
         }
     }
   close(sock);

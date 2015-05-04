@@ -63,7 +63,7 @@ int main()
       size_t start = 0;
       while (start != message.size())
         {
-          int len = send(sock, message.c_str() + start, message.size() - start, 0);
+          int len = send(sock, message.c_str() + start, message.size()+1 - start, 0);
           if (len < 0)
             {
               perror("send failed");
@@ -72,6 +72,8 @@ int main()
 
           start += len;
         }
+      char buf[10];
+      recv(sock, buf, 10, 0);
     }
   close(sock);
   return 0;
