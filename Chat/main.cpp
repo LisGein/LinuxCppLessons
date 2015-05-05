@@ -59,11 +59,11 @@ int main()
                   //first_recv = false;
                // }
               //else
-                msg.insert(msg.end(), buf, buf + bytes_read);
+
            // } while (msg.size() < size);
-                 // msg = buf;
+                  msg = buf;
                 std::string asd = msg;
-          std::cout << "message:" << asd;
+          std::cout << "message:" << asd << std::endl;
 
         }
     }

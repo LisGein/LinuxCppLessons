@@ -58,20 +58,10 @@ int main()
     {
       std::cout <<"Input message:\n";
       std::cin >> message;
-      unsigned char size_byte = message.size();
-      message.insert(message.begin(), size_byte);
-      size_t start = 0;
-      while (start != message.size())
-        {
-          int len = send(sock, message.c_str() + start, message.size()+1 - start, 0);
-          if (len < 0)
-            {
-              perror("send failed");
-              exit(5);
-            }
 
-          start += len;
-        }
+
+       send(sock, message.c_str(), message.size()+1, 0);
+
       char buf[10];
       recv(sock, buf, 10, 0);
     }
