@@ -28,42 +28,20 @@ int main()
       perror("connect");
       exit(2);
     }
-
-  /*std::string nickName;
-  do
-    {
-      std::cout << "Input nick\n"
-                << "Your nickname must be less than 12 characters!\n";
-      std::cin >> nickName;
-    }  while (nickName.size() > 12);
-
-  std::string msg = nickName;
-  unsigned char size_byte = msg.size();
-  msg.insert(msg.begin(), size_byte);
-
-  size_t start = 0;
-  while (start != msg.size())
-    {
-      int len = send(sock, msg.c_str() + start, msg.size() - start, 0);
-      if (len < 0)
-        {
-          perror("send failed");
-          exit(5);
-        }
-
-      start += len;
-    }*/
+  std::string nickName;
+    do
+      {
+        std::cout << "Input nick\n"
+                  << "Your nickname must be less than 12 characters!\n";
+        std::cin >> nickName;
+        send(sock, nickName.c_str(), nickName.size(), 0);
+      }  while (nickName.size() > 12);
   std::string message;
+  std::cout <<"Input message:\n";
   while (true)
     {
-      std::cout <<"Input message:\n";
-      std::cin >> message;
-
-
-       send(sock, message.c_str(), message.size()+1, 0);
-
-      char buf[10];
-      recv(sock, buf, 10, 0);
+      std::getline(std::cin, message);
+      send(sock, message.c_str(), message.size()+1, 0);
     }
   close(sock);
   return 0;

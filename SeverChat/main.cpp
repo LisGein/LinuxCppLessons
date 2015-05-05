@@ -1,7 +1,6 @@
 #include <netinet/in.h>
 #include <stdio.h>//for perror
 #include <unistd.h>//for close sock
-#include <fcntl.h>//for non-block
 #include <algorithm>//for exit
 #include <map>
 #include <sys/poll.h>
@@ -51,13 +50,16 @@ public:
     for (int i = 1; i < id_; i++)
       if (fds_[i].revents & POLLIN)
         {
-          buf_[BUFFER_SIZE] = '\0';
+          buf_[BUFFER_SIZE] = '\000';
           bytes_read_ = recv(fds_[i].fd, buf_, BUFFER_SIZE, 0);
 
           start = buf_;
           while (bytes_read_ > 0)
             {
-              message_recv(i);
+              if (clients_[fds_[i].fd] == "0unknown")
+                add_nick(i);
+              else
+                message_recv(i);
             }
         }
   }
@@ -68,30 +70,58 @@ private:
     fds_[id_].fd = sock;
     fds_[id_].events = POLLIN||POLLOUT;
     fds_[id_].revents = 0;
-    std::string nameUser = "unknown";
-    clients_[sock] = nameUser;
+    std::string temp_nick = "0unknown";
+    clients_[sock] = temp_nick;
     id_++;
     std::cout << "connected\n";
 
   }
 
-  void message_send(std::string &my_msg)
+  void add_nick(int &i)
   {
-    for (std::map<int, std::string>::iterator is=clients_.begin(); is!=clients_.end(); ++is)
-      {
-        send(is->first, my_msg.c_str(), my_msg.size()+1, 0);
-      }
-  }
-
-  void message_recv(int &i)
-  {
-
     int len_msg = strlen(start);
     size_t msg_len = std::min(bytes_read_, len_msg); //мин из размера пришедшего сообщения и сообщения в буфере до \0
     std::string & my_msg = clients_messages_[fds_[i].fd]; //ссылка(!) для сокращения записи
     my_msg.insert(my_msg.begin(), start, start + msg_len);
     if (len_msg+1 <= bytes_read_) // нашли 0
       {
+        std::cout << my_msg << std::endl;
+        clients_[fds_[i].fd] = my_msg;
+        std::cout << my_msg << std::endl;
+        std::string message = my_msg + " connected";
+        std::cout << message << std::endl;
+        message_send(message);
+        my_msg.clear();
+        start += msg_len+1;
+        bytes_read_ -= msg_len+1;
+      }
+    else
+      {
+        start += msg_len;
+        bytes_read_ -= msg_len;
+      }
+
+  }
+  void message_send(std::string &my_msg)
+  {
+    for (std::map<int, std::string>::iterator is=clients_.begin(); is!=clients_.end(); ++is)
+      {
+        send(is->first, my_msg.c_str(), my_msg.size() + 1, 0);
+      }
+  }
+
+  void message_recv(int &i)
+  {
+    int len_msg =  strlen(start);
+    size_t msg_len = std::min(bytes_read_, len_msg); //мин из размера пришедшего сообщения и сообщения в буфере до \0
+    std::string & my_msg = clients_messages_[fds_[i].fd]; //ссылка(!) для сокращения записи
+
+    my_msg.insert(my_msg.begin(), start, start + msg_len);
+    if (len_msg+1 <= bytes_read_) // нашли 0
+      {
+        std::string client_nick= clients_[fds_[i].fd] + ": ";
+        std::cout << my_msg << std::endl;
+        my_msg.insert(my_msg.begin(), client_nick.begin(), client_nick.begin()+client_nick.size());
         std::cout << my_msg << std::endl;
         message_send(my_msg);
         my_msg.clear();
@@ -106,15 +136,13 @@ private:
   }
 
   int listener_;
-  pollfd fds_[10];//ак сделать самоувеличивающийся
+  pollfd fds_[10];//как сделать самоувеличивающийся
   std::map <int, std::string> clients_;
   int timeout_;
   int id_;
   std::map<int, std::string> clients_messages_;
   int bytes_read_;
   char buf_[BUFFER_SIZE + 1];
-  std::string msg_;
-  std::string messageSend;
   char * start;
 };
 
