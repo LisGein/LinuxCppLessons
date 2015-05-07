@@ -42,6 +42,7 @@ int main()
     {
       std::getline(std::cin, message);
       send(sock, message.c_str(), message.size()+1, 0);
+
     }
   close(sock);
   return 0;
