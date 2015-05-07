@@ -5,6 +5,7 @@
 NetworkServer::NetworkServer()
   :timeout_(-1)
   , id_(2)
+  , root_name_("0unknown")
 {
   listener_ = socket(AF_INET, SOCK_STREAM, 0);
   if(listener_ < 0)
@@ -28,6 +29,8 @@ NetworkServer::NetworkServer()
   fds_[1].fd = STDIN_FILENO;
   fds_[1].events = POLLIN;
   fds_[1].revents = 0;
+  std::cout << "Input nick\n"
+                << "Your nickname must be less than 12 characters!\n";
 
 }
 NetworkServer::~NetworkServer()
@@ -40,11 +43,27 @@ void NetworkServer::step()
   poll(fds_, id_, timeout_);
   if (fds_[1].revents & POLLIN)
     {
-      std::string initialCommand;
-      std::getline(std::cin, initialCommand);
-      std::cout << initialCommand;
-      message_send(initialCommand);
+      std::string my_message;
+      if (root_name_ == "0unknown")
+        {
+          do
+            {
+              std::getline(std::cin, my_message);
+
+            }while(my_message.size() > 12);
+          root_name_ = my_message + ": ";
+          std::string message = my_message + " connected";
+          message_send(message);
+        }
+      else
+        {
+          std::getline(std::cin, my_message);
+          my_message.insert(my_message.begin(), root_name_.begin(), root_name_.begin()+root_name_.size());
+          message_send(my_message);
+        }
     }
+  else
+    {
   if (fds_[0].revents & POLLIN)
     add_user();
 
@@ -63,6 +82,7 @@ void NetworkServer::step()
               message_read(i);
           }
       }
+    }
 }
 
 void NetworkServer::add_user()
@@ -86,7 +106,6 @@ void NetworkServer::add_nick(int &i)
     {
       clients_[fds_[i].fd] = my_msg;
       std::string message = my_msg + " connected";
-      std::cout << message << std::endl;
       message_send(message);
       my_msg.clear();
       start += msg_len+1;
@@ -101,6 +120,7 @@ void NetworkServer::add_nick(int &i)
 }
 void NetworkServer::message_send(std::string &my_msg)
 {
+  std::cout << my_msg << std::endl;
   for (std::map<int, std::string>::iterator is=clients_.begin(); is!=clients_.end(); ++is)
     {
       send(is->first, my_msg.c_str(), my_msg.size() + 1, 0);
@@ -118,7 +138,6 @@ void NetworkServer::message_read(int &i)
     {
       std::string client_nick= clients_[fds_[i].fd] + ": ";
       my_msg.insert(my_msg.begin(), client_nick.begin(), client_nick.begin()+client_nick.size());
-      std::cout << my_msg << std::endl;
       message_send(my_msg);
       my_msg.clear();
       start += msg_len + 1;

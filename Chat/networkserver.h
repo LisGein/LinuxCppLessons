@@ -34,6 +34,7 @@ private:
   std::map<int, std::string> clients_messages_;
   int bytes_read_;
   char buf_[BUFFER_SIZE + 1];
+  std::string root_name_;
   char * start;
   std::string stdin_message_;
 };
