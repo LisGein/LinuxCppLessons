@@ -27,7 +27,6 @@ NetworkClient::NetworkClient()
   fds_[1].revents = 0;
   std::cout << "Input nick\n"
             << "Your nickname must be less than 12 characters!\n";
-
 }
 
 NetworkClient::~NetworkClient()
@@ -61,7 +60,6 @@ void NetworkClient::step()
     {
       buf_[BUFFER_SIZE] = '\n';
       bytes_read_ = read(sock_, buf_, BUFFER_SIZE);
-
       start = buf_;
       while (bytes_read_ > 0)
           message_read();

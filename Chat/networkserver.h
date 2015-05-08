@@ -20,9 +20,10 @@ public:
   void step();
 private:
   void add_user();
-  void add_nick(int &i);
+  void add_nick(int &i, std::string & my_msg);
   void message_send(std::string &my_msg);
   void message_read(int &i);
+  void forming_send(int &i, std::string & my_msg);
 
   int listener_;
   pollfd fds_[10];//как сделать самоувеличивающийся

@@ -76,20 +76,14 @@ void NetworkServer::step()
             if (bytes_read_ == 0)
               {
                 std::string client_nick= clients_[fds_[i].fd] + " disconected";
-                std::cout << client_nick<<std::endl;
+                std::cout << client_nick << std::endl;
                 close(fds_[i].fd);
                 fds_[i].fd = -1;
                 clients_.erase(fds_[i].fd);
               }
-
             start = buf_;
             while (bytes_read_ > 0)
-              {
-                if (clients_[fds_[i].fd] == "0unknown")
-                  add_nick(i);
-                else
-                  message_read(i);
-              }
+                message_read(i);
           }
     }
 }
@@ -105,35 +99,11 @@ void NetworkServer::add_user()
   id_++;
 }
 
-void NetworkServer::add_nick(int &i)
-{
-  int len_msg = strlen(start);
-  size_t msg_len = std::min(bytes_read_, len_msg); //мин из размера пришедшего сообщения и сообщения в буфере до \0
-  std::string & my_msg = clients_messages_[fds_[i].fd]; //ссылка(!) для сокращения записи
-  my_msg.insert(my_msg.end(), start, start + msg_len);
-  if (len_msg+1 <= bytes_read_) // нашли 0
-    {
-      clients_[fds_[i].fd] = my_msg;
-      std::string message = my_msg + " connected";
-      message_send(message);
-      my_msg.clear();
-      start += msg_len+1;
-      bytes_read_ -= msg_len+1;
-    }
-  else
-    {
-      start += msg_len;
-      bytes_read_ -= msg_len;
-    }
-
-}
 void NetworkServer::message_send(std::string &my_msg)
 {
   std::cout << my_msg << std::endl;
   for (std::map<int, std::string>::iterator is=clients_.begin(); is!=clients_.end(); ++is)
-    {
       send(is->first, my_msg.c_str(), my_msg.size() + 1, 0);
-    }
 }
 
 void NetworkServer::message_read(int &i)
@@ -141,13 +111,13 @@ void NetworkServer::message_read(int &i)
   int len_msg =  strlen(start);
   size_t msg_len = std::min(bytes_read_, len_msg); //мин из размера пришедшего сообщения и сообщения в буфере до \0
   std::string & my_msg = clients_messages_[fds_[i].fd]; //ссылка(!) для сокращения записи
-
   my_msg.insert(my_msg.end(), start, start + msg_len);
   if (len_msg+1 <= bytes_read_) // нашли 0
     {
-      std::string client_nick= clients_[fds_[i].fd] + ": ";
-      my_msg.insert(my_msg.begin(), client_nick.begin(), client_nick.begin()+client_nick.size());
-      message_send(my_msg);
+      if (clients_[fds_[i].fd] == "0unknown")
+        add_nick(i, my_msg);
+      else
+        forming_send(i, my_msg);
       my_msg.clear();
       start += msg_len + 1;
       bytes_read_ -= msg_len + 1;
@@ -159,4 +129,16 @@ void NetworkServer::message_read(int &i)
     }
 }
 
+void NetworkServer::add_nick(int &i, std::string & my_msg)
+{
+  clients_[fds_[i].fd] = my_msg;
+  std::string message = my_msg + " connected";
+  message_send(message);
+}
 
+void NetworkServer::forming_send(int &i, std::string & my_msg)
+{
+  std::string client_nick= clients_[fds_[i].fd] + ": ";
+  my_msg.insert(my_msg.begin(), client_nick.begin(), client_nick.begin()+client_nick.size());
+  message_send(my_msg);
+}
