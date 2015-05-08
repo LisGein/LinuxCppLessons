@@ -30,9 +30,10 @@ NetworkServer::NetworkServer()
   fds_[1].events = POLLIN;
   fds_[1].revents = 0;
   std::cout << "Input nick\n"
-                << "Your nickname must be less than 12 characters!\n";
+            << "Your nickname must be less than 12 characters!\n";
 
 }
+
 NetworkServer::~NetworkServer()
 {
   close(listener_);
@@ -50,7 +51,7 @@ void NetworkServer::step()
             {
               std::getline(std::cin, my_message);
 
-            }while(my_message.size() > 12);
+            } while(my_message.size() > 12);
           root_name_ = my_message + ": ";
           std::string message = my_message + " connected";
           message_send(message);
@@ -64,24 +65,32 @@ void NetworkServer::step()
     }
   else
     {
-  if (fds_[0].revents & POLLIN)
-    add_user();
+      if (fds_[0].revents & POLLIN)
+        add_user();
 
-  for (int i = 1; i < id_; i++)
-    if (fds_[i].revents & POLLIN)
-      {
-        buf_[BUFFER_SIZE] = '\n';
-        bytes_read_ = read(fds_[i].fd, buf_, BUFFER_SIZE);
-
-        start = buf_;
-        while (bytes_read_ > 0)
+      for (int i = 1; i < id_; i++)
+        if (fds_[i].revents & POLLIN)
           {
-            if (clients_[fds_[i].fd] == "0unknown")
-              add_nick(i);
-            else
-              message_read(i);
+            buf_[BUFFER_SIZE] = '\n';
+            bytes_read_ = read(fds_[i].fd, buf_, BUFFER_SIZE);
+            if (bytes_read_ == 0)
+              {
+                std::string client_nick= clients_[fds_[i].fd] + " disconected";
+                std::cout << client_nick<<std::endl;
+                close(fds_[i].fd);
+                fds_[i].fd = -1;
+                clients_.erase(fds_[i].fd);
+              }
+
+            start = buf_;
+            while (bytes_read_ > 0)
+              {
+                if (clients_[fds_[i].fd] == "0unknown")
+                  add_nick(i);
+                else
+                  message_read(i);
+              }
           }
-      }
     }
 }
 

@@ -4,9 +4,11 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 SOURCES += main.cpp \
-    networkserver.cpp
+    networkserver.cpp \
+    networkclient.cpp
 
 HEADERS += \
     networkserver.h \
-    baseconnect.h
+    networkclient.h \
+    baseconnection.h
 

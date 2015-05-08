@@ -8,10 +8,8 @@
 #include <iostream>//for input&output
 #include <cstring>//for memset
 #include <utility>//for pair
-#include "baseconnect.h"
+#include "baseconnection.h"
 
-
-const size_t BUFFER_SIZE = 3;
 
 class NetworkServer
     :public BaseConnection
@@ -36,6 +34,5 @@ private:
   char buf_[BUFFER_SIZE + 1];
   std::string root_name_;
   char * start;
-  std::string stdin_message_;
 };
 

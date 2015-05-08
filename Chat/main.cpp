@@ -1,10 +1,21 @@
+#include <stdlib.h>
+#include <iostream>
+#include "baseconnection.h"
 #include "networkserver.h"
+#include "networkclient.h"
+#include <memory>
 
-int main()
+int main(int argc, char ** argv)
 {
-  NetworkServer networkserver;
+  std::string role(argv[1]);
+
+  BaseConnection* connection;
+  if (role == "host")
+      connection = new NetworkServer;
+  else
+      connection = new NetworkClient;
   while(true)
-    networkserver.step();
+    connection->step();
 
   return 0;
 }
