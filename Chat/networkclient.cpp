@@ -12,7 +12,7 @@ NetworkClient::NetworkClient()
     }
   struct sockaddr_in addr;
   addr.sin_family = AF_INET;
-  addr.sin_port = htons(3425);
+  addr.sin_port = htons(3325);
   addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
   if(connect(sock_, (struct sockaddr *)&addr, sizeof(addr)) < 0)
     {
