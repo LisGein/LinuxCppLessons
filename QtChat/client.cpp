@@ -1,5 +1,4 @@
 #include "client.h"
-
 #include  <QTextEdit>
 #include  <QLineEdit>
 #include  <QVBoxLayout>
@@ -7,7 +6,7 @@
 #include  <QPushButton>
 #include  <QLabel>
 
-Client::Client(const QString& user_name, const QString& strHost, int nPort, QWidget* pwgt)
+Client::Client(const QByteArray& user_name, const QString& strHost, int nPort, QWidget* pwgt)
   : QWidget(pwgt)
   , next_block_size_(0)
   , user_name_(user_name)
@@ -35,13 +34,14 @@ Client::Client(const QString& user_name, const QString& strHost, int nPort, QWid
   window_layout->addWidget(in_text_);
   window_layout->addWidget(in_cmd);
   setLayout(window_layout);
+  tcp_socket_->write(user_name_);
 }
 
 void Client::slot_ready_read()
 {
   QDataStream in(tcp_socket_);
   in.setVersion(QDataStream::Qt_4_2);
-  for (;;)
+  while (true)
     {
       if (!next_block_size_)
         {

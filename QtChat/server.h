@@ -15,7 +15,7 @@ class Server : public QWidget {
   quint16     next_block_size_;
 
 private:
-  QString user_name_;
+  QByteArray user_name_;
   QMap<QTcpSocket*, QString> connected_users_port_;
   QMap<QTcpSocket*, QString>::const_iterator it_users_port_;
 
@@ -23,7 +23,7 @@ private:
   void send_to_client(QTcpSocket* pSocket, const QString& str);
 
 public:
-  Server(QString user_name, const QString& strHost, int nPort, QWidget* pwgt = 0) ;
+  Server(const QByteArray& user_name, const QString& strHost, int nPort, QWidget* pwgt = 0) ;
 
 public slots:
   void slot_new_connection();
@@ -31,5 +31,5 @@ public slots:
 
   void slot_error(QAbstractSocket::SocketError);
   void slot_send_to_server();
-  void slot_connected   ();
+  void slot_connected();
 };

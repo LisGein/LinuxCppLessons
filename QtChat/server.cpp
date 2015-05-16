@@ -6,7 +6,7 @@
 #include  <QPushButton>
 #include  <QLineEdit>
 
-Server::Server(QString user_name, const QString& strHost, int nPort, QWidget *pwgt)
+Server::Server(const QByteArray& user_name, const QString& strHost, int nPort, QWidget *pwgt)
   :QWidget(pwgt)
   , next_block_size_(0)
   , user_name_(user_name)
@@ -41,10 +41,8 @@ Server::Server(QString user_name, const QString& strHost, int nPort, QWidget *pw
   window_layout->addWidget(out_text_);
   window_layout->addWidget(in_text_);
   window_layout->addWidget(in_cmd);
-  //connected_users_port_.insert(tcp_socket_, user_name_); - как добавить первого пользователя?
-  //можно первым сообщением отправлять автоматически от всех клиентов имя пользователя
   setLayout(window_layout);
-
+  tcp_socket_->write(user_name_);
 }
 void Server::slot_new_connection()
 {
@@ -60,7 +58,7 @@ void Server::slot_read_message()
   QTcpSocket* pClientSocket = (QTcpSocket*)sender();
   QDataStream in(pClientSocket);
   in.setVersion(QDataStream::Qt_4_2);
-  for (;;)                                                   //всё это переделать до человеческого состояния
+  while (true)
     {
       if (!next_block_size_)
         {
@@ -68,10 +66,6 @@ void Server::slot_read_message()
             break;
           in >> next_block_size_;
         }
-//      if (connected_users_port_.empty())
-//        {
-//          connected_users_port_.insert(pClientSocket, user_name_);
-//        }
       if (pClientSocket->bytesAvailable() < next_block_size_)
         break;
 
@@ -143,5 +137,5 @@ void Server::slot_send_to_server()
 }
 void Server::slot_connected()
 {
-  out_text_->append("Received the connected() signal\nInput youre nick:");
+  out_text_->append("Received the connected() signal");
 }
