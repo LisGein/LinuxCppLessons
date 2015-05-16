@@ -44,15 +44,31 @@ Server::Server(const QByteArray& user_name, const QString& strHost, int nPort, Q
   setLayout(window_layout);
   tcp_socket_->write(user_name_);
 }
+
 void Server::slot_new_connection()
 {
-  QTcpSocket* client_socket = tcp_server_->nextPendingConnection();
-  connect(client_socket, SIGNAL(disconnected()), client_socket, SLOT(deleteLater()));
+  client_socket = tcp_server_->nextPendingConnection();
+  connect(client_socket, SIGNAL(disconnected()), this, SLOT(slot_disconnect_user()));
   connect(client_socket, SIGNAL(readyRead()), this, SLOT(slot_read_message()));
 
   send_to_client(client_socket, "Server Response: Connected!");
-
 }
+
+void Server::slot_disconnect_user()
+{
+  it_users_port_ = connected_users_port_.find(client_socket);
+  if (it_users_port_ != connected_users_port_.end())
+    {
+  QString name = it_users_port_.value() + " disconnected.";
+  out_text_->append(name);
+  connected_users_port_.remove(client_socket);
+  client_socket->deleteLater();
+
+//  for (it_users_port_ = connected_users_port_.begin(); it_users_port_ != connected_users_port_.end(); ++it_users_port_)
+//    send_to_client(it_users_port_.key(), name + " " );
+    }
+}
+
 void Server::slot_read_message()
 {
   QTcpSocket* pClientSocket = (QTcpSocket*)sender();
@@ -97,6 +113,7 @@ void Server::slot_read_message()
         }
     }
 }
+
 void Server::send_to_client(QTcpSocket* pSocket, const QString& str)
 {
   QByteArray  arrBlock;
@@ -122,6 +139,7 @@ void Server::slot_error(QAbstractSocket::SocketError err)
                                         );
   out_text_->append(strError);
 }
+
 void Server::slot_send_to_server()
 {
   QByteArray  arrBlock;
@@ -135,6 +153,7 @@ void Server::slot_send_to_server()
   tcp_socket_->write(arrBlock);
   in_text_->setText("");
 }
+
 void Server::slot_connected()
 {
   out_text_->append("Received the connected() signal");

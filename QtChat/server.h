@@ -16,6 +16,7 @@ class Server : public QWidget {
 
 private:
   QByteArray user_name_;
+  QTcpSocket* client_socket;
   QMap<QTcpSocket*, QString> connected_users_port_;
   QMap<QTcpSocket*, QString>::const_iterator it_users_port_;
 
@@ -25,9 +26,11 @@ private:
 public:
   Server(const QByteArray& user_name, const QString& strHost, int nPort, QWidget* pwgt = 0) ;
 
+
 public slots:
   void slot_new_connection();
   void slot_read_message();
+  void slot_disconnect_user();
 
   void slot_error(QAbstractSocket::SocketError);
   void slot_send_to_server();
