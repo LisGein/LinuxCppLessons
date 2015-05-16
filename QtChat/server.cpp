@@ -47,7 +47,7 @@ Server::Server(const QByteArray& user_name, const QString& strHost, int nPort, Q
 
 void Server::slot_new_connection()
 {
-  client_socket = tcp_server_->nextPendingConnection();
+  QTcpSocket* client_socket = tcp_server_->nextPendingConnection();
   connect(client_socket, SIGNAL(disconnected()), this, SLOT(slot_disconnect_user()));
   connect(client_socket, SIGNAL(readyRead()), this, SLOT(slot_read_message()));
 
@@ -56,16 +56,17 @@ void Server::slot_new_connection()
 
 void Server::slot_disconnect_user()
 {
-  it_users_port_ = connected_users_port_.find(client_socket);
+  QTcpSocket* pClientSocket = (QTcpSocket*)sender();
+  it_users_port_ = connected_users_port_.find(pClientSocket);
   if (it_users_port_ != connected_users_port_.end())
     {
-  QString name = it_users_port_.value() + " disconnected.";
-  out_text_->append(name);
-  connected_users_port_.remove(client_socket);
-  client_socket->deleteLater();
+      QString name = it_users_port_.value() + " disconnected.";
+      out_text_->append(name);
+      connected_users_port_.remove(pClientSocket);
+      pClientSocket->deleteLater();
 
-//  for (it_users_port_ = connected_users_port_.begin(); it_users_port_ != connected_users_port_.end(); ++it_users_port_)
-//    send_to_client(it_users_port_.key(), name + " " );
+      //  for (it_users_port_ = connected_users_port_.begin(); it_users_port_ != connected_users_port_.end(); ++it_users_port_)
+      //    send_to_client(it_users_port_.key(), name + " " );
     }
 }
 

@@ -16,7 +16,6 @@ class Server : public QWidget {
 
 private:
   QByteArray user_name_;
-  QTcpSocket* client_socket;
   QMap<QTcpSocket*, QString> connected_users_port_;
   QMap<QTcpSocket*, QString>::const_iterator it_users_port_;
 
