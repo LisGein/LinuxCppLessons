@@ -14,12 +14,18 @@
 
  SOURCES += main.cpp\
 	 mainwindow.cpp \
-     server.cpp \
-     client.cpp
+    clientnetwork.cpp \
+    clientwindow.cpp \
+    servernetwork.cpp \
+    serverwindow.cpp \
+    queuemessage.cpp
 
  HEADERS  += mainwindow.h \
-     server.h \
-     client.h
+    clientnetwork.h \
+    clientwindow.h \
+    servernetwork.h \
+    serverwindow.h \
+    queuemessage.h
 
  FORMS    += mainwindow.ui
 

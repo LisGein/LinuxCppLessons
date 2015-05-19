@@ -17,6 +17,7 @@ private:
   Ui::MainWindow *ui;
   QString nick_name_;
 
+
 public slots:
   void entry_chat();
   void create_server();

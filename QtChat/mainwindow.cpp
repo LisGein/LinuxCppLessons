@@ -1,6 +1,6 @@
 #include "mainwindow.h"
-#include "client.h"
-#include "server.h"
+#include "clientwindow.h"
+#include "serverwindow.h"
 #include "ui_mainwindow.h"
 #include <QString>
 #include <QApplication>
@@ -23,26 +23,26 @@ MainWindow::~MainWindow()
 
 void MainWindow::entry_chat()
 {
-  QByteArray  arrBlock;
-  QDataStream out(&arrBlock, QIODevice::WriteOnly);
+  QByteArray  arr_block;
+  QDataStream out(&arr_block, QIODevice::WriteOnly);
   out.setVersion(QDataStream::Qt_4_2);
   out << quint16(0) << QTime::currentTime() << ui->in_text->text();
   out.device()->seek(0);
-  out << quint16(arrBlock.size() - sizeof(quint16));
+  out << quint16(arr_block.size() - sizeof(quint16));
   close();
-  Client *client = new Client(arrBlock,"localhost", 8888);
+  ClientWindow *client = new ClientWindow(arr_block,"localhost", 8888);
   client->show();
 }
 void MainWindow::create_server()
 {
-  QByteArray  arrBlock;
-  QDataStream out(&arrBlock, QIODevice::WriteOnly);
+  QByteArray  arr_block;
+  QDataStream out(&arr_block, QIODevice::WriteOnly);
   out.setVersion(QDataStream::Qt_4_2);
   out << quint16(0) << QTime::currentTime() << ui->in_text->text();
   out.device()->seek(0);
-  out << quint16(arrBlock.size() - sizeof(quint16));
+  out << quint16(arr_block.size() - sizeof(quint16));
   close();
-  Server *server = new Server(arrBlock, "localhost", 8888);
+  ServerWindow *server = new ServerWindow(arr_block, "localhost", 8888);
   server->show();
 }
 
