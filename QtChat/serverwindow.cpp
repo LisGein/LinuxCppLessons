@@ -1,34 +1,71 @@
 #include "serverwindow.h"
 #include  <QTextEdit>
 #include  <QLineEdit>
-#include <QMessageBox>
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QTime>
 #include  <QPushButton>
+#include  <QFont>
+#include  <QStyle>
+
 
 ServerWindow::ServerWindow(const QByteArray &user_name, const QString& str_host, int port, QWidget* pwgt)
   : QWidget(pwgt)
 {
-  ServerNetwork *server_network = new ServerNetwork(user_name, str_host, port);
-  connect(server_network, SIGNAL(in_message(QString)), this, SLOT(slot_read_in_message(QString)));
-  connect(this, SIGNAL(signal_send_server(QByteArray)), server_network, SLOT(slot_send_to_server(QByteArray)));
+  server_network_ = new ServerNetwork(user_name, str_host, port);
+  connect_signals();
+  create_main_widget();
+  create_menu();
+  create_window_chat();
+}
 
+void ServerWindow::connect_signals()
+{
+  connect(server_network_, SIGNAL(in_message(QString)), this, SLOT(slot_read_in_message(QString)));
+  connect(this, SIGNAL(signal_send_server(QByteArray)), server_network_, SLOT(slot_send_to_server(QByteArray)));
+  connect(server_network_, SIGNAL(online(QString)), this, SLOT(slot_show_online(QString)));
+}
+
+void ServerWindow::create_main_widget()
+{
   out_text_ = new QTextEdit;
   out_text_->setReadOnly(true);
   in_text_ = new QLineEdit;
   in_text_->setFixedSize(400, 50);
   connect(in_text_, SIGNAL(returnPressed()), this, SLOT(slot_send_to_server()));
 
-  QPushButton* in_cmd = new QPushButton("&Send");
+  in_cmd = new QPushButton("&Send");
   connect(in_cmd, SIGNAL(clicked()), SLOT(slot_send_to_server()));
+}
 
+void ServerWindow::create_menu()
+{
+  menu_ = new QMenu("&Menu");
+  QAction* show_online = new QAction(tr("&Online users"), this);
+  menu_->addAction(show_online);
+  menu_->addAction("&Close", this, SLOT(close()));
+  menu_bar_.addMenu(menu_);
+
+  connect(show_online, SIGNAL( activated() ), server_network_, SLOT(slot_show_online()) );
+}
+
+void ServerWindow::create_window_chat()
+{
   QVBoxLayout* window_layout = new QVBoxLayout;
-  window_layout->addWidget(new QLabel("<H1>Server</H1>"));
+  window_layout->setMenuBar(&menu_bar_);
   window_layout->addWidget(out_text_);
   window_layout->addWidget(in_text_);
   window_layout->addWidget(in_cmd);
+  this->setWindowTitle("Chat");
   setLayout(window_layout);
+}
+
+void ServerWindow::slot_show_online(QString online_users)
+{
+  QMessageBox show_online;
+  show_online.setText(online_users);
+  show_online.show();
+  show_online.exec();
 }
 
 void ServerWindow::slot_read_in_message(QString str)
@@ -49,4 +86,10 @@ void ServerWindow::slot_send_to_server()
   emit signal_send_server(arr_block);
 }
 
-void ServerWindow::slot_show_menu(){}
+
+
+
+
+
+
+

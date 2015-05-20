@@ -26,6 +26,7 @@ ServerNetwork::ServerNetwork(const QByteArray& user_name, QString const& str_hos
 
   tcp_socket_->write(user_name);
 }
+
 void ServerNetwork::slot_new_connection()
 {
   QTcpSocket* client_socket = tcp_server_->nextPendingConnection();
@@ -131,4 +132,12 @@ void ServerNetwork::slot_connected()
 {
   QString str_error = "Received the connected() signal";
   emit in_message(str_error);
+}
+
+void ServerNetwork::slot_show_online()
+{
+  QString online_users;
+  for (it_users_port_ = connected_users_port_.begin(); it_users_port_ != connected_users_port_.end(); ++it_users_port_)
+    online_users += it_users_port_.value() + "\n";
+  emit online(online_users);
 }

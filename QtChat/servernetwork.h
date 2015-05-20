@@ -13,6 +13,7 @@ public slots:
   void slot_new_connection();
   void slot_read_in_message();
   void slot_disconnect_user();
+  void slot_show_online();
 
   void slot_connected();
   void slot_error(QAbstractSocket::SocketError);
@@ -20,6 +21,7 @@ public slots:
 
 signals:
   void in_message(QString str);
+  void online(QString online_users);
 
 private:
   void send_to_client(QTcpSocket* socket, const QString& str);

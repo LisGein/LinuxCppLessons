@@ -13,6 +13,7 @@ ClientNetwork::ClientNetwork(const QByteArray &user_name, const QString& str_hos
 
   tcp_socket_->write(user_name);
 }
+
 void ClientNetwork::slot_ready_read()
 {
   QDataStream in(tcp_socket_);
@@ -35,6 +36,7 @@ void ClientNetwork::slot_ready_read()
       emit in_message(str);
     }
 }
+
 void ClientNetwork::slot_error(QAbstractSocket::SocketError err)
 {
   QString str_error = "Error: " + (err == QAbstractSocket::HostNotFoundError ?
@@ -48,12 +50,19 @@ void ClientNetwork::slot_error(QAbstractSocket::SocketError err)
   emit in_message(str_error);
 
 }
+
 void ClientNetwork::slot_send_message(QByteArray arr_block)
 {
   tcp_socket_->write(arr_block);
 }
+
 void ClientNetwork::slot_connected()
 {
   QString str = "Welcome to chat!";
   emit in_message(str);
+}
+
+void ClientNetwork::slot_show_online()
+{
+
 }

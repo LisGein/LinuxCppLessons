@@ -11,31 +11,41 @@ ClientWindow::ClientWindow(const QByteArray &user_name, const QString& str_host,
   : QWidget(pwgt)
 {
 
-  ClientNetwork *client = new ClientNetwork(user_name, str_host, port);
-  connect(client, SIGNAL(in_message(QString)), this, SLOT(slot_ready_read(QString)));
-  connect(this, SIGNAL(signal_send_server(QByteArray)), client, SLOT(slot_send_message(QByteArray)));
+  client_network_ = new ClientNetwork(user_name, str_host, port);
 
+  connect_signals();
+  create_main_widget();
+  create_menu();
+  create_window_chat();
+
+}
+
+void ClientWindow::connect_signals()
+{
+  connect(client_network_, SIGNAL(in_message(QString)), this, SLOT(slot_ready_read(QString)));
+  connect(this, SIGNAL(signal_send_server(QByteArray)), client_network_, SLOT(slot_send_message(QByteArray)));
+}
+
+void ClientWindow::create_main_widget()
+{
   out_text_  = new QTextEdit;
   out_text_->setReadOnly(true);
   in_text_ = new QLineEdit;
   connect(in_text_, SIGNAL(returnPressed()), this, SLOT(slot_send_to_server()));
 
-  QPushButton* in_cmd = new QPushButton("&Send");
+  in_cmd = new QPushButton("&Send");
   connect(in_cmd, SIGNAL(clicked()), SLOT(slot_send_to_server()));
+}
 
-  menu_action_ = new QAction(tr("&Show online users"), this);
-  connect(menu_action_, SIGNAL( activated() ), this, SLOT( slot_show_menu() ) );
-  menu_bar_ = new QMenuBar(this);
-  menu_bar_->addAction(menu_action_);
+void ClientWindow::create_menu()
+{
+  menu_ = new QMenu("&Menu");
+  QAction* show_online = new QAction(tr("&Online users"), this);
+  menu_->addAction(show_online);
+  menu_->addAction("&Close", this, SLOT(close()));
+  menu_bar_.addMenu(menu_);
 
-  QVBoxLayout* window_layout = new QVBoxLayout;
-  window_layout->addWidget(menu_bar_);
-  window_layout->addWidget(out_text_);
-  window_layout->addWidget(in_text_);
-  window_layout->addWidget(in_cmd);
-  this->setWindowTitle("Chat");
-  setLayout(window_layout);
-
+  connect(show_online, SIGNAL( activated() ), client_network_, SLOT(slot_show_online()) );
 }
 
 void ClientWindow::slot_send_to_server()
@@ -50,7 +60,16 @@ void ClientWindow::slot_send_to_server()
   in_text_->setText("");
   emit signal_send_server(arr_block);
 }
-
+void ClientWindow::create_window_chat()
+{
+  QVBoxLayout* window_layout = new QVBoxLayout;
+  window_layout->setMenuBar(&menu_bar_);
+  window_layout->addWidget(out_text_);
+  window_layout->addWidget(in_text_);
+  window_layout->addWidget(in_cmd);
+  this->setWindowTitle("Chat");
+  setLayout(window_layout);
+}
 void ClientWindow::slot_ready_read(QString str)
 {
   out_text_->append(str);

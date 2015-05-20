@@ -3,6 +3,7 @@
 #include <QWidget>
 #include <QMenu>
 #include <QMenuBar>
+#include <QMessageBox>
 
 class QTextEdit;
 class QLineEdit;
@@ -12,14 +13,23 @@ class ClientWindow : public QWidget {
 private:
   QTextEdit*  out_text_;
   QLineEdit*  in_text_;
+  QPushButton* in_cmd;
   QAction*   menu_action_;
-  QMenuBar *menu_bar_;
+  QMenuBar menu_bar_;
+  QMenu* menu_;
+  ClientNetwork *client_network_;
+
+  void create_main_widget();
+  void create_menu();
+  void create_window_chat();
+  void connect_signals();
 
 public:
   ClientWindow(const QByteArray &user_name, const QString& str_host, int port, QWidget* pwgt = 0) ;
 
 signals:
   void signal_send_server(QByteArray arrBlock);
+  void signal_show_online();
 
 public slots:
   void slot_ready_read(QString str);
