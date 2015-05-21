@@ -20,13 +20,14 @@ MainWindow::~MainWindow()
 {
   delete ui;
 }
-
+// First type message - input message client
+// Second type message - show online users
 void MainWindow::entry_chat()
 {
   QByteArray  arr_block;
   QDataStream out(&arr_block, QIODevice::WriteOnly);
   out.setVersion(QDataStream::Qt_4_2);
-  out << quint16(0) << QTime::currentTime() << ui->in_text->text();
+  out << FIRST_TYPE << quint16(0) << QTime::currentTime() << ui->in_text->text();
   out.device()->seek(0);
   out << quint16(arr_block.size() - sizeof(quint16));
   close();
@@ -38,7 +39,7 @@ void MainWindow::create_server()
   QByteArray  arr_block;
   QDataStream out(&arr_block, QIODevice::WriteOnly);
   out.setVersion(QDataStream::Qt_4_2);
-  out << quint16(0) << QTime::currentTime() << ui->in_text->text();
+  out << quint16(0) << FIRST_TYPE << QTime::currentTime() << ui->in_text->text();
   out.device()->seek(0);
   out << quint16(arr_block.size() - sizeof(quint16));
   close();

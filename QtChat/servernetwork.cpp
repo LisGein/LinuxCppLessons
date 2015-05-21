@@ -19,35 +19,33 @@ ServerNetwork::ServerNetwork(const QByteArray& user_name, QString const& str_hos
   connect(tcp_server_, SIGNAL(newConnection()), this, SLOT(slot_new_connection()));
 
   tcp_socket_ = new QTcpSocket(this);
-
   tcp_socket_->connectToHost(str_host, port);
   connect(tcp_socket_, SIGNAL(connected()), SLOT(slot_connected()));
   connect(tcp_socket_, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(slot_error(QAbstractSocket::SocketError)));
-
   tcp_socket_->write(user_name);
 }
-
+// First type message - input message client
+// Second type message - show online users
 void ServerNetwork::slot_new_connection()
 {
   QTcpSocket* client_socket = tcp_server_->nextPendingConnection();
   connect(client_socket, SIGNAL(disconnected()), this, SLOT(slot_disconnect_user()));
   connect(client_socket, SIGNAL(readyRead()), this, SLOT(slot_read_in_message()));
 
-  send_to_client(client_socket, "Server Response: Connected!");
+  send_to_client(client_socket, "Server Response: Connected!", FIRST_TYPE);
 }
 
 void ServerNetwork::slot_disconnect_user()
 {
   QTcpSocket* client_socket = (QTcpSocket*)sender();
   it_users_port_ = connected_users_port_.find(client_socket);
-
   QString name = it_users_port_.value() + " disconnected.";
   emit in_message(name);
   connected_users_port_.remove(client_socket);
   client_socket->deleteLater();
 
   for (it_users_port_ = connected_users_port_.begin(); it_users_port_ != connected_users_port_.end(); ++it_users_port_)
-    send_to_client(it_users_port_.key(), name + " " );
+    send_to_client(it_users_port_.key(), name + " ", FIRST_TYPE);
 
 }
 
@@ -58,6 +56,7 @@ void ServerNetwork::slot_read_in_message()
   in.setVersion(QDataStream::Qt_4_2);
   while (true)
     {
+
       if (!next_block_size_)
         {
           if (client_socket->bytesAvailable() < sizeof(quint16))
@@ -69,40 +68,55 @@ void ServerNetwork::slot_read_in_message()
 
       QString str;
       QTime   time;
-      in >> time >> str;
+      quint8 type_msg;
 
-      it_users_port_ = connected_users_port_.find(client_socket);
-      QString message;
-      if (it_users_port_ != connected_users_port_.end())
-        {
-          message =
-              time.toString() + " " + connected_users_port_[client_socket] + ": " +
-              str;
-          emit in_message(message);
+      in >> type_msg >> time >>str;
 
-          next_block_size_ = 0;
-          for (it_users_port_ = connected_users_port_.begin(); it_users_port_ != connected_users_port_.end(); ++it_users_port_)
-            send_to_client(it_users_port_.key(), message + " " );
-        }
-      else
-        {
-          connected_users_port_.insert(client_socket,str);
-          message = str + " connected.";
-          emit in_message(message);
+      if (FIRST_TYPE == type_msg)
+        read_msg(str, client_socket);
+      else if (SECOND_TYPE == type_msg)
+        forming_list_online(client_socket);
+    }
+}
+void ServerNetwork::read_msg(QString str, QTcpSocket* client_socket)
+{
+  it_users_port_ = connected_users_port_.find(client_socket);
+  QString message;
+  if (it_users_port_ != connected_users_port_.end())
+    {
+      message = connected_users_port_[client_socket] + ": " + str;
+      emit in_message(message);
 
-          next_block_size_ = 0;
-          for (it_users_port_ = connected_users_port_.begin(); it_users_port_ != connected_users_port_.end(); ++it_users_port_)
-            send_to_client(it_users_port_.key(), message + " " );
-        }
+      next_block_size_ = 0;
+      for (it_users_port_ = connected_users_port_.begin(); it_users_port_ != connected_users_port_.end(); ++it_users_port_)
+        send_to_client(it_users_port_.key(), message + " " , FIRST_TYPE);
+    }
+  else
+    {
+      connected_users_port_.insert(client_socket,str);
+      message = str + " connected.";
+      emit in_message(message);
+
+      next_block_size_ = 0;
+      for (it_users_port_ = connected_users_port_.begin(); it_users_port_ != connected_users_port_.end(); ++it_users_port_)
+        send_to_client(it_users_port_.key(), message + " " , FIRST_TYPE);
     }
 }
 
-void ServerNetwork::send_to_client(QTcpSocket* socket, const QString& str)
+void ServerNetwork::forming_list_online(QTcpSocket* client_socket)
+{
+  QString users;
+  for (it_users_port_ = connected_users_port_.begin(); it_users_port_ != connected_users_port_.end(); ++it_users_port_)
+    users += it_users_port_.value() + "\n";
+  send_to_client(client_socket, users + " " , SECOND_TYPE);
+}
+
+void ServerNetwork::send_to_client(QTcpSocket* socket, const QString& str, quint8 Types)
 {
   QByteArray  arr_block;
   QDataStream out(&arr_block, QIODevice::WriteOnly);
   out.setVersion(QDataStream::Qt_4_2);
-  out << quint16(0) << QTime::currentTime() << str;
+  out << quint16(0) << Types << QTime::currentTime() << str;
 
   out.device()->seek(0);
   out << quint16(arr_block.size() - sizeof(quint16));
@@ -123,6 +137,7 @@ void ServerNetwork::slot_error(QAbstractSocket::SocketError err)
   emit in_message(str_error);
 }
 
+
 void ServerNetwork::slot_send_to_server(QByteArray  arr_block)
 {
   tcp_socket_->write(arr_block);
@@ -130,8 +145,8 @@ void ServerNetwork::slot_send_to_server(QByteArray  arr_block)
 
 void ServerNetwork::slot_connected()
 {
-  QString str_error = "Received the connected() signal";
-  emit in_message(str_error);
+  QString msg_connect = "Received the connected() signal";
+  emit in_message(msg_connect);
 }
 
 void ServerNetwork::slot_show_online()

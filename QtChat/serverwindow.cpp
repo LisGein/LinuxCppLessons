@@ -18,7 +18,8 @@ ServerWindow::ServerWindow(const QByteArray &user_name, const QString& str_host,
   create_menu();
   create_window_chat();
 }
-
+// First type message - input message client
+// Second type message - show online users
 void ServerWindow::connect_signals()
 {
   connect(server_network_, SIGNAL(in_message(QString)), this, SLOT(slot_read_in_message(QString)));
@@ -78,7 +79,7 @@ void ServerWindow::slot_send_to_server()
   QByteArray arr_block;
   QDataStream out(&arr_block, QIODevice::WriteOnly);
   out.setVersion(QDataStream::Qt_4_2);
-  out << quint16(0) << QTime::currentTime() << in_text_->text();
+  out << quint16(0) << FIRST_TYPE << QTime::currentTime() << in_text_->text();
 
   out.device()->seek(0);
   out << quint16(arr_block.size() - sizeof(quint16));

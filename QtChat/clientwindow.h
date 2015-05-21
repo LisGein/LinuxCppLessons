@@ -11,6 +11,9 @@ class QLineEdit;
 class ClientWindow : public QWidget {
   Q_OBJECT
 private:
+  const quint8 FIRST_TYPE_MSG = 0;
+  const quint8 SECOND_TYPE_MSG = 1;
+
   QTextEdit*  out_text_;
   QLineEdit*  in_text_;
   QPushButton* in_cmd;
@@ -34,6 +37,6 @@ signals:
 public slots:
   void slot_ready_read(QString str);
   void slot_send_to_server();
-  void slot_show_menu();
+  void slot_show_online(QString online_users);
 };
 

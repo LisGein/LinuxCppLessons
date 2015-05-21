@@ -11,6 +11,8 @@ class QLineEdit;
 class ServerWindow: public QWidget {
   Q_OBJECT
 private:
+  const quint8 FIRST_TYPE = 0;
+  const quint8 SECOND_TYPE = 1;
   QTextEdit*  out_text_;
   QLineEdit*  in_text_;
   QPushButton* in_cmd;
