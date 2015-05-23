@@ -2,7 +2,6 @@
 #include <QMessageBox>
 #include <QVBoxLayout>
 #include <QLabel>
-#include <QTime>
 #include  <QPushButton>
 #include  <QLineEdit>
 
@@ -26,6 +25,7 @@ ServerNetwork::ServerNetwork(const QByteArray& user_name, QString const& str_hos
 }
 // First type message - input message client
 // Second type message - show online users
+// Third type message - disconnect user
 void ServerNetwork::slot_new_connection()
 {
   QTcpSocket* client_socket = tcp_server_->nextPendingConnection();
@@ -66,14 +66,14 @@ void ServerNetwork::slot_read_in_message()
       if (client_socket->bytesAvailable() < next_block_size_)
         break;
 
-      QString str;
-      QTime   time;
       quint8 type_msg;
-
-      in >> type_msg >> time >>str;
-
+      in >> type_msg;
       if (FIRST_TYPE == type_msg)
-        read_msg(str, client_socket);
+        {
+          QString str;
+          in >> str;
+          read_msg(str, client_socket);
+        }
       else if (SECOND_TYPE == type_msg)
         forming_list_online(client_socket);
     }
@@ -108,7 +108,8 @@ void ServerNetwork::forming_list_online(QTcpSocket* client_socket)
   QString users;
   for (it_users_port_ = connected_users_port_.begin(); it_users_port_ != connected_users_port_.end(); ++it_users_port_)
     users += it_users_port_.value() + "\n";
-  send_to_client(client_socket, users + " " , SECOND_TYPE);
+  next_block_size_ = 0;
+  send_to_client(client_socket, users , SECOND_TYPE);
 }
 
 void ServerNetwork::send_to_client(QTcpSocket* socket, const QString& str, quint8 Types)
@@ -116,7 +117,7 @@ void ServerNetwork::send_to_client(QTcpSocket* socket, const QString& str, quint
   QByteArray  arr_block;
   QDataStream out(&arr_block, QIODevice::WriteOnly);
   out.setVersion(QDataStream::Qt_4_2);
-  out << quint16(0) << Types << QTime::currentTime() << str;
+  out << quint16(0) << Types << str;
 
   out.device()->seek(0);
   out << quint16(arr_block.size() - sizeof(quint16));
@@ -154,5 +155,5 @@ void ServerNetwork::slot_show_online()
   QString online_users;
   for (it_users_port_ = connected_users_port_.begin(); it_users_port_ != connected_users_port_.end(); ++it_users_port_)
     online_users += it_users_port_.value() + "\n";
-  emit online(online_users);
+  emit online(connected_users_port_);
 }

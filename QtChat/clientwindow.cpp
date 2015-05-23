@@ -2,7 +2,6 @@
 #include  <QTextEdit>
 #include  <QLineEdit>
 #include  <QVBoxLayout>
-#include  <QTime>
 #include  <QPushButton>
 #include  <QLabel>
 #include <QMenuBar>
@@ -61,7 +60,7 @@ void ClientWindow::slot_send_to_server()
   QByteArray arr_block;
   QDataStream out(&arr_block, QIODevice::WriteOnly);
   out.setVersion(QDataStream::Qt_4_2);
-  out << quint16(0) << FIRST_TYPE_MSG << QTime::currentTime() << in_text_->text();
+  out << quint16(0) << FIRST_TYPE_MSG << in_text_->text();
 
   out.device()->seek(0);
   out << quint16(arr_block.size() - sizeof(quint16));

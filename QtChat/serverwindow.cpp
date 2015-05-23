@@ -3,10 +3,9 @@
 #include  <QLineEdit>
 #include <QVBoxLayout>
 #include <QLabel>
-#include <QTime>
 #include  <QPushButton>
-#include  <QFont>
-#include  <QStyle>
+#include <QComboBox>
+#include <QListWidget>
 
 
 ServerWindow::ServerWindow(const QByteArray &user_name, const QString& str_host, int port, QWidget* pwgt)
@@ -20,11 +19,12 @@ ServerWindow::ServerWindow(const QByteArray &user_name, const QString& str_host,
 }
 // First type message - input message client
 // Second type message - show online users
+// Third type message - disconnect user
 void ServerWindow::connect_signals()
 {
   connect(server_network_, SIGNAL(in_message(QString)), this, SLOT(slot_read_in_message(QString)));
   connect(this, SIGNAL(signal_send_server(QByteArray)), server_network_, SLOT(slot_send_to_server(QByteArray)));
-  connect(server_network_, SIGNAL(online(QString)), this, SLOT(slot_show_online(QString)));
+  connect(server_network_, SIGNAL(online(QMap<QTcpSocket*, QString>)), this, SLOT(slot_show_online(QMap<QTcpSocket*, QString>)));
 }
 
 void ServerWindow::create_main_widget()
@@ -61,12 +61,26 @@ void ServerWindow::create_window_chat()
   setLayout(window_layout);
 }
 
-void ServerWindow::slot_show_online(QString online_users)
+void ServerWindow::slot_show_online(QMap<QTcpSocket*, QString> connected_users_port)
 {
-  QMessageBox show_online;
-  show_online.setText(online_users);
-  show_online.show();
-  show_online.exec();
+  QWidget* window = new(QWidget);
+  QVBoxLayout* window_layout = new QVBoxLayout;
+
+  QMap<QTcpSocket*, QString>::const_iterator it_users_port;
+  QListWidget*out_text = new QListWidget;
+  int pos = 0;
+  for (it_users_port = connected_users_port.begin(); it_users_port != connected_users_port.end(); ++it_users_port)
+    {
+      QListWidgetItem *qwe = new QListWidgetItem;
+      qwe->setText(it_users_port.value());
+      out_text->insertItem(pos, qwe);
+      pos++;
+      //connect(out_texts, SIGNAL(itemClicked(qwe)), window, SLOT(slot_send_to_server())) ;
+    }
+  window_layout->addWidget(out_text);
+  window->setWindowTitle("Online users");
+  window->setLayout(window_layout);
+  window->show();
 }
 
 void ServerWindow::slot_read_in_message(QString str)
@@ -79,7 +93,7 @@ void ServerWindow::slot_send_to_server()
   QByteArray arr_block;
   QDataStream out(&arr_block, QIODevice::WriteOnly);
   out.setVersion(QDataStream::Qt_4_2);
-  out << quint16(0) << FIRST_TYPE << QTime::currentTime() << in_text_->text();
+  out << quint16(0) << FIRST_TYPE << in_text_->text();
 
   out.device()->seek(0);
   out << quint16(arr_block.size() - sizeof(quint16));

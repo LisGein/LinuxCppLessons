@@ -21,7 +21,7 @@ public slots:
 
 signals:
   void in_message(QString str);
-  void online(QString online_users);
+  void online(QMap<QTcpSocket*, QString> connected_users_port_);
   void show_online_users(QString online_users);
 
 private:
@@ -36,5 +36,6 @@ private:
   QMap<QTcpSocket*, QString>::const_iterator it_users_port_;
   const quint8 FIRST_TYPE = 0;
   const quint8 SECOND_TYPE = 1;
+  const quint8 THIRD_TYPE = 2;
 };
 

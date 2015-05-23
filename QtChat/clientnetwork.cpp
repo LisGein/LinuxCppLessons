@@ -1,5 +1,4 @@
 #include "clientnetwork.h"
-#include <QTime>
 
 ClientNetwork::ClientNetwork(const QByteArray &user_name, const QString& str_host, int nPort)
   : next_block_size_(0)
@@ -29,10 +28,9 @@ void ClientNetwork::slot_ready_read()
 
       if (tcp_socket_->bytesAvailable() < next_block_size_)
         break;
-      QTime   time;
       QString str;
       quint8 type_msg;
-      in >> type_msg >> time >> str;
+      in >> type_msg >> str;
       next_block_size_ = 0;
       if (FIRST_TYPE_MSG == type_msg)
         emit in_message(str);
@@ -71,7 +69,7 @@ void ClientNetwork::slot_show_online_cl()
   QByteArray  arr_block;
   QDataStream out(&arr_block, QIODevice::WriteOnly);
   out.setVersion(QDataStream::Qt_4_2);
-  out << quint16(0) << SECOND_TYPE_MSG << QTime::currentTime();
+  out << quint16(0) << SECOND_TYPE_MSG;
   out.device()->seek(0);
   out << quint16(arr_block.size() - sizeof(quint16));
   tcp_socket_->write(arr_block);

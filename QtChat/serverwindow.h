@@ -13,6 +13,7 @@ class ServerWindow: public QWidget {
 private:
   const quint8 FIRST_TYPE = 0;
   const quint8 SECOND_TYPE = 1;
+  const quint8 THIRD_TYPE = 2;
   QTextEdit*  out_text_;
   QLineEdit*  in_text_;
   QPushButton* in_cmd;
@@ -36,7 +37,7 @@ signals:
 public slots:
   void slot_read_in_message(QString str);
   void slot_send_to_server();
-  void slot_show_online(QString online_users);
+  void slot_show_online(QMap<QTcpSocket *, QString> connected_users_port);
 };
 
 
