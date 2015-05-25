@@ -17,13 +17,15 @@
     clientnetwork.cpp \
     clientwindow.cpp \
     servernetwork.cpp \
-    serverwindow.cpp
+    serverwindow.cpp \
+    serveronlinewindow.cpp
 
  HEADERS  += mainwindow.h \
     clientnetwork.h \
     clientwindow.h \
     servernetwork.h \
-    serverwindow.h
+    serverwindow.h \
+    serveronlinewindow.h
 
  FORMS    += mainwindow.ui
 

@@ -1,17 +1,17 @@
 #include "serverwindow.h"
 #include  <QTextEdit>
 #include  <QLineEdit>
-#include <QVBoxLayout>
 #include <QLabel>
 #include  <QPushButton>
 #include <QComboBox>
-#include <QListWidget>
+#include <QCloseEvent>
 
 
 ServerWindow::ServerWindow(const QByteArray &user_name, const QString& str_host, int port, QWidget* pwgt)
   : QWidget(pwgt)
 {
   server_network_ = new ServerNetwork(user_name, str_host, port);
+  server_online_window_ = new ServerOnlineWindow();
   connect_signals();
   create_main_widget();
   create_menu();
@@ -19,13 +19,6 @@ ServerWindow::ServerWindow(const QByteArray &user_name, const QString& str_host,
 }
 // First type message - input message client
 // Second type message - show online users
-// Third type message - disconnect user
-void ServerWindow::connect_signals()
-{
-  connect(server_network_, SIGNAL(in_message(QString)), this, SLOT(slot_read_in_message(QString)));
-  connect(this, SIGNAL(signal_send_server(QByteArray)), server_network_, SLOT(slot_send_to_server(QByteArray)));
-  connect(server_network_, SIGNAL(online(QMap<QTcpSocket*, QString>)), this, SLOT(slot_show_online(QMap<QTcpSocket*, QString>)));
-}
 
 void ServerWindow::create_main_widget()
 {
@@ -61,27 +54,17 @@ void ServerWindow::create_window_chat()
   setLayout(window_layout);
 }
 
-void ServerWindow::slot_show_online(QMap<QTcpSocket*, QString> connected_users_port)
+void ServerWindow::connect_signals()
 {
-  QWidget* window = new(QWidget);
-  QVBoxLayout* window_layout = new QVBoxLayout;
-
-  QMap<QTcpSocket*, QString>::const_iterator it_users_port;
-  QListWidget*out_text = new QListWidget;
-  int pos = 0;
-  for (it_users_port = connected_users_port.begin(); it_users_port != connected_users_port.end(); ++it_users_port)
-    {
-      QListWidgetItem *qwe = new QListWidgetItem;
-      qwe->setText(it_users_port.value());
-      out_text->insertItem(pos, qwe);
-      pos++;
-      //connect(out_texts, SIGNAL(itemClicked(qwe)), window, SLOT(slot_send_to_server())) ;
-    }
-  window_layout->addWidget(out_text);
-  window->setWindowTitle("Online users");
-  window->setLayout(window_layout);
-  window->show();
+  connect(server_network_, SIGNAL(in_message(QString)), this, SLOT(slot_read_in_message(QString)));
+  connect(this, SIGNAL(signal_send_server(QByteArray)), server_network_, SLOT(slot_send_to_server(QByteArray)));
+  connect(server_online_window_, SIGNAL(signal_del_user(QTcpSocket*)), server_network_, SLOT(slot_delete_user(QTcpSocket*)));
+  connect(server_network_, SIGNAL(refresh(QMap<QString, QTcpSocket*>)), server_online_window_, SLOT(slot_refresh(QMap<QString, QTcpSocket*>)));
+  connect(server_network_, SIGNAL(online(QMap<QString, QTcpSocket*>)), server_online_window_, SLOT(slot_show_online(QMap<QString, QTcpSocket*>)));
+  connect(server_online_window_, SIGNAL(signal_refresh_online()), server_network_, SLOT(slot_refresh()));
+  connect(server_online_window_, SIGNAL(signal_close()), server_network_, SLOT(slot_close_online()));
 }
+
 
 void ServerWindow::slot_read_in_message(QString str)
 {
@@ -100,11 +83,3 @@ void ServerWindow::slot_send_to_server()
   in_text_->setText("");
   emit signal_send_server(arr_block);
 }
-
-
-
-
-
-
-
-
