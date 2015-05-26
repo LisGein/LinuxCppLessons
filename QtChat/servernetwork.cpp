@@ -7,7 +7,6 @@
 
 ServerNetwork::ServerNetwork(const QByteArray& user_name, QString const& str_host, int port)
   : next_block_size_(0)
-  , open_online_client_(false)
 {
   tcp_server_ = new QTcpServer(this);
   if (!tcp_server_->listen(QHostAddress::Any, port))
@@ -26,7 +25,7 @@ ServerNetwork::ServerNetwork(const QByteArray& user_name, QString const& str_hos
 }
 // First type message - input message client
 // Second type message - show online users
-// Third type message - disconnect user
+
 
 void ServerNetwork::slot_send_to_server(QByteArray  arr_block)
 {
@@ -99,12 +98,6 @@ void ServerNetwork::slot_disconnect_user()
     }
 }
 
-void ServerNetwork::slot_show_online()
-{
-  open_online_client_ = true;
-  emit online(re_connected_users_port_);
-}
-
 void ServerNetwork::slot_connected()
 {
   QString msg_connect = "Received the connected() signal";
@@ -123,6 +116,12 @@ void ServerNetwork::slot_error(QAbstractSocket::SocketError err)
                                          );
   emit in_message(str_error);
 }
+
+void ServerNetwork::slot_refresh()
+{
+  emit refresh(re_connected_users_port_);
+}
+
 
 void ServerNetwork::send_to_client(QTcpSocket* socket, const QString& str, quint8 Types)
 {
@@ -160,7 +159,7 @@ void ServerNetwork::read_msg(QString str, QTcpSocket* client_socket)
       next_block_size_ = 0;
       for (it_users_port_ = connected_users_port_.begin(); it_users_port_ != connected_users_port_.end(); ++it_users_port_)
         send_to_client(it_users_port_.key(), message + " " , FIRST_TYPE);
-      if (open_online_client_)
+
         emit refresh(re_connected_users_port_);
     }
 }
@@ -181,18 +180,7 @@ void ServerNetwork::disconnect_client(QTcpSocket* socket_del_user, QString msg_u
   socket_del_user->deleteLater();
   for (auto it_users_port_ = connected_users_port_.begin(); it_users_port_ != connected_users_port_.end(); ++it_users_port_)
     send_to_client(it_users_port_.key(), msg_user_disconnect + " ", FIRST_TYPE);
-  if (open_online_client_)
     emit refresh(re_connected_users_port_);
-}
-
-void ServerNetwork::slot_refresh()
-{
-  emit refresh(re_connected_users_port_);
-}
-
-void ServerNetwork::slot_close_online()
-{
-  open_online_client_ = false;
 }
 
 

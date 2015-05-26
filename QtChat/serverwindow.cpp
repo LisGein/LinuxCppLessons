@@ -11,7 +11,7 @@ ServerWindow::ServerWindow(const QByteArray &user_name, const QString& str_host,
   : QWidget(pwgt)
 {
   server_network_ = new ServerNetwork(user_name, str_host, port);
-  server_online_window_ = new ServerOnlineWindow();
+  server_online_window_ = new ListOnline();
   connect_signals();
   create_main_widget();
   create_menu();
@@ -40,7 +40,7 @@ void ServerWindow::create_menu()
   menu_->addAction("&Close", this, SLOT(close()));
   menu_bar_.addMenu(menu_);
 
-  connect(show_online, SIGNAL( activated() ), server_network_, SLOT(slot_show_online()) );
+  connect(show_online, SIGNAL( activated() ), this, SLOT(slot_open_online()) );
 }
 
 void ServerWindow::create_window_chat()
@@ -60,11 +60,17 @@ void ServerWindow::connect_signals()
   connect(this, SIGNAL(signal_send_server(QByteArray)), server_network_, SLOT(slot_send_to_server(QByteArray)));
   connect(server_online_window_, SIGNAL(signal_del_user(QTcpSocket*)), server_network_, SLOT(slot_delete_user(QTcpSocket*)));
   connect(server_network_, SIGNAL(refresh(QMap<QString, QTcpSocket*>)), server_online_window_, SLOT(slot_refresh(QMap<QString, QTcpSocket*>)));
-  connect(server_network_, SIGNAL(online(QMap<QString, QTcpSocket*>)), server_online_window_, SLOT(slot_show_online(QMap<QString, QTcpSocket*>)));
+  //connect(server_network_, SIGNAL(online(QMap<QString, QTcpSocket*>)), server_online_window_, SLOT(slot_refresh(QMap<QString, QTcpSocket*>)));
   connect(server_online_window_, SIGNAL(signal_refresh_online()), server_network_, SLOT(slot_refresh()));
-  connect(server_online_window_, SIGNAL(signal_close()), server_network_, SLOT(slot_close_online()));
+  connect(this, SIGNAL(signal_close_online()), server_network_, SLOT(slot_close_online()));
+  connect(this, SIGNAL(signal_open_online() ), server_network_, SLOT(slot_refresh()) );
 }
 
+void ServerWindow::slot_open_online()
+{
+  server_online_window_->show();
+  emit signal_open_online();
+}
 
 void ServerWindow::slot_read_in_message(QString str)
 {

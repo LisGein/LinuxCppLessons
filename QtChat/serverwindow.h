@@ -1,6 +1,6 @@
 #pragma once
 #include "servernetwork.h"
-#include "serveronlinewindow.h"
+#include "listonline.h"
 #include <QWidget>
 #include <QMenu>
 #include <QMenuBar>
@@ -22,12 +22,14 @@ signals:
   void signal_show_online();
   void signal_del_user(QTcpSocket*);
   void signal_refresh_online();
+  void signal_open_online();
 
 private:
   void create_main_widget();
   void create_menu();
   void create_window_chat();
   void connect_signals();
+
 
   const quint8 FIRST_TYPE = 0;
   const quint8 SECOND_TYPE = 1;
@@ -38,7 +40,7 @@ private:
   QMenuBar menu_bar_;
   QMenu* menu_;
   ServerNetwork *server_network_;
-  ServerOnlineWindow* server_online_window_;
+  ListOnline* server_online_window_;
   QMap<QString, QTcpSocket*> connected_users_port_;
   QListWidget* out_online_;
   QVBoxLayout* window_online_layout_;
@@ -46,6 +48,7 @@ private:
 private slots:
   void slot_read_in_message(QString str);
   void slot_send_to_server();
+  void slot_open_online();
 };
 
 

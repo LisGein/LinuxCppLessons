@@ -18,15 +18,16 @@
     clientwindow.cpp \
     servernetwork.cpp \
     serverwindow.cpp \
-    serveronlinewindow.cpp
+    listonline.cpp
 
  HEADERS  += mainwindow.h \
     clientnetwork.h \
     clientwindow.h \
     servernetwork.h \
     serverwindow.h \
-    serveronlinewindow.h
+    listonline.h
 
- FORMS    += mainwindow.ui
+ FORMS    += mainwindow.ui \
+    listonline.ui
 
  QMAKE_CXXFLAGS += -std=c++0x
