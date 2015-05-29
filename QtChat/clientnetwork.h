@@ -7,7 +7,7 @@ class ClientNetwork: public QWidget {
 public:
   ClientNetwork(const QByteArray& user_name,const QString& str_host, int nPort);
 
-public slots:
+private slots:
   void slot_ready_read();
   void slot_error(QAbstractSocket::SocketError err);
   void slot_send_message(QByteArray arrBlock);

@@ -24,6 +24,11 @@ signals:
   void signal_refresh_online();
   void signal_open_online();
 
+private slots:
+  void slot_read_in_message(QString str);
+  void slot_send_to_server();
+  void slot_open_online();
+
 private:
   void create_main_widget();
   void create_menu();
@@ -44,11 +49,6 @@ private:
   QMap<QString, QTcpSocket*> connected_users_port_;
   QListWidget* out_online_;
   QVBoxLayout* window_online_layout_;
-
-private slots:
-  void slot_read_in_message(QString str);
-  void slot_send_to_server();
-  void slot_open_online();
 };
 
 

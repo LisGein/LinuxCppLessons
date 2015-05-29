@@ -28,7 +28,7 @@ signals:
   void signal_del_user(QTcpSocket*);
   void signal_refresh_online();
 
-public slots:
+private slots:
   void slot_refresh(QMap<QString, QTcpSocket*> connected_users_port);
   void slot_delete_user(QListWidgetItem* user_name);
 

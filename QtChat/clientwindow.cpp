@@ -10,6 +10,7 @@ ClientWindow::ClientWindow(const QByteArray &user_name, const QString& str_host,
   : QWidget(pwgt)
 {
   client_network_ = new ClientNetwork(user_name, str_host, port);
+  online_clients_ = new ListOnlineClient();
   connect_signals();
   create_main_widget();
   create_menu();
@@ -21,7 +22,15 @@ void ClientWindow::connect_signals()
 {
   connect(client_network_, SIGNAL(in_message(QString)), this, SLOT(slot_ready_read(QString)));
   connect(this, SIGNAL(signal_send_server(QByteArray)), client_network_, SLOT(slot_send_message(QByteArray)));
-  connect(client_network_, SIGNAL(online(QString)), this, SLOT(slot_show_online(QString)));
+  connect(client_network_, SIGNAL(online(QString)), online_clients_, SLOT(slot_refresh(QString)));
+  //connect(this, SIGNAL(signal_close_online()), client_network_, SLOT(slot_close_online()));
+  connect(this, SIGNAL(signal_open_online() ), client_network_, SLOT(slot_show_online_cl()) );
+}
+
+void ClientWindow::slot_open_online()
+{
+  online_clients_->show();
+  emit signal_open_online();
 }
 
 void ClientWindow::create_main_widget()
@@ -41,7 +50,7 @@ void ClientWindow::create_menu()
   menu_->addAction(show_online);
   menu_->addAction("&Close", this, SLOT(close()));
   menu_bar_.addMenu(menu_);
-  connect(show_online, SIGNAL( activated() ), client_network_, SLOT(slot_show_online_cl()) );
+  connect(show_online, SIGNAL( activated() ), this, SLOT(slot_open_online()) );
 }
 
 void ClientWindow::create_window_chat()
@@ -73,10 +82,3 @@ void ClientWindow::slot_ready_read(QString str)
   out_text_->append(str);
 }
 
-void ClientWindow::slot_show_online(QString online_users)
-{
-  QMessageBox show_online;
-  show_online.setText(online_users);
-  show_online.show();
-  show_online.exec();
-}

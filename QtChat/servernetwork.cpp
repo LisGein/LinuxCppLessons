@@ -44,6 +44,10 @@ void ServerNetwork::slot_delete_user(QTcpSocket *socket_del_user)
       msg_user_disconnect = it_users_port_.value() + " has been banned.";
       disconnect_client(socket_del_user, msg_user_disconnect);
       emit refresh(re_connected_users_port_);
+      for (it_users_port_ = connected_users_port_.begin(); it_users_port_ != connected_users_port_.end(); ++it_users_port_)
+        {
+          forming_list_online(it_users_port_.key());
+        }
     }
 }
 
@@ -158,8 +162,10 @@ void ServerNetwork::read_msg(QString str, QTcpSocket* client_socket)
 
       next_block_size_ = 0;
       for (it_users_port_ = connected_users_port_.begin(); it_users_port_ != connected_users_port_.end(); ++it_users_port_)
+        {
         send_to_client(it_users_port_.key(), message + " " , FIRST_TYPE);
-
+        forming_list_online(it_users_port_.key());
+        }
         emit refresh(re_connected_users_port_);
     }
 }
@@ -179,7 +185,10 @@ void ServerNetwork::disconnect_client(QTcpSocket* socket_del_user, QString msg_u
   connected_users_port_.remove(socket_del_user);
   socket_del_user->deleteLater();
   for (auto it_users_port_ = connected_users_port_.begin(); it_users_port_ != connected_users_port_.end(); ++it_users_port_)
+    {
     send_to_client(it_users_port_.key(), msg_user_disconnect + " ", FIRST_TYPE);
+    forming_list_online(it_users_port_.key());
+    }
     emit refresh(re_connected_users_port_);
 }
 

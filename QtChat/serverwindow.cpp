@@ -60,8 +60,8 @@ void ServerWindow::connect_signals()
   connect(this, SIGNAL(signal_send_server(QByteArray)), server_network_, SLOT(slot_send_to_server(QByteArray)));
   connect(server_online_window_, SIGNAL(signal_del_user(QTcpSocket*)), server_network_, SLOT(slot_delete_user(QTcpSocket*)));
   connect(server_network_, SIGNAL(refresh(QMap<QString, QTcpSocket*>)), server_online_window_, SLOT(slot_refresh(QMap<QString, QTcpSocket*>)));
-  //connect(server_network_, SIGNAL(online(QMap<QString, QTcpSocket*>)), server_online_window_, SLOT(slot_refresh(QMap<QString, QTcpSocket*>)));
-  connect(server_online_window_, SIGNAL(signal_refresh_online()), server_network_, SLOT(slot_refresh()));
+//  //connect(server_network_, SIGNAL(online(QMap<QString, QTcpSocket*>)), server_online_window_, SLOT(slot_refresh(QMap<QString, QTcpSocket*>)));
+//  connect(server_online_window_, SIGNAL(signal_refresh_online()), server_network_, SLOT(slot_refresh()));
   connect(this, SIGNAL(signal_close_online()), server_network_, SLOT(slot_close_online()));
   connect(this, SIGNAL(signal_open_online() ), server_network_, SLOT(slot_refresh()) );
 }
