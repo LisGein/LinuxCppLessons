@@ -170,7 +170,7 @@ class CalcCourseWork:
                 x_I_spes = 0
             self.I_spec.append(x_I_spes)
 
-
+        #self.idx = self.t.index(24)
         self.phi1 = math.radians(self.agle1)
         self.phi2 = math.radians(self.agle2)
         self.Fkr_Fa = self.Fkr/self.Fa
@@ -180,74 +180,74 @@ class CalcCourseWork:
         self.L_bpn = (self.D10_ - self.Dkr)/(2*math.tan(self.phi1))
         self.L_apn = (self.Da - self.Dkr)/(2*math.tan(self.phi2))
         self.Fkr_Fa = self.Fkr/self.Fa
-        self.X_bpn = self.L_bpn/5
+        X_bpn = self.L_bpn/5
         X_apn = self.L_apn/15
-        I = []
-        L_i = []
-        D_i = []
-        F_i = []
-        Fkr_Fi = []
-        lambda_i = []
-        lambda_i.append(0.00430541215799347) #lambda???
-        lambda_i.append(0.00645568875303399)
-        lambda_i.append(0.0107357096097859)
-        lambda_i.append(0.0212703247274636)
-        lambda_i.append(0.0606711295853747)
-        lambda_i.append(1.00012312002336)
-        lambda_i.append(1.8142175853707)
-        lambda_i.append(2.05543777829136)
-        lambda_i.append(2.20149920640802)
-        lambda_i.append(2.30325999877438)
-        lambda_i.append(2.37968870285231)
-        lambda_i.append(2.43992742650647)
-        lambda_i.append(2.48904644589257)
-        lambda_i.append(2.53012465846536)
-        lambda_i.append(2.56516135150798)
-        lambda_i.append(2.59551971001575)
-        lambda_i.append(2.62216431201877)
-        lambda_i.append(2.64580404266828)
-        lambda_i.append(2.66696809416625)
-        lambda_i.append(2.68606396712451)
-        lambda_i.append(2.70341374219393)
-        gdf_qu_l = []
-        gdf_pi_l = []
-        gdf_tau_l = []
-        gdf_eps_l = []
-        diff_q_Fkr = []
-        P_ = []#wervjwjervkwcevkwclkwscowkeocwoeckwkeock viwe ewe
-        T = []
-        R_0 = []
-        v = []
+        self.I = []
+        self.L_i = []
+        self.D_i = []
+        self.F_i = []
+        self.Fkr_Fi = []
+        self.lambda_i = []
+        self.lambda_i.append(0.00430541215799347) #lambda???
+        self.lambda_i.append(0.00645568875303399)
+        self.lambda_i.append(0.0107357096097859)
+        self.lambda_i.append(0.0212703247274636)
+        self.lambda_i.append(0.0606711295853747)
+        self.lambda_i.append(1.00012312002336)
+        self.lambda_i.append(1.8142175853707)
+        self.lambda_i.append(2.05543777829136)
+        self.lambda_i.append(2.20149920640802)
+        self.lambda_i.append(2.30325999877438)
+        self.lambda_i.append(2.37968870285231)
+        self.lambda_i.append(2.43992742650647)
+        self.lambda_i.append(2.48904644589257)
+        self.lambda_i.append(2.53012465846536)
+        self.lambda_i.append(2.56516135150798)
+        self.lambda_i.append(2.59551971001575)
+        self.lambda_i.append(2.62216431201877)
+        self.lambda_i.append(2.64580404266828)
+        self.lambda_i.append(2.66696809416625)
+        self.lambda_i.append(2.68606396712451)
+        self.lambda_i.append(2.70341374219393)
+        self.gdf_qu_l = []
+        self.gdf_pi_l = []
+        self.gdf_tau_l = []
+        self.gdf_eps_l = []
+        self.diff_q_Fkr = []
+        self.P_ = []#wervjwjervkwcevkwclkwscowkeocwoeckwkeock viwe ewe
+        self.T = []
+        self.R_0 = []
+        self.v = []
         for i in range(21):
-            I.append(-5 + i)
-            if I[i]  < 0 :
-                L_i.append(self.X_bpn * I[i])
-                x_Di = self.Dkr + ((self.D10_ - self.Dkr)/5)*(-I[i])
+            self.I.append(-5 + i)
+            if self.I[i]  < 0 :
+                self.L_i.append(X_bpn * self.I[i])
+                x_Di = self.Dkr + ((self.D10_ - self.Dkr)/5)*(-self.I[i])
             else:
-                L_i.append(X_apn * I[i])
-                x_Di = self.Dkr + ((self.Da - self.Dkr)/15)*(I[i])
-            D_i.append(x_Di)
-            x_Fi = self.PI*(D_i[i]**2/4)
-            F_i.append(x_Fi)
-            Fkr_Fi.append(self.Fkr/F_i[i])
-            x_gdf = calc_gdf_qu(lambda_i[i], self.k)
-            gdf_qu_l.append(x_gdf)
-            x_gdf = calc_gdf_pi(lambda_i[i], self.k)
-            gdf_pi_l.append(x_gdf)
-            x_gdf = calc_gdf_Tau(lambda_i[i], self.k)
-            gdf_tau_l.append(x_gdf)
-            x_gdf = calc_gdf_esp(lambda_i[i], self.k)
-            gdf_eps_l.append(x_gdf)
-            x = gdf_qu_l[i] - Fkr_Fi[i]
-            diff_q_Fkr.append(x)
-            x = gdf_pi_l[i] * long(self.P_k)
-            P_.append(long(x))
-            x = self.Tk * gdf_tau_l[i]
-            T.append(x)
-            x = self.P_k/(self.specific_gas_const*self.Tk)*gdf_eps_l[i]
-            R_0.append(x)
-            x = self.Akr * lambda_i[i]
-            v.append(x)
+                self.L_i.append(X_apn * self.I[i])
+                x_Di = self.Dkr + ((self.Da - self.Dkr)/15)*(self.I[i])
+            self.D_i.append(x_Di)
+            x_Fi = self.PI*(self.D_i[i]**2/4)
+            self.F_i.append(x_Fi)
+            self.Fkr_Fi.append(self.Fkr/self.F_i[i])
+            x_gdf = calc_gdf_qu(self.lambda_i[i], self.k)
+            self.gdf_qu_l.append(x_gdf)
+            x_gdf = calc_gdf_pi(self.lambda_i[i], self.k)
+            self.gdf_pi_l.append(x_gdf)
+            x_gdf = calc_gdf_Tau(self.lambda_i[i], self.k)
+            self.gdf_tau_l.append(x_gdf)
+            x_gdf = calc_gdf_esp(self.lambda_i[i], self.k)
+            self.gdf_eps_l.append(x_gdf)
+            x = self.gdf_qu_l[i] - self.Fkr_Fi[i]
+            self.diff_q_Fkr.append(x)
+            x = self.gdf_pi_l[i] * long(self.P_k)
+            self.P_.append(long(x))
+            x = self.Tk * self.gdf_tau_l[i]
+            self.T.append(x)
+            x = self.P_k/(self.specific_gas_const*self.Tk)*self.gdf_eps_l[i]
+            self.R_0.append(x)
+            x = self.Akr * self.lambda_i[i]
+            self.v.append(x)
 
     def print_initial_data(self):
         print("\\begin{center}")
@@ -418,52 +418,153 @@ self.idx_estimated_pressure_ne, '$P_a$', self.Pa, 'Pascal')
         print("\\end{large}")
         print("\\end{center}")
 
-        print("Tipo graphic 2 \\\\")
         print("\\begin{tikzpicture}")
-        print("\\begin{axis}")
+        print("\\begin{axis} [")
+        print ("legend pos = north west,")
+        print ("grid = major ]")
+        print ("\\legend{ $D_2$, $D_3$};")
         print("\\addplot coordinates {")
-        print("( 338.1, 2 )")
-        print("( 169.1, 1 )")
-        print("( 84.5, 6)")
-        print("( 555, 5 )")
-        print("( 21.1, 9 )};")
+        for i in range(200):
+            print '( %f , %f )' % (self.t[i], self.D20[i])
+        print("};")
+        print("\\addplot coordinates {")
+        for i in range(200):
+            print '( %f , %f )' % (self.t[i], self.D30[i])
+        print("};")
         print("\\end{axis}")
         print("\\end{tikzpicture}")
+
+
         print("\\begin{flushright}")
         print("\\textit{Pic. $N^o 2$: Changing the diameter of the charge during engine operation}\\\\")
         print("\\end{flushright}")
 
-        print("Tipo graphic 3 \\\\")
+        print("\\begin{tikzpicture}")
+        print("\\begin{axis} [")
+        print ("legend pos = north west,")
+        print ("grid = major ]")
+        print ("\\legend{ $L_1$, $L_2$, $L_3$};")
+        print("\\addplot coordinates {")
+        for i in range(200):
+            print '( %f , %f )' % (self.t[i], self.L10[i])
+        print("};")
+        print("\\addplot coordinates {")
+        for i in range(200):
+            print '( %f , %f )' % (self.t[i], self.L20[i])
+        print("};")
+        print("\\addplot coordinates {")
+        for i in range(200):
+            print '( %f , %f )' % (self.t[i], self.L30[i])
+        print("};")
+        print("\\end{axis}")
+        print("\\end{tikzpicture}")
+
         print("\\begin{flushright}")
         print("\\textit{Pic. $N^o 3$: Changing the length of the charge during engine operation}\\\\")
         print("\\end{flushright}")
 
-        print("Tipo graphic 4 \\\\")
+        print("\\begin{tikzpicture}")
+        print("\\begin{axis} [")
+        print ("legend pos = north west,")
+        print ("grid = major ]")
+        print ("\\legend{ $G_c$};")
+        print("\\addplot coordinates {")
+        for i in range(200):
+            print '( %f , %f )' % (self.t[i], self.Gc[i])
+        print("};")
+        print("\\end{axis}")
+        print("\\end{tikzpicture}")
         print("\\begin{flushright}")
         print("\\textit{Pic. $N^o 4$: Changes in consumption during engine operation}\\\\")
         print("\\end{flushright}")
 
-        print("Tipo graphic 5 \\\\")
+        print("\\begin{tikzpicture}")
+        print("\\begin{axis} [")
+        print ("legend pos = north west,")
+        print ("grid = major ]")
+        print ("\\legend{ $S_1$, $S_2$, $S_3$, $S_4$, $S_g$};")
+        print("\\addplot coordinates {")
+        for i in range(200):
+            print '( %f , %f )' % (self.t[i], self.S10_[i])
+        print("};")
+        print("\\addplot coordinates {")
+        for i in range(200):
+            print '( %f , %f )' % (self.t[i], self.S20_[i])
+        print("};")
+        print("\\addplot coordinates {")
+        for i in range(200):
+            print '( %f , %f )' % (self.t[i], self.S30_[i])
+        print("};")
+        print("\\addplot coordinates {")
+        for i in range(200):
+            print '( %f , %f )' % (self.t[i], self.S40_[i])
+        print("};")
+        print("\\addplot coordinates {")
+        for i in range(200):
+            print '( %f , %f )' % (self.t[i], self.Sg[i])
+        print("};")
+        print("\\end{axis}")
+        print("\\end{tikzpicture}")
         print("\\begin{flushright}")
         print("\\textit{Pic. $N^o 5$: Changing the burning area of the charge during engine operation}\\\\")
         print("\\end{flushright}")
 
-        print("Tipo graphic 6 \\\\")
+        print("\\begin{tikzpicture}")
+        print("\\begin{axis} [")
+        print ("legend pos = north west,")
+        print ("grid = major ]")
+        print ("\\legend{ $p_k$};")
+        print("\\addplot coordinates {")
+        for i in range(200):
+            print '( %f , %f )' % (self.t[i], self.pk[i])
+        print("};")
+        print("\\end{axis}")
+        print("\\end{tikzpicture}")
         print("\\begin{flushright}")
         print("\\textit{Pic. $N^o 6$: The change in pressure in the combustion chamber while the engine}\\\\")
         print("\\end{flushright}")
 
-        print("Tipo graphic 7 \\\\")
+        print("\\begin{tikzpicture}")
+        print("\\begin{axis} [")
+        print ("legend pos = north west,")
+        print ("grid = major ]")
+        print ("\\legend{ $u(P_k)$};")
+        print("\\addplot coordinates {")
+        for i in range(200):
+            print '( %f , %f )' % (self.t[i], self.u_Pk[i])
+        print("};")
+        print("\\end{axis}")
+        print("\\end{tikzpicture}")
         print("\\begin{flushright}")
         print("\\textit{Pic. $N^o 7$: Changing the speed of the combustion of fuel during engine operation}\\\\")
         print("\\end{flushright}")
 
-        print("Tipo graphic 8 \\\\")
+        print("\\begin{tikzpicture}")
+        print("\\begin{axis} [")
+        print ("legend pos = north west,")
+        print ("grid = major ]")
+        print ("\\legend{P};")
+        print("\\addplot coordinates {")
+        for i in range(200):
+            print '( %f , %f )' % (self.t[i], self.P[i])
+        print("};")
+        print("\\end{axis}")
+        print("\\end{tikzpicture}")
         print("\\begin{flushright}")
         print("\\textit{Pic. $N^o 8$: Change thrust during engine operation}\\\\")
         print("\\end{flushright}")
 
-        print("Tipo graphic 9 \\\\")
+        print("\\begin{tikzpicture}")
+        print("\\begin{axis} [")
+        print ("legend pos = north west,")
+        print ("grid = major ]")
+        print ("\\legend{$I_{spec}$};")
+        print("\\addplot coordinates {")
+        for i in range(200):
+            print '( %f , %f )' % (self.t[i], self.I_spec[i])
+        print("};")
+        print("\\end{axis}")
+        print("\\end{tikzpicture}")
         print("\\begin{flushright}")
         print("\\textit{Pic. $N^o 9$: Changing specific impulse while the engine}\\\\")
         print("\\end{flushright}")
@@ -473,11 +574,214 @@ self.idx_estimated_pressure_ne, '$P_a$', self.Pa, 'Pascal')
         print("\\begin{large}")
         print("\\textbf{\\textit {Burning charge}}\\\\")
         print("\\end{large}")
+
+        print("\\begin{tabular}{|c|c|c|}")
+        print("\\hline")
+        print '%s & %s & %s  \\\\' % (' ', 'time', '$S_{gor svod}$')
+        print("\\hline")
+        print '%s & %d & %d  \\\\' % ('t', 0, 0)
+        print("\\hline")
+        print '%s & %s & %s  \\\\' % ('x', 'y', '')
+        print("\\hline")
+        print '%f & %f & %s  \\\\' % (0, self.D10_/2, '')
+        print("\\hline")
+        print '%f & %f & %s  \\\\' % (self.L10_, self.D10_/2, '')
+        print("\\hline")
+        print '%f & %f & %s  \\\\' % (self.L10_, self.D30_/2, '')
+        print("\\hline")
+        print '%f & %f & %s  \\\\' % (self.L20_, self.D30_/2, '')
+        print("\\hline")
+        print '%f & %f & %s  \\\\' % (self.L20_, self.D20_/2, '')
+        print("\\hline")
+        print '%f & %f & %s  \\\\' % (0, self.D20_/2, '')
+        print("\\hline")
+        print '%f & %f & %s  \\\\' % (0, self.D10_/2, '')
+        print("\\hline")
+        print '%f & %f & %s  \\\\' % (0, -self.D10_/2, '')
+        print("\\hline")
+        print '%f & %f & %s  \\\\' % (self.L10_, -self.D10_/2, '')
+        print("\\hline")
+        print '%f & %f & %s  \\\\' % (self.L10_, -self.D30_/2, '')
+        print("\\hline")
+        print '%f & %f & %s  \\\\' % (self.L20_, -self.D30_/2, '')
+        print("\\hline")
+        print '%f & %f & %s  \\\\' % (self.L20_, -self.D20_/2, '')
+        print("\\hline")
+        print '%f & %f & %s  \\\\' % (0, -self.D20_/2, '')
+        print("\\hline")
+        print '%f & %f & %s  \\\\' % (0, -self.D10_/2, '')
+        print("\\hline")
+
+        print("\\end{tabular}")
+
+        print("\\begin{tabular}{|c|c|c|}")
+        print("\\hline")
+        print '%s & %s & %s  \\\\' % (' ', 'time', '$S_{gor svod}$')
+        print("\\hline")
+        print '%s & %d & %f  \\\\' % ('t', 24, self.li[200])
+        print("\\hline")
+        print '%s & %s & %s  \\\\' % ('x', 'y', '')
+        print("\\hline")
+        print '%f & %f & %s  \\\\' % (0, self.D10_/2, '')
+        print("\\hline")
+        print '%f & %f & %s  \\\\' % (self.L10[200], self.D10_/2, '')
+        print("\\hline")
+        if self.D30[200] > 0.25:
+            print '%f & %f & %s  \\\\' % (self.L10[200], 0.25, '')
+        else:
+            print '%f & %f & %s  \\\\' % (self.L10[200],self.D30[200]/2, '')
+        print("\\hline")
+        if self.D30[200] > 0.25:
+            print '%f & %f & %s  \\\\' % (self.L20[200], 0.25, '')
+        else:
+            print '%f & %f & %s  \\\\' % (self.L20[200], self.D30[200]/2, '')
+        print("\\hline")
+
+        if self.D20[200] > 0.25:
+            print '%f & %f & %s  \\\\' % (self.L20[200], 0.25, '')
+        else:
+            print '%f & %f & %s  \\\\' % (self.L20[200], self.D20[200]/2, '')
+        print("\\hline")
+        if self.D20[200] > 0.25:
+            print '%f & %f & %s  \\\\' % (0, 0.25, '')
+        else:
+            print '%f & %f & %s  \\\\' % (0,self.D20[200]/2, '')
+        print("\\hline")
+        print '%f & %f & %s  \\\\' % (0, self.D10_/2, '')
+        print("\\hline")
+        print '%f & %f & %s  \\\\' % (0, -self.D10_/2, '')
+        print("\\hline")
+        print '%f & %f & %s  \\\\' % (self.L10[200], -self.D10_/2, '')
+        print("\\hline")
+        if self.D30[200] > 0.25:
+            print '%f & %f & %s  \\\\' % (self.L10[200], -0.25, '')
+        else:
+            print '%f & %f & %s  \\\\' % (self.L10[200], -self.D30[200]/2, '')
+        print("\\hline")
+        if self.D30[200] > 0.25:
+            print '%f & %f & %s  \\\\' % (self.L20[200], -0.25, '')
+        else:
+            print '%f & %f & %s  \\\\' % (self.L20[200], -self.D30[200]/2, '')
+        print("\\hline")
+
+        if self.D20[200] > 0.25:
+            print '%f & %f & %s  \\\\' % (self.L20[200], -0.25, '')
+        else:
+            print '%f & %f & %s  \\\\' % (self.L20[200], -self.D20[200]/2, '')
+        print("\\hline")
+        if self.D20[200] > 0.25:
+            print '%f & %f & %s  \\\\' % (0, -0.25, '')
+        else:
+            print '%f & %f & %s  \\\\' % (0, -self.D20[200]/2, '')
+        print("\\hline")
+        print '%f & %f & %s  \\\\' % (0, -self.D10_/2, '')
+        print("\\hline")
+
+        print("\\end{tabular}\\\\")
         print("\\end{center}")
 
         print("\\begin{flushright}")
         print("\\textit{Table $N^o 4$: Table calculated data to construct a model of the engine combustion charge\\\\Table data validation through the function IF}\\\\")
         print("\\end{flushright}")
+
+    def print_s_graphics(self): #change this graphics
+        print("\\begin{tikzpicture}")
+        print("\\begin{axis} [")
+        print ("legend pos = north west,")
+        print ("grid = major ]")
+        print ("\\legend{ $D_2$, $D_3$};")
+        print("\\addplot coordinates {")
+        for i in range(200):
+            print '( %f , %f )' % (self.t[i], self.D20[i])
+        print("};")
+        print("\\addplot coordinates {")
+        for i in range(200):
+            print '( %f , %f )' % (self.t[i], self.D30[i])
+        print("};")
+        print("\\end{axis}")
+        print("\\end{tikzpicture}")
+        print("\\begin{flushright}")
+        print("\\textit{Pic. $N^o 10$: Start burning charge (0 sec)}\\\\")
+        print("\\end{flushright}")
+
+        print("\\begin{tikzpicture}")
+        print("\\begin{axis} [")
+        print ("legend pos = north west,")
+        print ("grid = major ]")
+        print ("\\legend{ $D_2$, $D_3$};")
+        print("\\addplot coordinates {")
+        for i in range(200):
+            print '( %f , %f )' % (self.t[i], self.D20[i])
+        print("};")
+        print("\\addplot coordinates {")
+        for i in range(200):
+            print '( %f , %f )' % (self.t[i], self.D30[i])
+        print("};")
+        print("\\end{axis}")
+        print("\\end{tikzpicture}")
+        print("\\begin{flushright}")
+        print("\\textit{Pic. $N^o 11$: Intermediate burning time charge (10.08 seconds)}\\\\")
+        print("\\end{flushright}")
+
+        print("\\begin{tikzpicture}")
+        print("\\begin{axis} [")
+        print ("legend pos = north west,")
+        print ("grid = major ]")
+        print ("\\legend{ $D_2$, $D_3$};")
+        print("\\addplot coordinates {")
+        for i in range(200):
+            print '( %f , %f )' % (self.t[i], self.D20[i])
+        print("};")
+        print("\\addplot coordinates {")
+        for i in range(200):
+            print '( %f , %f )' % (self.t[i], self.D30[i])
+        print("};")
+        print("\\end{axis}")
+        print("\\end{tikzpicture}")
+        print("\\begin{flushright}")
+        print("\\textit{Pic. $N^o 11$: Intermediate burning time charge (18 sec)}\\\\")
+        print("\\end{flushright}")
+
+        print("\\begin{tikzpicture}")
+        print("\\begin{axis} [")
+        print ("legend pos = north west,")
+        print ("grid = major ]")
+        print ("\\legend{ $D_2$, $D_3$};")
+        print("\\addplot coordinates {")
+        for i in range(200):
+            print '( %f , %f )' % (self.t[i], self.D20[i])
+        print("};")
+        print("\\addplot coordinates {")
+        for i in range(200):
+            print '( %f , %f )' % (self.t[i], self.D30[i])
+        print("};")
+        print("\\end{axis}")
+        print("\\end{tikzpicture}")
+        print("\\begin{flushright}")
+        print("\\textit{Pic. $N^o 13$: The final time of combustion of the charge (24 sec)}\\\\")
+        print("\\end{flushright}")
+
+    def print_building_profile_nozzle(self):
+        print("\\newpage")
+        print("\\begin{center}")
+        print("\\begin{large}")
+        print("\\textbf{\\textit {Building a profile nozzle}}\\\\")
+        print("\\end{large}")
+
+        print("\\begin{tabular}{|l*{15}{l|}}")
+        print("\\hline")
+        print '%s & %s & %s & %s & %s & %s & %s & %s & %s & %s & %s & %s & %s & %s  \\\\' % ('i', 'li', '\(D_i\)', '\(F_{kr}/F_i\)', '$\\lambda_i$', 'q($\\lambda_i$)' , '$\\pi(\\lambda_i$)', '$\\tau(\\lambda_i$)', '$\\varepsilon(\\lambda_i$)', 'q($\\lambda_i) - F_{kr}/F_i$', 'P', 'T', '\(R_0\)', 'v')
+        print("\\hline")
+        for i in range(20):
+            print '%d & %f & %f & %f & %f & %f & %f & %f & %f & %f & %f & %f & %f & %f \\\\' % (self.I[i], self.L_i[i], self.D_i[i], self.Fkr_Fi[i], self.lambda_i[i], self.gdf_qu_l[i], self.gdf_pi_l[i] , self.gdf_tau_l[i], self.gdf_eps_l[i], self.diff_q_Fkr[i] , self.P[i], self.T[i], self.R_0[i], self.v[i])
+        print("\\hline")
+        print("\\end{tabular}\\\\")
+
+        print("\\end{center}")
+        print("\\begin{flushright}")
+        print("\\textit{Table $N^o 5$: Data table to build the profile of the nozzle}\\\\")
+        print("\\end{flushright}")
+
 
 def main():
     calc_course = CalcCourseWork()
@@ -487,6 +791,8 @@ def main():
     calc_course.print_dimensioning()
     calc_course.print_graphics()
     calc_course.print_constr_model_combustion()
+    calc_course.print_s_graphics()
+    calc_course.print_building_profile_nozzle()
 
 if __name__ == '__main__':
     main()
