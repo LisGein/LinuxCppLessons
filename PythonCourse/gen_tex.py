@@ -8,7 +8,6 @@ def initial_data_begin_table():
     print("Parameter & Value & Dimension & Index & Designation & Size & SI \\\\")
     print("\\hline")
     print("\\multicolumn{6}{|c}{Dimensions charge} & \\\\")
-    print("\\hline")
 
 def end_table():
     print("\\hline")
@@ -24,7 +23,22 @@ def calc_data_begin_table():
         print("\\textit{Table $N^o 3$: The calculated data}\\\\")
         print("\\end{flushright}")
         print("\\begin{tabular}{  | c | p{1.5cm} | p{1.5cm} | p{1.5cm} | c | c | p{1.5cm} | }")
-        print("\\hline")
+
+def print_data_table_f(parametr, designation, size, SI):
+    print("\\hline")
+    print '%s & %s & %s & %s & %s & %f & %s \\\\' % (parametr, '', '', '', designation, size, SI)
+
+def print_data_table_dd(parametr, value, dimension,idx, designation, size, SI):
+    print("\\hline")
+    print '%s & %d & %s & %d & %s & %d & %s \\\\' % (parametr, value, dimension, idx, designation, size, SI)
+
+def print_data_table_ff(parametr, value, dimension,idx, designation, size, SI):
+    print("\\hline")
+    print '%s & %f & %s & %d & %s & %f & %s \\\\' % (parametr, value, dimension, idx, designation, size, SI)
+
+def print_data_table_df(parametr, value, dimension,idx, designation, size, SI):
+    print("\\hline")
+    print '%s & %d & %s & %s & %s & %f & %s \\\\' % (parametr, value, dimension, idx, designation, size, SI)
 
 def dimensioning_begin_table():
         print("\\newpage")
@@ -65,6 +79,12 @@ def begin_graphic(var):
     print ("width = 0.6\paperwidth ]")
     print '%s %s %s' % ('\\legend{ ', var, '};')
 
+def graphic_line(x, y, round, color):
+    print '%s %s %s' % ('\\addplot[mark = none,line width = 0.05 cm, draw = ', color,'] coordinates {')
+    for i in range(round):
+        print '( %f , %f )' % (x[i], y[i])
+    print("};")
+
 def prev_begin_graphic(var):
     print("\\begin{tikzpicture}")
     print("\\begin{axis} [")
@@ -75,7 +95,6 @@ def prev_begin_graphic(var):
     print ("\\node[anchor=south west,inner sep=0] at (0,0) {\includegraphics[width=5.7cm, height=3.4cm]{fon.jpg}};")
 
 def end_graphic():
-    print("};")
     print("\\end{axis}")
     print("\\end{tikzpicture}")
 
@@ -84,7 +103,7 @@ def right_signature(str):
     print '%s %s %s \\\\' % ('\\textit{', str, '}')
     print("\\end{flushright}")
 
-def begin_tableN4(time):
+def begin_tableN4(time, round, x, y):
     print("\\begin{tabular}{|c|c|c|}")
     print("\\hline")
     print '%s & %s & %s  \\\\' % (' ', 'time', '$S_{gor svod}$')
@@ -92,6 +111,9 @@ def begin_tableN4(time):
     print '%s & %d & %d  \\\\' % ('t', time, 0)
     print("\\hline")
     print '%s & %s & %s  \\\\' % ('x', 'y', '')
+    for i in range(round):
+        print("\\hline")
+        print '%f &  %f &  \\\\' % (x[i], y[i])
 
 def table_building_profile_nozzle():
     print("\\newpage")
@@ -112,10 +134,9 @@ def add_section():
     print("\\addplot[dotted, mark = none, draw = green, line width = 0.05 cm] coordinates { (1.5, 0.15) ")
     print("(1.5, -0.15)};")
 
-def multicolumn():
+def multicolumn(str):
     print("\\hline")
-    print("\\multicolumn{6}{|c}{Data on fuel and combustion products} & \\\\")
-    print("\\hline")
+    print '%s %s %s \\\\' % ('\\multicolumn{6}{|c}{', str, '}& ')
 
 def contents(str):
     print("\\begin{center}")
@@ -123,3 +144,7 @@ def contents(str):
     print '%s %s %s \\\\' % ('\\textbf{\\textit {', str, '}}')
     print("\\end{large}")
     print("\\end{center}")
+
+def new_page():
+    print("\\newpage")
+    print("\\input{signature.tex}")
