@@ -15,6 +15,7 @@ def end_table():
     print("\\end{tabular}")
 
 def calc_data_begin_table():
+        print("\\input{signature.tex}")
         print("\\begin{center}")
         print("\\textbf{\\textit{The calculated data}}\\\\")
         print("\\end{center}")
@@ -27,7 +28,7 @@ def calc_data_begin_table():
 
 def dimensioning_begin_table():
         print("\\newpage")
-
+        print("\\input{signature.tex}")
         print("\\begin{center}")
         print("\\textbf{\\textit{Dimensioning for quasi-stationary mode}}\\\\")
         print("\\end{center}")
@@ -64,6 +65,15 @@ def begin_graphic(var):
     print ("width = 0.6\paperwidth ]")
     print '%s %s %s' % ('\\legend{ ', var, '};')
 
+def prev_begin_graphic(var):
+    print("\\begin{tikzpicture}")
+    print("\\begin{axis} [")
+    print ("legend pos = outer north east,")
+    print ("height = 0.19\paperheight,")
+    print ("width = 0.4\paperwidth ]")
+    print '%s %s %s' % ('\\legend{ ', var, '};')
+    print ("\\node[anchor=south west,inner sep=0] at (0,0) {\includegraphics[width=5.7cm, height=3.4cm]{fon.jpg}};")
+
 def end_graphic():
     print("};")
     print("\\end{axis}")
@@ -85,10 +95,9 @@ def begin_tableN4(time):
 
 def table_building_profile_nozzle():
     print("\\newpage")
+    print("\\input{signature.tex}")
+    contents("Building a profile nozzle")
     print("\\begin{center}")
-    print("\\begin{large}")
-    print("\\textbf{\\textit {Building a profile nozzle}}\\\\")
-    print("\\end{large}")
 
     print("\\begin{tabular}{|l*{16}{l|}}")
     print("\\hline")
@@ -102,3 +111,15 @@ def add_section():
     print("(1, -0.125)};")
     print("\\addplot[dotted, mark = none, draw = green, line width = 0.05 cm] coordinates { (1.5, 0.15) ")
     print("(1.5, -0.15)};")
+
+def multicolumn():
+    print("\\hline")
+    print("\\multicolumn{6}{|c}{Data on fuel and combustion products} & \\\\")
+    print("\\hline")
+
+def contents(str):
+    print("\\begin{center}")
+    print("\\begin{large}")
+    print '%s %s %s \\\\' % ('\\textbf{\\textit {', str, '}}')
+    print("\\end{large}")
+    print("\\end{center}")
