@@ -6,17 +6,9 @@
 
 typedef std::vector<std::pair<int, std::vector<int>>> database;
 
+typedef std::vector<int> data_array;
+
 const int SIZE_IMG = 256;
-
-int max_compare(std::vector<int> &in_data, std::vector<int> &dbase)
-{
-  int max_agree=0;
-  for(size_t db_s = 0; db_s < in_data.size(); ++db_s)
-      if (in_data[db_s] == dbase[db_s])
-        max_agree++;
-
-  return max_agree;
-}
 
 database base_read()
 {
@@ -25,41 +17,34 @@ database base_read()
   std::string line;
   int id = 0;
   database results;
-  std::vector<int> data_numb;
+  data_array data_numb;
   while (read >> line)
     {
       std::string asd = line;
       int num = atoi(asd.c_str());
-      if (data_numb.size() < SIZE_IMG)
-        data_numb.push_back(num);
+      if (id == SIZE_IMG)
+        {
+          std::pair <int, data_array> pair_res;
+          pair_res = std::make_pair(num, data_numb);
+          results.push_back(pair_res);
+          id = 0;
+          data_numb.clear();
+        }
       else
         {
-          if (id != 9)
-            {
-              if (num == 1)
-                {
-                  std::pair <int, std::vector<int>> pair_res;
-                  pair_res = std::make_pair(id, data_numb);
-                  results.push_back(pair_res);
-                }
-              id++;
-            }
-          else
-            {
-              id=0;
-              data_numb.clear();
-            }
+          data_numb.push_back(num);
+          id++;
         }
     }
   read.close();
   return results;
 }
 
-std::vector<int> in_data()
+data_array in_data()
 {
   std::ifstream read_in;
   read_in.open("in.txt", std::ios::in);
-  std::vector<int> in;
+  data_array in;
   std::string lines;
   int asda;
   while ( read_in >> lines)
@@ -72,34 +57,45 @@ std::vector<int> in_data()
   return in;
 }
 
-void add_other(std::vector<int> &in_numb, int numb)
+void add_other(database const &results)
 {
   std::ofstream read_in;
-  read_in.open("def.txt", std::ios::app);
-  for (size_t num_vector =0; num_vector < in_numb.size(); ++num_vector)
-    read_in << in_numb[num_vector] << ".0000 ";
-  for (int to_numb = 0; to_numb < numb; ++to_numb)
-    read_in << 0 << " ";
-  read_in << 1 << " ";
-  for (size_t after_numb = numb ; after_numb < 9; ++after_numb)
-    read_in << 0<< " ";
-  read_in << "\n";
+  read_in.open("def.txt", std::ios::out);
+  for (size_t to_numb = 0; to_numb < results.size(); ++to_numb)
+    {
+      for (size_t idx =0; idx < SIZE_IMG; ++idx)
+        read_in << results[to_numb].second[idx] << " ";
+      read_in << " " << results[to_numb].first << " ";
+      read_in << "\n";
+    }
   read_in.close();
+}
+
+data_array start_learning(data_array &std_data, data_array const &in_numb)
+{
+  double res;
+  int theta = 1;
+  for (size_t i = 0; i < std_data.size(); ++i)
+    res += in_numb[i]*std_data[i] - theta;
+  double weight;
+  for (size_t i = 0; i < std_data.size(); ++i)
+    weight += std_data[i];
+  if (res > weight)
+    for (size_t i = 0; i < std_data.size(); ++i)
+      std_data[i] -= in_numb[i];
+  else if (res < weight)
+    for (size_t i = 0; i < std_data.size(); ++i)
+      std_data[i] += in_numb[i];
+  return std_data;
 }
 
 int main()
 {
+  int number_read = 0;
   database results = base_read();
-  std::vector<int> in_numb = in_data();
-  std::pair<int,int> pair_max = std::make_pair(0, 0);
-  for(size_t i = 0; i < results.size(); ++i)
-    {
-      int best_result = max_compare(in_numb, results[i].second);
-      if (pair_max.second < best_result)
-        pair_max = std::make_pair(results[i].first, best_result);
-    }
-  std::cout <<  "Youre number: " << pair_max.first << "\n" << "Number of coincidences:" << pair_max.second << "\n";
-  if (SIZE_IMG > pair_max.second)
-    add_other(in_numb, pair_max.first);
+  data_array in_numb = in_data();
+  data_array change = start_learning(results[number_read].second, in_numb);
+  results[number_read].second = change;
+  add_other(results);
   return 0;
 }
