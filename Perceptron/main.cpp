@@ -9,31 +9,31 @@ const size_t EPOCH_COUNT = 100;
 int main()
 {
 
-  dataset_t dataset("dat.txt", X_SIZE, Y_SIZE);
-  dataset.split_train_test(0.7);
+    dataset_t dataset("dat.txt", X_SIZE, Y_SIZE);
+    dataset.split_train_test(0.7);
 
-  Perceptron perceptron(dataset.dim());
+    perceptron_t perceptron(dataset.dim());
 
-  for (size_t i = 0; i <  EPOCH_COUNT; ++i)
+    for (size_t i = 0; i <  EPOCH_COUNT; ++i)
     {
-      size_t correct_train = 0;
-      for(auto const &sample: dataset.train_dataset())
+        size_t correct_train = 0;
+        for(auto const &sample: dataset.train_dataset())
         {
-          bool correct = perceptron.learn(sample);
-          if (correct)
-            correct_train += 1;
+            bool correct = perceptron.learn(sample);
+            if (correct)
+                correct_train += 1;
         }
 
-      size_t correct_test = 0;
-      for(auto const &sample: dataset.test_dataset())
+        size_t correct_test = 0;
+        for(auto const &sample: dataset.test_dataset())
         {
-          bool correct = (perceptron.classify(sample.first) == sample.second);
-          if (correct)
-            correct_test += 1;
+            bool correct = perceptron.classify(sample.first) == sample.second;
+            if (correct)
+                correct_test += 1;
         }
 
-      std::cout << "train precision: " << (double)correct_train / dataset.train_dataset().size() * 100;
-      std::cout << "train precision: " << (double)correct_test / dataset.test_dataset().size() * 100 << std::endl;
+        std::cout << "train precision: " << (double)correct_train / dataset.train_dataset().size() * 100;
+        std::cout << " train precision: " << (double)correct_test / dataset.test_dataset().size() * 100 << std::endl;
     }
-  return 0;
+    return 0;
 }

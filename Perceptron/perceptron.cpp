@@ -1,86 +1,50 @@
 #include "perceptron.h"
 #include <cmath>
 
-Perceptron::Perceptron(std::pair<size_t, size_t> dim)
-  :dim_(dim)
+perceptron_t::perceptron_t(std::pair<size_t, size_t> dim)
+    : dim_(dim)
 {
-  data_array line;
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<double> range_numb(-1, 1);
 
-  for(int numb = 0 ; numb < 10; ++numb)
+    theta_ = range_numb(gen);
+    weights_.resize(dim.second);
+    for (size_t k = 0; k < dim.second; ++k)
     {
-      std::random_device rd;
-      std::mt19937 gen(rd());
-      std::uniform_real_distribution<double> range_numb(-1, 1);
-      for (size_t i = 0; i < SIZE_IMG; ++i)
-        line.push_back(range_numb(gen));
-
-      std::pair <int, data_array> pair_res;
-      pair_res = std::make_pair(numb, line);
-      weight_.push_back(pair_res);
-      line.clear();
+        weights_[k].resize(dim.first);
+        std::generate(weights_[k].begin(), weights_[k].end(), [&](){ return range_numb(gen); });
     }
 }
 
-Perceptron::~Perceptron()
+perceptron_t::~perceptron_t()
 {
 }
 
-bool Perceptron::y(double res)
+bool perceptron_t::learn(const std::pair<std::vector<double>, std::vector<char> > &sample)
 {
-  return res >= theta_;
-}
-
-bool Perceptron::learn(const std::pair<std::vector<double>, std::vector<char>> &in_data)
-{
-  double theta = 0.001;
-  double learning_rate = 0.01;
-  int numb;
-  for (int i = 0; i < dim_.second; ++i)
-    if (in_data.second[i] != '0')
-      numb = i;
-  double res = size_change_data( numb, in_data.first);
-  if (res > theta)
+    auto y = classify(sample.first);
+    for (size_t k = 0; k < dim_.second; ++k)
     {
-      for (int idx_data = 0; idx_data < in_data.first.size(); ++idx_data)
-        weight_[numb].second[idx_data] += learning_rate * ( y(res) - in_data.first[idx_data] ) * in_data.second[idx_data];
+        for (size_t i = 0; i < dim_.first; ++i)
+            weights_[k][i] += learning_rate_ * (sample.second[k] - y[k]) * sample.first[i];
 
-      return false;
+        theta_ -= learning_rate_ * (sample.second[k] - y[k]);
     }
-  else if (theta < res)
-    {
-      for (int idx_data = 0; idx_data < in_data.first.size(); ++idx_data)
-        weight_[numb].second[idx_data] -= learning_rate * ( y(res) - in_data.first[idx_data] ) * in_data.second[idx_data];
 
-      return false;
-    }
-  else
-    return true;
+    return y == sample.second;
 }
 
-std::vector< char> Perceptron::classify(const std::vector<double> &in_data)
+std::vector<char> perceptron_t::classify(const std::vector<double> &in_data)
 {
-  double max_comp = 0;
-  int numb_comp = 0;
-  for (int i = 0; i < weight_.size(); ++i)
+    std::vector<char> res(dim_.second);
+    for (size_t k = 0; k < dim_.second; ++k)
     {
-      if (max_comp < size_change_data(i, in_data))
-        numb_comp = i;
+        double prod = std::inner_product(weights_[k].begin(), weights_[k].end(), in_data.begin(), 0.);
+        res[k] = prod > theta_ ? 1 : 0;
     }
-  std::vector< char> return_numb;
-  for (int i = 0; i < dim_.second; ++i)
-    if (numb_comp != i)
-      return_numb.push_back('0');
-    else
-      return_numb.push_back('1');
-  return return_numb;
-}
 
-double Perceptron::size_change_data(int numb, data_array in_binary)
-{
-  double res = 0;
-  for (size_t i = 0; i < weight_[numb].second.size(); ++i)
-    res += in_binary[i]*weight_[numb].second[i];
-  return res;
+    return res;
 }
 
 
