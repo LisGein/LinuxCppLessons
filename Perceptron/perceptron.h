@@ -8,33 +8,27 @@
 #include <algorithm>
 #include <map>
 
-typedef std::vector<std::pair<int, std::vector<double>>> sample_t;
+typedef std::vector<std::pair<int, std::vector<double>>> data_weight;
 
 typedef std::vector<double> data_array;
 
 class Perceptron
 {
 public:
-  Perceptron();
+  Perceptron(std::pair<size_t, size_t> dim);
   ~Perceptron();
-  sample_t read_dataset(std::string const& dataset);
-  void create_weight();
-  int learning(const std::string &dataset_weight, const std::string &dataset_learning);
-  int size_in_data();
-  int test(const std::string &dataset_weight, const std::string &dataset_test);
+  bool learn(const std::pair<std::vector<double>, std::vector<char> > &in_data);
+  std::vector<char> classify(const std::vector<double> &in_data);
+
 
 private:
+  double theta_ = 0.001;
   const int SIZE_IMG = 256;
-  sample_t weight_;
-  sample_t in_pix_;
+  data_weight weight_;
+  std::pair<size_t, size_t> dim_;
 
-  void data_split();
-  void fill_dataset();
-  double size_weight(int numb);
   double size_change_data(int numb, data_array in_binary);
-  void write_data();
-  void add_weight(int numb, data_array in_binary);
-  bool find_correct(int numb);
+  bool y(double res);
 };
 
 
