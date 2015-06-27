@@ -1,6 +1,8 @@
 #include <iostream>
 #include "perceptron.h"
 #include "dataset_t.h"
+#include "confusion_matrix.h"
+
 
 const size_t X_SIZE = 256;
 const size_t Y_SIZE = 10;
@@ -8,9 +10,9 @@ const size_t EPOCH_COUNT = 100;
 
 int main()
 {
-
     dataset_t dataset("dat.txt", X_SIZE, Y_SIZE);
     dataset.split_train_test(0.7);
+    ConfusionMatrix confusion_matrix(Y_SIZE);
 
     perceptron_t perceptron(dataset.dim());
 
@@ -27,13 +29,16 @@ int main()
         size_t correct_test = 0;
         for(auto const &sample: dataset.test_dataset())
         {
-            bool correct = perceptron.classify(sample.first) == sample.second;
+            std::vector<char> return_classify = perceptron.classify(sample.first);
+            bool correct = return_classify == sample.second;
             if (correct)
                 correct_test += 1;
+            confusion_matrix.incrementacia(return_classify, sample.second);
         }
 
-        std::cout << "train precision: " << (double)correct_train / dataset.train_dataset().size() * 100;
-        std::cout << " train precision: " << (double)correct_test / dataset.test_dataset().size() * 100 << std::endl;
+        double F = confusion_matrix.f_1();
+        std::cout << "test train precision: " << F << std::endl;
+        confusion_matrix.clear_confusion_matrix();
     }
     return 0;
 }

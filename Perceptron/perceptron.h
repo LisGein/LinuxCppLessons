@@ -19,6 +19,7 @@ public:
     std::vector<char> classify(const std::vector<double> &in_data);
 
 
+
 private:
     double theta_;
     weights_t weights_;
