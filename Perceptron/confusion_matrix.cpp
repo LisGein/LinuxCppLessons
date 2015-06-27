@@ -18,9 +18,9 @@ void ConfusionMatrix::incrementacia(std::vector<char> const &numb, std::vector<c
       if (find_numb[i] != 0)
         column = i;
     }
-  if ((line >=0)&&(column>=0)&&(line <=10)&&(column<=10))
     confusion_matrix_[line][column] ++;
 }
+
 double ConfusionMatrix::f_1()
 {
   double precision = 0;

@@ -37,13 +37,18 @@ bool perceptron_t::learn(const std::pair<std::vector<double>, std::vector<char> 
 
 std::vector<char> perceptron_t::classify(const std::vector<double> &in_data)
 {
-  std::vector<char> res(dim_.second);
+  std::vector<double> res(dim_.second);
   for (size_t k = 0; k < dim_.second; ++k)
     {
       double prod = std::inner_product(weights_[k].begin(), weights_[k].end(), in_data.begin(), 0.);
-      res[k] = prod > theta_ ? 1 : 0;
+      res[k] = prod > theta_ ? prod : 0;
     }
-  return res;
+  auto result = std::max_element(res.begin(), res.end());
+  size_t idx_max = std::distance(res.begin(), result);
+  std::vector<char> binary_numb;
+  binary_numb.resize(dim_.second);
+  binary_numb[idx_max] = 1;
+  return binary_numb;
 }
 
 
