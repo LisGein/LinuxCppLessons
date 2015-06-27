@@ -52,6 +52,50 @@ std::pair<size_t, size_t> const & dataset_t::dim() const
   return dim_;
 }
 
+void dataset_t::save(weights_t const& weights)
+{
+  std::ofstream read_in;
+  read_in.open("data.txt", std::ios::out);
+  for (size_t to_numb = 0; to_numb < weights.size(); ++to_numb)
+    {
+      for (size_t numb = 0; numb < weights[to_numb].size(); ++numb)
+        read_in << weights[to_numb][numb] << " ";
+      read_in << "\n";
+    }
+  read_in.close();
+}
+
+weights_t dataset_t::load(std::string const& dataset)
+{
+    std::ifstream read;
+    read.open(dataset, std::ios::in);
+    weights_t  data;
+    std::vector<double> id_data;
+    size_t id = 1;
+    double read_number;
+    while (read >> read_number)
+      {
+        if (id == dim_.first)
+          {
+            id_data.push_back(read_number);
+            data.push_back(id_data);
+            id_data.clear();
+            id = 1;
+          }
+
+        else
+          {
+            id_data.push_back(read_number);
+            id++;
+          }
+      }
+    read.close();
+    return data;
+}
+
+
+
+
 
 
 

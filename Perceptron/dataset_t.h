@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <map>
 #include <utility>
+#include "perceptron.h"
 
 typedef std::pair< std::vector< double >, std::vector<char> >  sample_t;
 typedef std::vector< sample_t > samples_t;
@@ -19,6 +20,8 @@ struct dataset_t
     const samples_t &train_dataset() const;
     samples_t const &test_dataset() const;
     std::pair<size_t, size_t> const & dim() const;
+    void save(const weights_t &weights);
+    weights_t load(std::string const& dataset);
 
 private:
     std::pair<size_t, size_t> dim_;

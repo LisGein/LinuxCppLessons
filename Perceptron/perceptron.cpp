@@ -6,19 +6,31 @@ perceptron_t::perceptron_t(std::pair<size_t, size_t> dim)
 {
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_real_distribution<double> range_numb(-1, 1);
-  
+  std::uniform_real_distribution<double> range_numb(-1, 1);  
   theta_ = range_numb(gen);
-  weights_.resize(dim.second);
-  for (size_t k = 0; k < dim.second; ++k)
-    {
-      weights_[k].resize(dim.first);
-      std::generate(weights_[k].begin(), weights_[k].end(), [&](){ return range_numb(gen); });
-    }
 }
 
 perceptron_t::~perceptron_t()
 {
+}
+
+void perceptron_t::create_weight()
+{
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  std::uniform_real_distribution<double> range_numb(-1, 1);
+
+  weights_.resize(dim_.second);
+  for (size_t k = 0; k < dim_.second; ++k)
+    {
+      weights_[k].resize(dim_.first);
+      std::generate(weights_[k].begin(), weights_[k].end(), [&](){ return range_numb(gen); });
+    }
+}
+
+void perceptron_t::load_weight(weights_t const& weights)
+{
+  weights_ = weights;
 }
 
 bool perceptron_t::learn(const std::pair<std::vector<double>, std::vector<char> > &sample)
@@ -51,7 +63,10 @@ std::vector<char> perceptron_t::classify(const std::vector<double> &in_data)
   return binary_numb;
 }
 
-
+weights_t perceptron_t::weights()
+{
+  return weights_;
+}
 
 
 

@@ -8,13 +8,20 @@ const size_t X_SIZE = 256;
 const size_t Y_SIZE = 10;
 const size_t EPOCH_COUNT = 100;
 
-int main()
+int main(int argc, char *argv[])
 {
     dataset_t dataset("dat.txt", X_SIZE, Y_SIZE);
     dataset.split_train_test(0.7);
     ConfusionMatrix confusion_matrix(Y_SIZE);
-
     perceptron_t perceptron(dataset.dim());
+    weights_t weights;
+    if (argc > 1)
+      {
+        weights = dataset.load(argv[1]);
+        perceptron.load_weight(weights);
+      }
+    else
+      perceptron.create_weight();
 
     for (size_t i = 0; i <  EPOCH_COUNT; ++i)
     {
@@ -40,5 +47,7 @@ int main()
         std::cout << "test train precision: " << F << std::endl;
         confusion_matrix.clear_confusion_matrix();
     }
+    weights = perceptron.weights();
+    dataset.save(weights);
     return 0;
 }
