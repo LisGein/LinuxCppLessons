@@ -17,7 +17,7 @@ public:
     ~perceptron_t();
     bool learn(std::pair< std::vector< double >, std::vector<char> > const &sample);
     std::vector<char> classify(const std::vector<double> &in_data);
-    weights_t weights();
+    weights_t get_weights();
     void create_weight();
     void load_weight(weights_t const& weights);
 

@@ -8,7 +8,7 @@ ConfusionMatrix::ConfusionMatrix(size_t dim)
     confusion_matrix_[i].resize(dim_);
 }
 
-void ConfusionMatrix::incrementacia(std::vector<char> const &numb, std::vector<char> const &find_numb)
+void ConfusionMatrix::increment(std::vector<char> const &numb, std::vector<char> const &find_numb)
 {
   int line, column;
   for (size_t i = 0; i < dim_; ++i)

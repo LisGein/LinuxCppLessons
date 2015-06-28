@@ -53,7 +53,7 @@ std::vector<char> perceptron_t::classify(const std::vector<double> &in_data)
   for (size_t k = 0; k < dim_.second; ++k)
     {
       double prod = std::inner_product(weights_[k].begin(), weights_[k].end(), in_data.begin(), 0.);
-      res[k] = prod > theta_ ? prod : 0;
+      res[k] = prod - theta_;
     }
   auto result = std::max_element(res.begin(), res.end());
   size_t idx_max = std::distance(res.begin(), result);
@@ -63,7 +63,7 @@ std::vector<char> perceptron_t::classify(const std::vector<double> &in_data)
   return binary_numb;
 }
 
-weights_t perceptron_t::weights()
+weights_t perceptron_t::get_weights()
 {
   return weights_;
 }

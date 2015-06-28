@@ -6,7 +6,7 @@ class ConfusionMatrix
 {
 public:
   ConfusionMatrix(size_t dim);
-  void incrementacia(std::vector<char> const &numb, std::vector<char> const &find_numb);
+  void increment(std::vector<char> const &numb, std::vector<char> const &find_numb);
   double f_1();
   void clear_confusion_matrix();
 
