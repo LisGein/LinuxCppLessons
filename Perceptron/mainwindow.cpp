@@ -15,14 +15,14 @@ MainWindow::MainWindow(QWidget *parent)
   ui->setupUi(this);
   connect(ui->learn, SIGNAL(clicked()),SLOT(learning()));
   connect(ui->load,  SIGNAL(clicked()),SLOT(load_img()));
-  connect(ui->open,  SIGNAL(clicked()),SLOT(open()));
-  connect(ui->close,  SIGNAL(clicked()),SLOT(close()));
+  connect(ui->actionOpen,  SIGNAL(triggered()),SLOT(open()));
+  connect(ui->actionClose,  SIGNAL(triggered()),SLOT(close()));
   ui->textEdit->setReadOnly(true);
   ui->load->setDisabled(true);
   dataset_ = new dataset_t("dat.txt", X_SIZE, Y_SIZE);
   dataset_->split_train_test(0.7);
   perceptron_ = new perceptron_t(dataset_->dim());
-  connect(ui->save,  SIGNAL(clicked()),SLOT(save()));
+  connect(ui->actionSave,  SIGNAL(triggered()),SLOT(save()));
 }
 
 MainWindow::~MainWindow()
@@ -35,7 +35,7 @@ void MainWindow::learning()
   ConfusionMatrix confusion_matrix(Y_SIZE);
   if (dir_weight_ == "0")
     perceptron_->create_weight();
-
+  
   for (size_t i = 0; i <  EPOCH_COUNT; ++i)
     {
       size_t correct_train = 0;
@@ -45,7 +45,7 @@ void MainWindow::learning()
           if (correct)
             correct_train += 1;
         }
-
+      
       size_t correct_test = 0;
       for(auto const &sample: dataset_->test_dataset())
         {
@@ -55,7 +55,7 @@ void MainWindow::learning()
             correct_test += 1;
           confusion_matrix.increment(return_classify, sample.second);
         }
-
+      
       double F = confusion_matrix.f_1();
       QString valueAsString = "test train precision: " + QString::number(F);
       ui->textEdit->append(valueAsString);
@@ -94,7 +94,7 @@ void MainWindow::open()
 {
   QString dir_weight = QFileDialog::getOpenFileName(this, tr("Open File"), "/home", tr("Text (*.txt)"));
   dir_weight_=dir_weight.toUtf8().constData();
-
+  
   perceptron_->load(dir_weight_);
   ui->load->setDisabled(false);
   ui->textEdit->setText("Uploaded");
