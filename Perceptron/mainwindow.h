@@ -21,7 +21,6 @@ private:
 
   std::string dir_weight_;
   perceptron_t *perceptron_;
-  weights_t weights_;
   dataset_t *dataset_;
 
 private slots:

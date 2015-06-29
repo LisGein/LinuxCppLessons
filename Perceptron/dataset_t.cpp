@@ -65,34 +65,6 @@ void dataset_t::save(weights_t const& weights)
   read_in.close();
 }
 
-weights_t dataset_t::load(std::string const& dataset)
-{
-    std::ifstream read;
-    read.open(dataset, std::ios::in);
-    weights_t  data;
-    std::vector<double> id_data;
-    size_t id = 1;
-    double read_number;
-    while (read >> read_number)
-      {
-        if (id == dim_.first)
-          {
-            id_data.push_back(read_number);
-            data.push_back(id_data);
-            id_data.clear();
-            id = 1;
-          }
-
-        else
-          {
-            id_data.push_back(read_number);
-            id++;
-          }
-      }
-    read.close();
-    return data;
-}
-
 
 
 

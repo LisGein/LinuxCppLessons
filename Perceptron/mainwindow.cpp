@@ -16,13 +16,13 @@ MainWindow::MainWindow(QWidget *parent)
   connect(ui->learn, SIGNAL(clicked()),SLOT(learning()));
   connect(ui->load,  SIGNAL(clicked()),SLOT(load_img()));
   connect(ui->open,  SIGNAL(clicked()),SLOT(open()));
-  connect(ui->save,  SIGNAL(clicked()),SLOT(save()));
   connect(ui->close,  SIGNAL(clicked()),SLOT(close()));
   ui->textEdit->setReadOnly(true);
   ui->load->setDisabled(true);
   dataset_ = new dataset_t("dat.txt", X_SIZE, Y_SIZE);
   dataset_->split_train_test(0.7);
   perceptron_ = new perceptron_t(dataset_->dim());
+  connect(ui->save,  SIGNAL(clicked()),SLOT(save()));
 }
 
 MainWindow::~MainWindow()
@@ -94,14 +94,14 @@ void MainWindow::open()
 {
   QString dir_weight = QFileDialog::getOpenFileName(this, tr("Open File"), "/home", tr("Text (*.txt)"));
   dir_weight_=dir_weight.toUtf8().constData();
-  weights_ = dataset_->load(dir_weight_);
-  perceptron_->load_weight(weights_);
+
+  perceptron_->load(dir_weight_);
   ui->load->setDisabled(false);
+  ui->textEdit->setText("Uploaded");
 }
 
 void MainWindow::save()
 {
-  weights_ = perceptron_->get_weights();
-  dataset_->save(weights_);
+  perceptron_->save();
   ui->textEdit->setText("Saved");
 }

@@ -28,9 +28,31 @@ void perceptron_t::create_weight()
     }
 }
 
-void perceptron_t::load_weight(weights_t const& weights)
+void perceptron_t::load(std::string const& dataset)
 {
-  weights_ = weights;
+  std::ifstream read;
+  read.open(dataset, std::ios::in);
+  std::vector<double> id_data;
+  size_t id = 1;
+  double read_number;
+  while (read >> read_number)
+    {
+      if (id == dim_.first)
+        {
+          id_data.push_back(read_number);
+          weights_.push_back(id_data);
+          id_data.clear();
+          id = 1;
+        }
+
+      else
+        {
+          id_data.push_back(read_number);
+          id++;
+        }
+    }
+  theta_ = read_number;
+  read.close();
 }
 
 bool perceptron_t::learn(const std::pair<std::vector<double>, std::vector<char> > &sample)
@@ -63,9 +85,18 @@ std::vector<char> perceptron_t::classify(const std::vector<double> &in_data)
   return binary_numb;
 }
 
-weights_t perceptron_t::get_weights()
+void perceptron_t::save()
 {
-  return weights_;
+  std::ofstream read_in;
+  read_in.open("data.txt", std::ios::out);
+  for (size_t to_numb = 0; to_numb < weights_.size(); ++to_numb)
+    {
+      for (size_t numb = 0; numb < weights_[to_numb].size(); ++numb)
+        read_in << weights_[to_numb][numb] << " ";
+      read_in << "\n";
+    }
+  read_in << theta_;
+  read_in.close();
 }
 
 

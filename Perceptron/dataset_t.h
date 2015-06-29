@@ -21,7 +21,6 @@ struct dataset_t
     samples_t const &test_dataset() const;
     std::pair<size_t, size_t> const & dim() const;
     void save(const weights_t &weights);
-    weights_t load(std::string const& dataset);
 
 private:
     std::pair<size_t, size_t> dim_;
