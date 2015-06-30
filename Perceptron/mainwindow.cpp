@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include <QFileDialog>
 #include "confusion_matrix.h"
+#include <QDialogButtonBox>
 
 const size_t X_SIZE = 256;
 const size_t Y_SIZE = 10;
@@ -18,8 +19,6 @@ MainWindow::MainWindow(QWidget *parent)
   connect(ui->actionClose,  SIGNAL(triggered()),SLOT(close()));
   ui->textEdit->setReadOnly(true);
   ui->load->setDisabled(true);
-  dataset_ = std::unique_ptr<dataset_t>(new dataset_t("dat.txt", X_SIZE, Y_SIZE));
-  dataset_->split_train_test(0.7);
   connect(ui->actionSave,  SIGNAL(triggered()),SLOT(save()));
 }
 
@@ -30,36 +29,42 @@ MainWindow::~MainWindow()
 
 void MainWindow::learning()
 {
-  ConfusionMatrix confusion_matrix(Y_SIZE);
-  if (dir_weight_ == "")
-    perceptron_ = std::unique_ptr<perceptron_t>(new perceptron_t(dataset_->dim()));
-  
-  for (size_t i = 0; i <  EPOCH_COUNT; ++i)
+  QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), "/home", tr("Images (*.txt"));
+  if (fileName!="")
     {
-      size_t correct_train = 0;
-      for(auto const &sample: dataset_->train_dataset())
+      dataset_.reset(new dataset_t(fileName.toStdString(), X_SIZE, Y_SIZE));
+      dataset_->split_train_test(0.7);
+      ConfusionMatrix confusion_matrix(Y_SIZE);
+      if (dir_weight_ == "")
+        perceptron_.reset(new perceptron_t(dataset_->dim()));
+
+      for (size_t i = 0; i <  EPOCH_COUNT; ++i)
         {
-          bool correct = perceptron_->learn(sample);
-          if (correct)
-            correct_train += 1;
+          size_t correct_train = 0;
+          for(auto const &sample: dataset_->train_dataset())
+            {
+              bool correct = perceptron_->learn(sample);
+              if (correct)
+                correct_train += 1;
+            }
+
+          size_t correct_test = 0;
+          for(auto const &sample: dataset_->test_dataset())
+            {
+              std::vector<char> return_classify = perceptron_->classify(sample.first);
+              bool correct = return_classify == sample.second;
+              if (correct)
+                correct_test += 1;
+              confusion_matrix.increment(return_classify, sample.second);
+            }
+
+          double F = confusion_matrix.f_1();
+          QString valueAsString = "test train precision: " + QString::number(F);
+          ui->textEdit->append(valueAsString);
+          confusion_matrix.clear_confusion_matrix();
         }
-      
-      size_t correct_test = 0;
-      for(auto const &sample: dataset_->test_dataset())
-        {
-          std::vector<char> return_classify = perceptron_->classify(sample.first);
-          bool correct = return_classify == sample.second;
-          if (correct)
-            correct_test += 1;
-          confusion_matrix.increment(return_classify, sample.second);
-        }
-      
-      double F = confusion_matrix.f_1();
-      QString valueAsString = "test train precision: " + QString::number(F);
-      ui->textEdit->append(valueAsString);
-      confusion_matrix.clear_confusion_matrix();
+      ui->load->setDisabled(false);
     }
-  ui->load->setDisabled(false);
 }
 
 void MainWindow::load_img()
@@ -97,7 +102,7 @@ void MainWindow::open()
   QString dir_weight = QFileDialog::getOpenFileName(this, tr("Open File"), "/home", tr("Text (*.txt)"));
   dir_weight_=dir_weight.toUtf8().constData();
 
-  perceptron_ = std::unique_ptr<perceptron_t>(new perceptron_t(dataset_->dim(), dir_weight_.toStdString()));
+  perceptron_.reset(new perceptron_t(dataset_->dim(), dir_weight_.toStdString()));
   ui->load->setDisabled(false);
   ui->textEdit->setText("Uploaded");
 }
