@@ -1,6 +1,10 @@
+#include <stdlib.h>
 #include <iostream>
 #include <memory>
+#include "networkclient.h"
 #include "networkserver.h"
+#include "baseconnection.h"
+#include "game.h"
 
 int main(int argc, char ** argv)
 {

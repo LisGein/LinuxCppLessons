@@ -5,10 +5,16 @@ CONFIG -= qt
 
 SOURCES += main.cpp \
     networkclient.cpp \
-    games.cpp
+    game.cpp \
+    networkserver.cpp \
+    point_t.cpp \
+    baseconnection.cpp
 
 QMAKE_CXXFLAGS += -std=c++0x
 
 HEADERS += \
     networkclient.h \
-    games.h
+    game.h \
+    networkserver.h \
+    point_t.h \
+    baseconnection.h

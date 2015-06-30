@@ -8,23 +8,13 @@
 class ServerNetwork: public QWidget {
   Q_OBJECT
 public:
-  ServerNetwork(const QByteArray& user_name, QString const& str_host, int port);
-
-signals:
-  void in_message(QString str);
-  void online(QMap<QString, QTcpSocket*> connected_users_port_);
-  void show_online_users(QString online_users);
-  void refresh(QMap<QString, QTcpSocket*> connected_users_port_);
+  ServerNetwork(QString const& str_host, int port);
 
 private slots:
   void slot_send_to_server(QByteArray arr_block);
-  void slot_delete_user(QTcpSocket* socket_del_user);
   void slot_new_connection();
   void slot_read_in_message();
   void slot_disconnect_user();
-  void slot_connected();
-  void slot_error(QAbstractSocket::SocketError);
-  void slot_refresh();
 
 private:
   void send_to_client(QTcpSocket* socket, const QString& str, quint8 Types);

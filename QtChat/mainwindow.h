@@ -21,7 +21,6 @@ private:
 
 private slots:
   void entry_chat();
-  void create_server();
 
 };
 

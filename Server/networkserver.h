@@ -1,5 +1,4 @@
 #pragma once
-#include "baseconnection.h"
 #include <random>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -11,7 +10,6 @@
 #include <cstdlib>
 #include <sstream>
 #include <cctype>
-#include "point_t.h"
 
 class NetworkServer
         :public BaseConnection

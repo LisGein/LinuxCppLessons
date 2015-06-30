@@ -13,19 +13,15 @@
 
 
  SOURCES += main.cpp\
-	 mainwindow.cpp \
+    mainwindow.cpp \
     clientnetwork.cpp \
     clientwindow.cpp \
-    servernetwork.cpp \
-    serverwindow.cpp \
     listonline.cpp \
     listonlineclient.cpp
 
  HEADERS  += mainwindow.h \
     clientnetwork.h \
     clientwindow.h \
-    servernetwork.h \
-    serverwindow.h \
     listonline.h \
     listonlineclient.h
 
