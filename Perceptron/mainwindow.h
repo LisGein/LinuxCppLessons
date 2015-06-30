@@ -2,7 +2,7 @@
 #include <QMainWindow>
 #include "perceptron.h"
 #include "dataset_t.h"
-#include <vector>
+#include <memory>
 
 namespace Ui {
   class MainWindow;
@@ -19,9 +19,10 @@ public:
 private:
   Ui::MainWindow *ui;
 
-  std::string dir_weight_;
-  perceptron_t *perceptron_;
-  dataset_t *dataset_;
+  QString dir_weight_;
+  std::unique_ptr<perceptron_t> perceptron_;
+  std::unique_ptr<dataset_t> dataset_;
+  QImage *image_;
 
 private slots:
   void learning();

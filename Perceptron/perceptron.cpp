@@ -4,18 +4,13 @@
 perceptron_t::perceptron_t(std::pair<size_t, size_t> dim)
   : dim_(dim)
 {
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::uniform_real_distribution<double> range_numb(-1, 1);  
-  theta_ = range_numb(gen);
-}
-
-perceptron_t::~perceptron_t()
-{
-}
-
-void perceptron_t::create_weight()
-{
+  for (size_t i = 0; i < dim_.second; ++i)
+    {
+      std::random_device rd;
+      std::mt19937 gen(rd());
+      std::uniform_real_distribution<double> range_numb(-1, 1);
+      theta_.push_back( range_numb(gen) );
+    }
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_real_distribution<double> range_numb(-1, 1);
@@ -28,7 +23,8 @@ void perceptron_t::create_weight()
     }
 }
 
-void perceptron_t::load(std::string const& dataset)
+perceptron_t::perceptron_t(std::pair<size_t, size_t> dim, std::string const& dataset)
+  : dim_(dim)
 {
   std::ifstream read;
   read.open(dataset, std::ios::in);
@@ -51,8 +47,12 @@ void perceptron_t::load(std::string const& dataset)
           id++;
         }
     }
-  theta_ = read_number;
+  theta_ = id_data;
   read.close();
+}
+
+perceptron_t::~perceptron_t()
+{
 }
 
 bool perceptron_t::learn(const std::pair<std::vector<double>, std::vector<char> > &sample)
@@ -62,8 +62,8 @@ bool perceptron_t::learn(const std::pair<std::vector<double>, std::vector<char> 
     {
       for (size_t i = 0; i < dim_.first; ++i)
         weights_[k][i] += learning_rate_ * (sample.second[k] - y[k]) * sample.first[i];
-      
-      theta_ -= learning_rate_ * (sample.second[k] - y[k]);
+      double theta = theta_[k] - learning_rate_ * (sample.second[k] - y[k]);
+      theta_[k] = theta;
     }
   
   return y == sample.second;
@@ -75,7 +75,7 @@ std::vector<char> perceptron_t::classify(const std::vector<double> &in_data)
   for (size_t k = 0; k < dim_.second; ++k)
     {
       double prod = std::inner_product(weights_[k].begin(), weights_[k].end(), in_data.begin(), 0.);
-      res[k] = prod - theta_;
+      res[k] = prod - theta_[k];
     }
   auto result = std::max_element(res.begin(), res.end());
   size_t idx_max = std::distance(res.begin(), result);
@@ -95,7 +95,9 @@ void perceptron_t::save()
         read_in << weights_[to_numb][numb] << " ";
       read_in << "\n";
     }
-  read_in << theta_;
+  for (size_t k = 0; k < theta_.size(); ++k)
+    read_in << theta_[k] << " ";
+  read_in << "\n";
   read_in.close();
 }
 
