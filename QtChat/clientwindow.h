@@ -26,8 +26,8 @@ private slots:
   void slot_open_online();
 
 private:
-  const quint8 FIRST_TYPE_MSG = 0;
-  const quint8 SECOND_TYPE_MSG = 1;
+  const quint8 FIRST_TYPE_MSG = 1;
+  const quint8 SECOND_TYPE_MSG = 2;
 
   QTextEdit*  out_text_;
   QLineEdit*  in_text_;

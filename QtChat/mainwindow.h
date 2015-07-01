@@ -16,8 +16,8 @@ public:
 private:
   Ui::MainWindow *ui;
   QString nick_name_;
-  const quint8 FIRST_TYPE = 0;
-  const quint8 SECOND_TYPE = 1;
+  const quint8 FIRST_TYPE = 1;
+  const quint8 SECOND_TYPE = 2;
 
 private slots:
   void entry_chat();
