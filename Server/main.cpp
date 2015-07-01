@@ -1,19 +1,10 @@
-#include <iostream>
-#include <memory>
-#include "networkserver.h"
+#include "server.h"
+#include <QApplication>
 
-int main(int argc, char ** argv)
+int main(int argc, char *argv[])
 {
-    std::string role(argv[1]);
-    std::unique_ptr<BaseConnection> connection;
-    if (role == "host")
-        connection.reset(new NetworkServer(atoi(argv[2])));
-    else
-        connection.reset(new NetworkClient(atoi(argv[2])));
-    Game game(connection.get());
-    while(!game.finish())
-    {
-        game.make_step();
-    }
-    return 0;
+   QApplication a(argc, argv);
+   Server w(3425, "127.0.0.1");//"109.234.35.126");
+
+   return a.exec();
 }

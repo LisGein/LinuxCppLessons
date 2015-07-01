@@ -1,12 +1,21 @@
+#-------------------------------------------------
+#
+# Project created by QtCreator 2015-07-01T05:22:40
+#
+#-------------------------------------------------
+
+QT       += core gui network
+
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
+TARGET = Server
 TEMPLATE = app
-CONFIG += console
-CONFIG -= app_bundle
-CONFIG -= qt
+
 
 SOURCES += main.cpp \
-    networkserver.cpp
+    server.cpp
 
-QMAKE_CXXFLAGS += -std=c++0x
+HEADERS  += \
+    server.h
 
-HEADERS += \
-    networkserver.h
+FORMS    +=
