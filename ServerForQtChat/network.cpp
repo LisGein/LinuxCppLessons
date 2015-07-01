@@ -16,19 +16,10 @@ ServerNetwork::ServerNetwork(QString const& str_host, int port)
       return;
    }
    connect(tcp_server_, SIGNAL(newConnection()), this, SLOT(slot_new_connection()));
-
-   tcp_socket_ = new QTcpSocket(this);
-   tcp_socket_->connectToHost(str_host, port);
-   tcp_socket_->write("root");
 }
 // First type message - input message client
 // Second type message - show online users
 
-
-void ServerNetwork::slot_send_to_server(QByteArray  arr_block)
-{
-   tcp_socket_->write(arr_block);
-}
 
 void ServerNetwork::slot_new_connection()
 {
@@ -71,6 +62,7 @@ void ServerNetwork::slot_read_in_message()
 void ServerNetwork::slot_disconnect_user()
 {
    QTcpSocket* client_socket = (QTcpSocket*)sender();
+
    auto it_users_port_ = connected_users_port_.find(client_socket);
    if (it_users_port_ != connected_users_port_.end())
    {

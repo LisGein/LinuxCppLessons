@@ -1,7 +1,5 @@
 #include <stdlib.h>
-#include <iostream>
 #include "network.h"
-#include <memory>
 
 #include <QApplication>
 

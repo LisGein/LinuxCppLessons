@@ -22,7 +22,7 @@ private:
   quint16     next_block_size_;
   QTcpSocket* tcp_socket_;
 
-  const quint8 FIRST_TYPE_MSG = 0;
-  const quint8 SECOND_TYPE_MSG = 1;
+  const quint8 FIRST_TYPE_MSG = 1;
+  const quint8 SECOND_TYPE_MSG = 2;
 };
 
