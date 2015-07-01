@@ -11,7 +11,7 @@ class GuiClient : public QMainWindow
    Q_OBJECT
 
 public:
-   explicit GuiClient(int port, QString const& IP_address, QWidget *parent = 0);
+   explicit GuiClient(QString const& nick, int port, QString const& IP_address, QWidget *parent = 0);
    ~GuiClient();
 private slots:
    void read_message();

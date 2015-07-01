@@ -1,7 +1,7 @@
 #include "guiclient.h"
 #include "ui_guiclient.h"
 
-GuiClient::GuiClient(int port, QString const& IP_address, QWidget *parent) :
+GuiClient::GuiClient(QString const& nick, int port, QString const& IP_address, QWidget *parent) :
    QMainWindow(parent),
    ui(new Ui::GuiClient)
 {
@@ -11,6 +11,9 @@ GuiClient::GuiClient(int port, QString const& IP_address, QWidget *parent) :
    connect(tcp_socket_, SIGNAL(readyRead()), this, SLOT(read_message()));
    connect(ui->send, SIGNAL(clicked()), this, SLOT(send_message()));
    connect(ui->in_text, SIGNAL(returnPressed()), this, SLOT(send_message()));
+   QByteArray array_message;
+   array_message.append(nick);
+   tcp_socket_->write(array_message);
 }
 
 GuiClient::~GuiClient()

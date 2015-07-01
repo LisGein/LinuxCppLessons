@@ -21,3 +21,4 @@ HEADERS  += mainwindow.h \
 
 FORMS    += mainwindow.ui \
     guiclient.ui
+ QMAKE_CXXFLAGS += -std=c++0x

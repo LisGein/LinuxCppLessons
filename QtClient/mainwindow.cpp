@@ -17,7 +17,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::entry_chat()
 {
-   client_ = new GuiClient(3425, "localhost");
+   client_ = new GuiClient(ui->in_text->text(), 3425, "localhost");
    client_->show();
    this->close();
 }
