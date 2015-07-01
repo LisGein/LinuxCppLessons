@@ -1,5 +1,4 @@
 #pragma once
-#include <QMainWindow>
 #include <QTcpServer>
 #include <QTcpSocket>
 
@@ -9,7 +8,7 @@ class Server : public QObject
    Q_OBJECT
 
 public:
-   explicit Server(int port, QString const& IP_address, QWidget *parent = 0);
+   explicit Server(int port);
    ~Server();
 
 private:

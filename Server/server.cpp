@@ -1,9 +1,9 @@
 #include "server.h"
 
-Server::Server(int port, QString const& IP_address, QWidget *parent)
+Server::Server(int port)
+   : tcp_server_(new QTcpServer(this))
 {
-   tcp_server_ = new QTcpServer;
-   if (!tcp_server_->listen(QHostAddress(IP_address), port))
+   if (!tcp_server_->listen(QHostAddress::Any, port))
    {
       tcp_server_->close();
       return;
@@ -23,7 +23,7 @@ void Server::new_connect()
       QTcpSocket* tcp_socket = tcp_server_->nextPendingConnection();
       connect(tcp_socket, SIGNAL(readyRead()), SLOT(read_in_data()));
       connect(tcp_socket, SIGNAL(disconnected()), SLOT(disconnect_user()));
-      send_data(tcp_socket, "You're connected to server");
+      qDebug() << "Client " << tcp_socket->peerAddress() <<  " connected to server";
    }
 }
 
@@ -31,6 +31,7 @@ void Server::disconnect_user()
 {
    QTcpSocket* tcp_socket;
    tcp_socket = static_cast<QTcpSocket*>(sender());
+   qDebug() << "Client " << tcp_socket->peerAddress() <<  " disconnected";
    tcp_socket->deleteLater();
 }
 
