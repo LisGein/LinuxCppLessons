@@ -14,9 +14,13 @@ TEMPLATE = app
 CONFIG   += console
 
 SOURCES += main.cpp \
-    server.cpp
+    server.cpp \
+    stringserver.cpp
 
 HEADERS  += \
-    server.h
+    server.h \
+    stringserver.h
 
 FORMS    +=
+
+INCLUDEPATH += ./include

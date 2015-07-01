@@ -1,54 +1,35 @@
 #include "server.h"
+#include "stringserver.h"
 
 Server::Server(int port)
    : tcp_server_(new QTcpServer(this))
 {
-   if (!tcp_server_->listen(QHostAddress::Any, port))
-   {
-      tcp_server_->close();
-      return;
-   }
-   connect(tcp_server_, SIGNAL(newConnection()), this, SLOT(new_connect()));
+
+   stringServer_ = new StringServer(port, IP_address);
+
+   connect(stringServer_, SIGNAL(ready_msg(QString)), this, SLOT(read_in_data(QString)));
+   connect(this, SIGNAL(ready_send(QString)), stringServer_, SLOT(send_all(QString)));
 }
 
 Server::~Server()
 {
-
 }
 
-void Server::new_connect()
+void Server::read_in_data(const QString &message)
 {
-   while (tcp_server_->hasPendingConnections())
+   QByteArray in_data;
+   QTcpSocket* tcp_socket;
+   tcp_socket = static_cast<QTcpSocket*>(sender());
+   QTextStream stream(tcp_socket);
+   stream.setCodec("UTF-8");
+   in_data.append( message);
+   int  size_msg = in_data.size() - 1;
+   last_msg_ += in_data;
+   qDebug() << "Recv data: " << in_data;
+   if (in_data[size_msg] == '\n')
    {
-      QTcpSocket* tcp_socket = tcp_server_->nextPendingConnection();
-      connect(tcp_socket, SIGNAL(readyRead()), SLOT(read_in_data()));
-      connect(tcp_socket, SIGNAL(disconnected()), SLOT(disconnect_user()));
-      qDebug() << "Client " << tcp_socket->peerAddress() <<  " connected to server";
+      emit ready_send(last_msg_ );
+      last_msg_.clear();
    }
 }
 
-void Server::disconnect_user()
-{
-   QTcpSocket* tcp_socket;
-   tcp_socket = static_cast<QTcpSocket*>(sender());
-   qDebug() << "Client " << tcp_socket->peerAddress() <<  " disconnected";
-   tcp_socket->deleteLater();
-}
-
-void Server::read_in_data()
-{
-   QTcpSocket* tcp_socket;
-   tcp_socket = static_cast<QTcpSocket*>(sender());
-   while (tcp_socket->bytesAvailable() > 0)
-   {
-      QString in_data = tcp_socket->readAll();
-      send_data(tcp_socket, in_data);
-   }
-}
-
-void Server::send_data(QTcpSocket* tcp_socket, QString const& message)
-{
-   QByteArray send_message;
-   send_message.append(message);
-   tcp_socket->write(send_message);
-}
