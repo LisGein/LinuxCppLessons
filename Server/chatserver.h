@@ -4,19 +4,18 @@
 #include "stringserver.h"
 
 
-class Server : public QObject
+class ChatServer : public QObject
 {
    Q_OBJECT
 
 public:
-   explicit Server(int port);
-   ~Server();
+   explicit ChatServer(int port);
+   ~ChatServer();
 
 signals:
    void ready_send(QString msg);
 private:
    QTcpServer* tcp_server_;
-   QString last_msg_;
    StringServer *stringServer_;
 
    void send_data(QTcpSocket *tcp_socket, QString const& message);
@@ -24,4 +23,3 @@ private:
 private slots:
    void read_in_data(QString const &message);
 };
-

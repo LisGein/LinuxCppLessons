@@ -8,7 +8,7 @@
 class StringServer : public QObject {
    Q_OBJECT
 public:
-   explicit StringServer(int port, QString const& IP_address);
+   explicit StringServer(int port);
    ~StringServer();
 signals:
    void ready_msg(QString const &message);
@@ -22,4 +22,6 @@ private slots:
 private:
    QTcpServer* tcp_server_;
    QVector<QTcpSocket*> users_;
+
+   QMap<QTcpSocket*, QString> last_msg_;
 };

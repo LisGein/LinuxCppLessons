@@ -9,18 +9,20 @@ QT       -= gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = Server
+TARGET = ChatServer
 TEMPLATE = app
 CONFIG   += console
 
 SOURCES += main.cpp \
-    server.cpp \
-    stringserver.cpp
+    stringserver.cpp \
+    chatserver.cpp
 
 HEADERS  += \
-    server.h \
-    stringserver.h
+    stringserver.h \
+    chatserver.h
 
 FORMS    +=
 
 INCLUDEPATH += ./include
+
+QMAKE_CXXFLAGS += -std=c++0x
