@@ -1,7 +1,7 @@
 #include "chatserver.h"
 #include "stringserver.h"
 
-ChatServer::ChatServer(int port)
+ChatServer::ChatServer(int port, QObject *parent)
    : tcp_server_(new QTcpServer(this))
 {
 

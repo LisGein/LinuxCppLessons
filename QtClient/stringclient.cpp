@@ -1,10 +1,10 @@
 #include "stringclient.h"
 #include <QHostAddress>
 
-StringClient::StringClient(int port)
-   :last_msg_("")
+StringClient::StringClient(int port, QObject *parent)
+   : last_msg_("")
+   , tcp_socket_(new QTcpSocket(this))
 {
-   tcp_socket_ = new QTcpSocket;
    tcp_socket_->connectToHost("localhost", port);
    connect(tcp_socket_, SIGNAL(readyRead()), this, SLOT(read()));
 }

@@ -7,7 +7,7 @@
 class StringClient : public QObject {
    Q_OBJECT
 public:
-   explicit StringClient(int port);
+   explicit StringClient(int port, QObject *parent = 0);
    ~StringClient();
 signals:
    void ready_msg(QString const &message);

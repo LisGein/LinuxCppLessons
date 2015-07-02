@@ -8,7 +8,7 @@
 class StringServer : public QObject {
    Q_OBJECT
 public:
-   explicit StringServer(int port);
+   explicit StringServer(int port, QWidget *parent = 0);
    ~StringServer();
 signals:
    void ready_msg(QString const &message);

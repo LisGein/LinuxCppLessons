@@ -9,11 +9,12 @@ class ChatServer : public QObject
    Q_OBJECT
 
 public:
-   explicit ChatServer(int port);
+   explicit ChatServer(int port, QObject *parent = 0);
    ~ChatServer();
 
 signals:
    void ready_send(QString msg);
+
 private:
    QTcpServer* tcp_server_;
    StringServer *stringServer_;

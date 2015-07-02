@@ -1,8 +1,8 @@
 #include "stringserver.h"
 
-StringServer::StringServer(int port)
+StringServer::StringServer(int port, QWidget *parent)
+   :tcp_server_(new QTcpServer(this))
 {
-   tcp_server_ = new QTcpServer;
    if (!tcp_server_->listen(QHostAddress::Any, port))
    {
       tcp_server_->close();
@@ -22,6 +22,7 @@ void StringServer::disconnect_user()
    tcp_socket = static_cast<QTcpSocket*>(sender());
    tcp_socket->deleteLater();
    int i = users_.indexOf(tcp_socket);
+   last_msg_.remove(tcp_socket);
    users_.remove(i);
 }
 
