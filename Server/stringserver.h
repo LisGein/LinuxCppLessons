@@ -22,6 +22,5 @@ private slots:
 private:
    QTcpServer* tcp_server_;
    QVector<QTcpSocket*> users_;
-
    QMap<QTcpSocket*, QString> last_msg_;
 };

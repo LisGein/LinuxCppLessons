@@ -6,14 +6,12 @@ GuiClient::GuiClient(QString const& nick, int port, QString const& IP_address, Q
    ui(new Ui::GuiClient)
 {
    ui->setupUi(this);
-   tcp_socket_ = new QTcpSocket;
-   tcp_socket_->connectToHost(IP_address, port);
-   connect(tcp_socket_, SIGNAL(readyRead()), this, SLOT(read_message()));
+   stringClient_ = new StringClient(port);
+   connect(this, SIGNAL(send(QString)), stringClient_, SLOT(send(QString)));
+   connect(stringClient_, SIGNAL(ready_msg(QString)), this, SLOT(read_message(QString)));
    connect(ui->send, SIGNAL(clicked()), this, SLOT(send_message()));
    connect(ui->in_text, SIGNAL(returnPressed()), this, SLOT(send_message()));
-   QByteArray array_message;
-   array_message.append(nick);
-   tcp_socket_->write(array_message);
+   emit send(nick);
 }
 
 GuiClient::~GuiClient()
@@ -21,21 +19,18 @@ GuiClient::~GuiClient()
    delete ui;
 }
 
-void GuiClient::read_message()
+void GuiClient::read_message(QString str)
 {
-   while(tcp_socket_->bytesAvailable()>0)
-   {
-      QString array_message = tcp_socket_->readAll();
-      ui->out_text->append(array_message);
-   }
+   rapidjson::Document d;
+   d.Parse(str.toUtf8());
+   qDebug() << "message body: " << d["msg"].GetString();
+   ui->out_text->append(str);
 }
 
 void GuiClient::send_message()
 {
    QString message = ui->in_text->text();
-   QByteArray array_message;
-   array_message.append(message);
-   tcp_socket_->write(array_message);
+   emit send(message);
    ui->in_text->clear();
 }
 

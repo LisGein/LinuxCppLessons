@@ -21,6 +21,8 @@ void StringServer::disconnect_user()
    QTcpSocket* tcp_socket;
    tcp_socket = static_cast<QTcpSocket*>(sender());
    tcp_socket->deleteLater();
+   int i = users_.indexOf(tcp_socket);
+   users_.remove(i);
 }
 
 void StringServer::new_connect()

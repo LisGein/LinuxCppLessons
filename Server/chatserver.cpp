@@ -18,6 +18,6 @@ void ChatServer::read_in_data(const QString &message)
 {
    rapidjson::Document d;
    d.Parse(message.toUtf8());
-   //qDebug() << "message body: " << d["msg"].GetString();
+   qDebug() << "message body: " << d["msg"].GetString();
    emit ready_send(message );
 }

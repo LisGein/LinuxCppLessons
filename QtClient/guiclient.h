@@ -1,6 +1,6 @@
 #pragma once
-#include <QTcpSocket>
 #include <QMainWindow>
+#include "stringclient.h"
 
 namespace Ui {
    class GuiClient;
@@ -14,11 +14,15 @@ public:
    explicit GuiClient(QString const& nick, int port, QString const& IP_address, QWidget *parent = 0);
    ~GuiClient();
 private slots:
-   void read_message();
+   void read_message(QString str);
    void send_message();
+
+signals:
+   void send(QString);
 
 private:
    Ui::GuiClient *ui;
-   QTcpSocket* tcp_socket_;
+
+   StringClient *stringClient_;
 };
 

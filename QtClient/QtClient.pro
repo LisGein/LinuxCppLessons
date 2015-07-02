@@ -14,11 +14,16 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    guiclient.cpp
+    guiclient.cpp \
+    stringclient.cpp
 
 HEADERS  += mainwindow.h \
-    guiclient.h
+    guiclient.h \
+    stringclient.h
 
 FORMS    += mainwindow.ui \
     guiclient.ui
- QMAKE_CXXFLAGS += -std=c++0x
+
+INCLUDEPATH += ../Server/include
+
+QMAKE_CXXFLAGS += -std=c++0x
