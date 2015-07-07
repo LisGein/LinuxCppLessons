@@ -1,23 +1,27 @@
 #include "chatserver.h"
 #include "stringserver.h"
 
+
 ChatServer::ChatServer(int port, QObject *parent)
-   : tcp_server_(new QTcpServer(this))
+    : tcp_server_(new QTcpServer(this))
 {
 
-   stringServer_ = new StringServer(port);
-   connect(stringServer_, SIGNAL(ready_msg(QString)), this, SLOT(read_in_data(QString)));
-   connect(this, SIGNAL(ready_send(QString)), stringServer_, SLOT(send_all(QString)));
+    stringServer_ = new StringServer(port);
+    connect(stringServer_, SIGNAL(ready_msg(QByteArray)), this, SLOT(read_in_data(QByteArray)));
+    connect(this, SIGNAL(ready_send(QByteArray)), stringServer_, SLOT(send_all(QByteArray)));
 }
 
 ChatServer::~ChatServer()
 {
 }
 
-void ChatServer::read_in_data(const QString &message)
+void ChatServer::read_in_data(QByteArray message)
 {
-   rapidjson::Document d;
-   d.Parse(message.toUtf8());
-   qDebug() << "message body: " << d["msg"].GetString();
-   emit ready_send(message );
+    rapidjson::Document doc;
+    doc.Parse(message);
+    bool fail_parse = doc.HasParseError();
+    if (fail_parse)
+        qDebug() << "error parse message";
+    else
+        emit ready_send(message );
 }

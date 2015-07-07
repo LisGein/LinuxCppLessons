@@ -17,7 +17,10 @@ MainWindow::~MainWindow()
 
 void MainWindow::entry_chat()
 {
-   client_ = new GuiClient(ui->in_text->text(), 3425, "localhost");
+   QString nick = ui->in_text->text();
+   QByteArray cd_nick;
+   cd_nick.append(nick);
+   client_ = new GuiClient(cd_nick, 3425, "109.234.35.126");
    client_->show();
    this->close();
 }

@@ -1,36 +1,36 @@
 #include "guiclient.h"
 #include "ui_guiclient.h"
 
-GuiClient::GuiClient(QString const& nick, int port, QString const& IP_address, QWidget *parent) :
-   QMainWindow(parent),
-   ui(new Ui::GuiClient)
+GuiClient::GuiClient(QByteArray const& nick, int port, QString const& IP_address, QWidget *parent) :
+    QMainWindow(parent),
+    ui(new Ui::GuiClient)
 {
-   ui->setupUi(this);
-   stringClient_ = new StringClient(port);
-   connect(this, SIGNAL(send(QString)), stringClient_, SLOT(send(QString)));
-   connect(stringClient_, SIGNAL(ready_msg(QString)), this, SLOT(read_message(QString)));
-   connect(ui->send, SIGNAL(clicked()), this, SLOT(send_message()));
-   connect(ui->in_text, SIGNAL(returnPressed()), this, SLOT(send_message()));
-   emit send(nick);
+    ui->setupUi(this);
+    stringClient_ = new StringClient(port);
+    connect(this, SIGNAL(send(QString)), stringClient_, SLOT(send(QString)));
+    connect(stringClient_, SIGNAL(ready_msg(QString)), this, SLOT(read_message(QString)));
+    connect(ui->send, SIGNAL(clicked()), this, SLOT(send_message()));
+    connect(ui->in_text, SIGNAL(returnPressed()), this, SLOT(send_message()));
+    emit send(nick);
 }
 
 GuiClient::~GuiClient()
 {
-   delete ui;
+    delete ui;
 }
 
 void GuiClient::read_message(QString str)
 {
-   rapidjson::Document d;
-   d.Parse(str.toUtf8());
-   qDebug() << "message body: " << d["msg"].GetString();
-   ui->out_text->append(str);
+    rapidjson::Document d;
+    d.Parse(str.toUtf8());
+    QByteArray Base64msg = d["msg"].GetString();
+    ui->out_text->append(Base64msg);
 }
 
 void GuiClient::send_message()
 {
-   QString message = ui->in_text->text();
-   emit send(message);
-   ui->in_text->clear();
+    QString message = ui->in_text->text();
+    emit send(message);
+    ui->in_text->clear();
 }
 

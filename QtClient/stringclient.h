@@ -3,6 +3,7 @@
 #include <QTcpSocket>
 #include <QTextStream>
 #include "rapidjson/document.h"
+#include <rapidjson/writer.h>
 
 class StringClient : public QObject {
    Q_OBJECT
@@ -13,7 +14,7 @@ signals:
    void ready_msg(QString const &message);
 
 private slots:
-   void send(QString msg);
+   void send(const QString &msg);
    void read();
 
 private:

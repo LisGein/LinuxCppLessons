@@ -13,7 +13,7 @@ public:
    ~ChatServer();
 
 signals:
-   void ready_send(QString msg);
+   void ready_send(QByteArray msg);
 
 private:
    QTcpServer* tcp_server_;
@@ -22,5 +22,5 @@ private:
    void send_data(QTcpSocket *tcp_socket, QString const& message);
 
 private slots:
-   void read_in_data(QString const &message);
+   void read_in_data(QByteArray message);
 };
