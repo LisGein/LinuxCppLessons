@@ -21,9 +21,9 @@ void StringServer::disconnect_user()
     QTcpSocket* tcp_socket;
     tcp_socket = static_cast<QTcpSocket*>(sender());
     tcp_socket->deleteLater();
-    int i = users_.indexOf(tcp_socket);
     last_msg_.remove(tcp_socket);
-    users_.remove(i);
+    users_.remove(tcp_socket->peerPort());
+    emit delete_user(tcp_socket->peerAddress(), tcp_socket->peerPort());
 }
 
 void StringServer::new_connect()
@@ -33,21 +33,21 @@ void StringServer::new_connect()
         QTcpSocket* tcp_socket = tcp_server_->nextPendingConnection();
         connect(tcp_socket, SIGNAL(readyRead()), SLOT(read()));
         connect(tcp_socket, SIGNAL(disconnected()), SLOT(disconnect_user()));
-        users_.push_back(tcp_socket);
+        users_.insert(tcp_socket->peerPort(), tcp_socket);
         last_msg_.insert(tcp_socket, "");
     }
 }
 
 void StringServer::send_all(QByteArray msg)
 {
-    for (int i = 0; i < users_.size(); ++i)
-    {
-        QTextStream stream(users_[i]);
-        stream.setCodec("UTF-8");
-        QByteArray in_data;
-        in_data.append(msg);
-        stream << in_data;
-    }
+    for (auto i = users_.begin(); i != users_.end(); ++i)
+        send_msg( i.value(),  msg);
+}
+
+void StringServer::send_private(quint16 port_user, QByteArray msg)
+{
+    auto it = users_.find(port_user);
+    send_msg( it.value(),  msg);
 }
 
 void StringServer::read()
@@ -61,9 +61,16 @@ void StringServer::read()
         QByteArray old_msg = it.value() + text;
         it.value() = "";
         if (old_msg[old_msg.size() -1] == '\n')
-            emit ready_msg(old_msg);
+            emit ready_msg(old_msg, tcp_socket->peerAddress(), tcp_socket->peerPort());
         else
             last_msg_.insert(tcp_socket, old_msg);
 
     }
+}
+
+void StringServer::send_msg(QTcpSocket* tcp_socket, QByteArray msg)
+{
+    QTextStream stream(tcp_socket);
+    stream.setCodec("UTF-8");
+    stream << msg;
 }

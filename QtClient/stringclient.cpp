@@ -20,17 +20,15 @@ void StringClient::send(QString const& msg)
     d.SetObject();
     rapidjson::Document::AllocatorType& allocator = d.GetAllocator();
     rapidjson::Value msg_value;
-    msg_value.SetString(msg.toStdString().c_str(), msg.size(), allocator);
+    msg_value.SetString(msg.toUtf8().constData(), msg.toUtf8().size(), allocator);
     d.AddMember("msg", msg_value, allocator);
 
     rapidjson::StringBuffer buffer;
     rapidjson::Writer<rapidjson::StringBuffer, rapidjson::Document::EncodingType, rapidjson::ASCII<> > writer(buffer);
     d.Accept(writer);
 
-    QByteArray array_msg;
-    array_msg.append(buffer.GetString());
-    array_msg.append("\n");
-    tcp_socket_->write(array_msg);
+    tcp_socket_->write(buffer.GetString());
+    tcp_socket_->write("\n");
 }
 
 void StringClient::read()

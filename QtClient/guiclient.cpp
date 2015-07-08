@@ -7,11 +7,10 @@ GuiClient::GuiClient(QByteArray const& nick, int port, QString const& IP_address
 {
     ui->setupUi(this);
     stringClient_ = new StringClient(port);
-    connect(this, SIGNAL(send(QString)), stringClient_, SLOT(send(QString)));
     connect(stringClient_, SIGNAL(ready_msg(QString)), this, SLOT(read_message(QString)));
     connect(ui->send, SIGNAL(clicked()), this, SLOT(send_message()));
     connect(ui->in_text, SIGNAL(returnPressed()), this, SLOT(send_message()));
-    emit send(nick);
+    stringClient_->send(nick);
 }
 
 GuiClient::~GuiClient()
@@ -30,7 +29,7 @@ void GuiClient::read_message(QString str)
 void GuiClient::send_message()
 {
     QString message = ui->in_text->text();
-    emit send(message);
+    stringClient_->send(message);
     ui->in_text->clear();
 }
 

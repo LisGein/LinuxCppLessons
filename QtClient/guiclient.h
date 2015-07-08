@@ -17,9 +17,6 @@ private slots:
    void read_message(QString str);
    void send_message();
 
-signals:
-   void send(QString);
-
 private:
    Ui::GuiClient *ui;
 
