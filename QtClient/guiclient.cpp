@@ -10,7 +10,7 @@ GuiClient::GuiClient(QByteArray const& nick, int port, QString const& IP_address
     connect(stringClient_, SIGNAL(ready_msg(QString)), this, SLOT(read_message(QString)));
     connect(ui->send, SIGNAL(clicked()), this, SLOT(send_message()));
     connect(ui->in_text, SIGNAL(returnPressed()), this, SLOT(send_message()));
-    stringClient_->send(nick);
+    stringClient_->login(nick);
 }
 
 GuiClient::~GuiClient()

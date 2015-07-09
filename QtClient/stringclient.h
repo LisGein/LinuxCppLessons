@@ -11,6 +11,7 @@ public:
    explicit StringClient(int port, QObject *parent = 0);
    ~StringClient();
    void send(const QString &msg);
+   void login(QString const& msg);
 
 signals:
    void ready_msg(QString const &message);
