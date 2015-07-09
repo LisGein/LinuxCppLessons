@@ -1,21 +1,26 @@
 #include "guiclient.h"
 #include "ui_guiclient.h"
 
-GuiClient::GuiClient(QByteArray const& nick, int port, QString const& IP_address, QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::GuiClient)
+GuiClient::GuiClient(QByteArray const& nick, int port, QString const& IP_address, QWidget *parent)
+    : QMainWindow(parent)
+    , ui(new Ui::GuiClient)
+    , listOnline_(new ListOnline())
+    , stringClient_(new StringClient(port, this))
+
 {
     ui->setupUi(this);
-    stringClient_ = new StringClient(port);
     connect(stringClient_, SIGNAL(ready_msg(QString)), this, SLOT(read_message(QString)));
+    connect(stringClient_, SIGNAL(ready_online(rapidjson::Document const&)), this, SLOT(show_online(rapidjson::Document const&)));
     connect(ui->send, SIGNAL(clicked()), this, SLOT(send_message()));
     connect(ui->in_text, SIGNAL(returnPressed()), this, SLOT(send_message()));
+    connect (ui->actionOnline_users, SIGNAL(triggered(bool)), stringClient_, SLOT(request_list_online()));
     stringClient_->login(nick);
 }
 
 GuiClient::~GuiClient()
 {
     delete ui;
+    delete listOnline_;
 }
 
 void GuiClient::read_message(QString str)
@@ -33,3 +38,11 @@ void GuiClient::send_message()
     ui->in_text->clear();
 }
 
+void GuiClient::show_online(const rapidjson::Document &doc)
+{
+    QVector<QString> users;
+    for (rapidjson::SizeType i = 0; i < doc["list"].Size(); i++)
+        users.push_back(doc["list"][i].GetString());
+    listOnline_->out_users(users);
+    listOnline_->show();
+}

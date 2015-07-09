@@ -15,14 +15,17 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     guiclient.cpp \
-    stringclient.cpp
+    stringclient.cpp \
+    listonline.cpp
 
 HEADERS  += mainwindow.h \
     guiclient.h \
-    stringclient.h
+    stringclient.h \
+    listonline.h
 
 FORMS    += mainwindow.ui \
-    guiclient.ui
+    guiclient.ui \
+    listonline.ui
 
 INCLUDEPATH += ../Server/include
 

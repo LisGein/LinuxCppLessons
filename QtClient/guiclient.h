@@ -1,6 +1,7 @@
 #pragma once
 #include <QMainWindow>
 #include "stringclient.h"
+#include "listonline.h"
 
 namespace Ui {
    class GuiClient;
@@ -16,10 +17,12 @@ public:
 private slots:
    void read_message(QString str);
    void send_message();
+   void show_online(rapidjson::Document const & doc);
 
 private:
    Ui::GuiClient *ui;
 
    StringClient *stringClient_;
+   ListOnline *listOnline_;
 };
 

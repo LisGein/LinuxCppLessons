@@ -30,18 +30,14 @@ void ChatServer::list_online(QHostAddress const& host_sender, quint16 port_sende
     {
         rapidjson::Value msg_value;
         msg_value.SetString(it.value().toUtf8().constData(), it.value().toUtf8().size(), allocator);
-        msg_key.AddMember("name", msg_value, allocator);
-
-        qDebug() << msg_key["name"].GetString();
+        msg_key.PushBack(msg_value, allocator);
     }
     d.AddMember("list", msg_key, allocator);
-    qDebug() << "e";
     rapidjson::StringBuffer buffer;
     rapidjson::Writer<rapidjson::StringBuffer, rapidjson::Document::EncodingType, rapidjson::ASCII<> > writer(buffer);
     d.Accept(writer);
 
     stringServer_->send_private(port_sender, buffer.GetString());
-    stringServer_->send_private(port_sender, "\n");
 }
 
 void ChatServer::process_msg(QByteArray message)
@@ -64,7 +60,6 @@ void ChatServer::private_msg(rapidjson::Document const & doc, QHostAddress const
         msg_text .append(" offline");
         QByteArray return_message = create_msg(msg_text);
         stringServer_->send_private(port_sender, return_message);
-        stringServer_->send_private(port_sender, "\n");
     }
 }
 
@@ -76,7 +71,6 @@ void ChatServer::reg_user(rapidjson::Document const & doc, QHostAddress const& h
     text_message.append(" connected");
     QByteArray return_message = create_msg(text_message);
     stringServer_->send_all(return_message);
-    stringServer_->send_all("\n");
 
 }
 
@@ -90,7 +84,6 @@ void ChatServer::delete_user(const QHostAddress &host_sender, quint16 port_sende
         QByteArray return_message = create_msg(msg_text);
 
         stringServer_->send_all(return_message);
-        stringServer_->send_all("\n");
 
         re_users_.remove(it.value());
         users_.remove(it.key());
@@ -102,13 +95,16 @@ void ChatServer::read_in_data(QByteArray message, const QHostAddress &host_sende
     rapidjson::Document doc;
     doc.Parse(message);
     bool fail_parse = doc.HasParseError();
-    QString type = doc["type"].GetString();
     if (fail_parse)
         error_parse_msg();
-    else if (message_processors_map_.contains(type))
-        message_processors_map_[type](doc, host_sender, port_sender, message);
     else
-        error_parse_msg();
+    {
+        QString type = doc["type"].GetString();
+        if (message_processors_map_.contains(type))
+            message_processors_map_[type](doc, host_sender, port_sender, message);
+        else
+            error_parse_msg();
+    }
 }
 
 void ChatServer::error_parse_msg()
@@ -123,6 +119,7 @@ QByteArray ChatServer::create_msg(QString const& msg)
     rapidjson::Document::AllocatorType& allocator = d.GetAllocator();
     rapidjson::Value msg_value;
     msg_value.SetString(msg.toUtf8().constData(), msg.toUtf8().size(), allocator);
+    d.AddMember("type", "msg", allocator);
     d.AddMember("msg", msg_value, allocator);
 
     rapidjson::StringBuffer buffer;

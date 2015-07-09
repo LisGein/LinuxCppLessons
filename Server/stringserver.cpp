@@ -72,5 +72,5 @@ void StringServer::send_msg(QTcpSocket* tcp_socket, QByteArray msg)
 {
     QTextStream stream(tcp_socket);
     stream.setCodec("UTF-8");
-    stream << msg;
+    stream << msg << "\n";
 }

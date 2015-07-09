@@ -40,17 +40,23 @@
      <x>0</x>
      <y>0</y>
      <width>341</width>
-     <height>22</height>
+     <height>30</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuMenu">
     <property name="title">
-     <string>Menu</string>
+     <string>&amp;Menu</string>
     </property>
+    <addaction name="actionOnline_users"/>
    </widget>
    <addaction name="menuMenu"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionOnline_users">
+   <property name="text">
+    <string>Online users</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>
