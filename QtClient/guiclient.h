@@ -1,7 +1,6 @@
 #pragma once
 #include <QMainWindow>
 #include "stringclient.h"
-#include "listonline.h"
 
 namespace Ui {
    class GuiClient;
@@ -23,6 +22,5 @@ private:
    Ui::GuiClient *ui;
 
    StringClient *stringClient_;
-   ListOnline *listOnline_;
 };
 

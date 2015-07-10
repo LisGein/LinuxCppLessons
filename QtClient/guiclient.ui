@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>341</width>
-    <height>307</height>
+    <width>719</width>
+    <height>633</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,22 +15,58 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="2" column="0">
-     <widget class="QPushButton" name="send">
-      <property name="text">
-       <string>Send</string>
+    <item row="1" column="1">
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="currentIndex">
+       <number>0</number>
       </property>
+      <widget class="QWidget" name="colum">
+       <attribute name="title">
+        <string>Tab 1</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <widget class="QTextEdit" name="out_text">
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="in_text"/>
+        </item>
+        <item>
+         <widget class="QPushButton" name="send">
+          <property name="text">
+           <string>Send</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_2">
+       <attribute name="title">
+        <string>Tab 2</string>
+       </attribute>
+      </widget>
      </widget>
     </item>
     <item row="0" column="0">
-     <widget class="QTextEdit" name="out_text">
-      <property name="readOnly">
-       <bool>true</bool>
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>Online users</string>
       </property>
      </widget>
     </item>
     <item row="1" column="0">
-     <widget class="QLineEdit" name="in_text"/>
+     <widget class="QListWidget" name="list_online">
+      <property name="maximumSize">
+       <size>
+        <width>200</width>
+        <height>16777215</height>
+       </size>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
@@ -39,7 +75,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>341</width>
+     <width>719</width>
      <height>30</height>
     </rect>
    </property>
@@ -47,14 +83,13 @@
     <property name="title">
      <string>&amp;Menu</string>
     </property>
-    <addaction name="actionOnline_users"/>
    </widget>
    <addaction name="menuMenu"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionOnline_users">
    <property name="text">
-    <string>Online users</string>
+    <string>&amp;Online users</string>
    </property>
   </action>
  </widget>

@@ -4,7 +4,6 @@
 GuiClient::GuiClient(QByteArray const& nick, int port, QString const& IP_address, QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::GuiClient)
-    , listOnline_(new ListOnline())
     , stringClient_(new StringClient(port, this))
 
 {
@@ -20,7 +19,6 @@ GuiClient::GuiClient(QByteArray const& nick, int port, QString const& IP_address
 GuiClient::~GuiClient()
 {
     delete ui;
-    delete listOnline_;
 }
 
 void GuiClient::read_message(QString str)
@@ -40,9 +38,11 @@ void GuiClient::send_message()
 
 void GuiClient::show_online(const rapidjson::Document &doc)
 {
-    QVector<QString> users;
+    ui->list_online->clear();
     for (rapidjson::SizeType i = 0; i < doc["list"].Size(); i++)
-        users.push_back(doc["list"][i].GetString());
-    listOnline_->out_users(users);
-    listOnline_->show();
+      {
+        QListWidgetItem *online_user = new QListWidgetItem;
+        online_user->setText(doc["list"][i].GetString());
+        ui->list_online->insertItem(i, online_user);
+      }
 }

@@ -71,6 +71,24 @@ void ChatServer::reg_user(rapidjson::Document const & doc, QHostAddress const& h
     text_message.append(" connected");
     QByteArray return_message = create_msg(text_message);
     stringServer_->send_all(return_message);
+    rapidjson::Document d;
+    d.SetObject();
+    rapidjson::Document::AllocatorType& allocator = d.GetAllocator();
+    d.AddMember("type", "online_users", allocator);
+    rapidjson::Value msg_key;
+    msg_key.SetArray();
+    for (auto it = users_.begin(); it != users_.end(); ++it)
+    {
+        rapidjson::Value msg_value;
+        msg_value.SetString(it.value().toUtf8().constData(), it.value().toUtf8().size(), allocator);
+        msg_key.PushBack(msg_value, allocator);
+    }
+    d.AddMember("list", msg_key, allocator);
+    rapidjson::StringBuffer buffer;
+    rapidjson::Writer<rapidjson::StringBuffer, rapidjson::Document::EncodingType, rapidjson::ASCII<> > writer(buffer);
+    d.Accept(writer);
+    for (auto it = users_.begin(); it != users_.end(); ++it)
+        stringServer_->send_private(it.key(), buffer.GetString());
 
 }
 
@@ -88,6 +106,25 @@ void ChatServer::delete_user(const QHostAddress &host_sender, quint16 port_sende
         re_users_.remove(it.value());
         users_.remove(it.key());
     }
+    rapidjson::Document d;
+    d.SetObject();
+    rapidjson::Document::AllocatorType& allocator = d.GetAllocator();
+    d.AddMember("type", "online_users", allocator);
+    rapidjson::Value msg_key;
+    msg_key.SetArray();
+    for (auto it = users_.begin(); it != users_.end(); ++it)
+    {
+        rapidjson::Value msg_value;
+        msg_value.SetString(it.value().toUtf8().constData(), it.value().toUtf8().size(), allocator);
+        msg_key.PushBack(msg_value, allocator);
+    }
+    d.AddMember("list", msg_key, allocator);
+    rapidjson::StringBuffer buffer;
+    rapidjson::Writer<rapidjson::StringBuffer, rapidjson::Document::EncodingType, rapidjson::ASCII<> > writer(buffer);
+    d.Accept(writer);
+    for (it = users_.begin(); it != users_.end(); ++it)
+        stringServer_->send_private(it.key(), buffer.GetString());
+
 }
 
 void ChatServer::read_in_data(QByteArray message, const QHostAddress &host_sender, quint16 port_sender)
