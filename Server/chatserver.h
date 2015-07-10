@@ -31,5 +31,5 @@ private:
     void private_msg(rapidjson::Document const & doc, QHostAddress const& host_sender, quint16 port_sender, QByteArray message);
     void reg_user(rapidjson::Document const & doc, QHostAddress const& host_sender, quint16 port_sender);
     QByteArray create_msg(QString const& msg);
-    void list_online(QHostAddress const& host_sender, quint16 port_sender);
+    void list_online();
 };

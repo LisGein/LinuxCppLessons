@@ -1,6 +1,7 @@
 #pragma once
-#include "guiclient.h"
+#include "stringclient.h"
 #include <QMainWindow>
+#include "login.h"
 
 namespace Ui {
    class MainWindow;
@@ -16,9 +17,13 @@ public:
 
 private:
    Ui::MainWindow *ui;
-   GuiClient* client_;
+   StringClient *stringClient_;
+   LogIn *login_;
 
 private slots:
-   void entry_chat();
+   void entry_chat(const QString &message);
+   void read_message(QString str);
+   void send_message();
+   void show_online(rapidjson::Document const & doc);
 };
 
