@@ -12,7 +12,6 @@ public:
    explicit StringClient(int port, QObject *parent = 0);
    ~StringClient();
    void send(const QString &msg);
-   void login(QString const& msg);
 
 
 signals:
@@ -22,8 +21,10 @@ signals:
 private slots:
    void read();
    void request_list_online();
+   void login(QString const& msg);
 
 private:
+   QString nick_user_;
    QString last_msg_;
    QTcpSocket* tcp_socket_;
 

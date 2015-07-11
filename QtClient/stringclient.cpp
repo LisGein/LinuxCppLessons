@@ -23,16 +23,19 @@ void StringClient::send(QString const& msg)
         int pos = msg.indexOf(' ');
         QString nick = msg;
         nick.remove(0,1);
-        nick.resize(pos-1);        
+        nick.resize(pos-1);
+        byte_msg.remove(0, pos);
         QMap<QString, QString> message;
+        message.insert("name", nick_user_ + "(private)");
         message.insert("type", "private");
-        message.insert("msg", msg);
+        message.insert("msg", byte_msg);
         message.insert("addressee", nick);
         generete_doc(message);
     }
     else
     {
         QMap<QString, QString> message;
+        message.insert("name", nick_user_);
         message.insert("type", "msg");
         message.insert("msg", msg);
         message.insert("addressee", "");
@@ -59,6 +62,12 @@ void StringClient::read()
                 QString type = doc["type"].GetString();
                 if (type == "online_users")
                     emit ready_online(doc);
+                else if (type == "private")
+                {
+                    QString name = doc["name"].GetString();
+                    qDebug() << name;
+                    emit ready_msg(last_msg_);
+                }
                 else
                     emit ready_msg(last_msg_);
                 last_msg_ = "";
@@ -69,7 +78,9 @@ void StringClient::read()
 
 void StringClient::login(QString const& msg)
 {
+    nick_user_ = msg;
     QMap<QString, QString> message;
+    message.insert("name", nick_user_);
     message.insert("type", "register");
     message.insert("msg", msg);
     message.insert("addressee", "");
@@ -79,6 +90,7 @@ void StringClient::login(QString const& msg)
 void StringClient::request_list_online()
 {
     QMap<QString, QString> message;
+    message.insert("name", nick_user_);
     message.insert("type", "online");
     message.insert("msg", "");
     message.insert("addressee", "");
@@ -90,6 +102,11 @@ void StringClient::generete_doc(QMap<QString, QString> message)
     rapidjson::Document d;
     d.SetObject();
     rapidjson::Document::AllocatorType& allocator = d.GetAllocator();
+
+    auto name = message.find("name");
+    rapidjson::Value name_value;
+    name_value.SetString(name.value().toUtf8().constData(), name.value().toUtf8().size(), allocator);
+    d.AddMember("name", name_value, allocator);
 
     auto type = message.find("type");
     rapidjson::Value type_value;

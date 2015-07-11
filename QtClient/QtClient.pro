@@ -15,14 +15,14 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     stringclient.cpp \
-    login.cpp
+    registration.cpp
 
 HEADERS  += mainwindow.h \
     stringclient.h \
-    login.h
+    registration.h
 
 FORMS    += mainwindow.ui \
-    login.ui
+    registration.ui
 
 INCLUDEPATH += ../Server/include
 

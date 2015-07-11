@@ -153,6 +153,7 @@ QByteArray ChatServer::create_msg(QString const& msg)
     rapidjson::Document::AllocatorType& allocator = d.GetAllocator();
     rapidjson::Value msg_value;
     msg_value.SetString(msg.toUtf8().constData(), msg.toUtf8().size(), allocator);
+    d.AddMember("name", "info message", allocator);
     d.AddMember("type", "msg", allocator);
     d.AddMember("msg", msg_value, allocator);
 
