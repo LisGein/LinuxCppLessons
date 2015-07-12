@@ -65,29 +65,29 @@ void MainWindow::read_private_message(QString str)
     QByteArray Base64msg;
     Base64msg.append(name + ": ");
     Base64msg.append(d["msg"].GetString());
-    QString type = d["type"].GetString();
-    qDebug() << Base64msg;
+
     QString addressee = d["addressee"].GetString();
-        auto it_1 = opened_tabs_.find(name);
-        auto it_2 = opened_tabs_.find(addressee);
-        if (name == stringClient_->nick_name())
-            name = addressee;
-        else if (type != "private")
-            name = "Global";
-        if ((it_1 == opened_tabs_.end())&&(it_2 == opened_tabs_.end()))
-        {
-            InsetDialog *inset = new InsetDialog(name);
-            inset->show();
-            ui->tabWidget->insertTab(opened_tabs_.size(), inset, name);
-            inset->read_message(Base64msg);
-            connect(inset, SIGNAL(send(QString)), SLOT(send(QString)));
-            opened_tabs_.insert(name, inset);
-        }
-        else
-        {
-            auto it =opened_tabs_.find(name);
-            it.value()->read_message(Base64msg);
-        }
+    QString type = d["type"].GetString();
+    if (name == stringClient_->nick_name())
+        name = addressee;
+    else if (type != "private")
+        name = "Global";
+    auto it_1 = opened_tabs_.find(name);
+
+    if (it_1 == opened_tabs_.end())
+    {
+        InsetDialog *inset = new InsetDialog(name);
+        inset->show();
+        ui->tabWidget->insertTab(opened_tabs_.size(), inset, name);
+        inset->read_message(Base64msg);
+        connect(inset, SIGNAL(send(QString)), SLOT(send(QString)));
+        opened_tabs_.insert(name, inset);
+    }
+    else
+    {
+        auto it =opened_tabs_.find(name);
+        it.value()->read_message(Base64msg);
+    }
 
 
 }

@@ -17,26 +17,25 @@ StringClient::~StringClient()
 void StringClient::send(QString const& msg)
 {
     QByteArray byte_msg;
-    byte_msg.append(msg);     
+    byte_msg.append(msg);
 
-        int pos = msg.indexOf(' ');
-        QString nick = msg;
-        nick.remove(0,1);
-        nick.resize(pos-1);
-        byte_msg.remove(0, pos);
-        QMap<QString, QString> message;
-        message.insert("name", nick_user_);
-        if (nick == "Global")
-        {
-            message.insert("type", "msg");
-        }
-        else
-        {
-            message.insert("type", "private");
-        }
-        message.insert("msg", byte_msg);
-        message.insert("addressee", nick);
-        generete_doc(message);
+    int pos = msg.indexOf(' ');
+    QString nick = msg;
+    nick.remove(0,1);
+    nick.resize(pos-1);
+    byte_msg.remove(0, pos);
+    QMap<QString, QString> message;
+    message.insert("name", nick_user_);
+
+    if (nick == "Global")
+        message.insert("type", "msg");
+    else
+        message.insert("type", "private");
+
+    message.insert("msg", byte_msg);
+
+    message.insert("addressee", nick);
+    generete_doc(message);
 }
 
 void StringClient::read()
