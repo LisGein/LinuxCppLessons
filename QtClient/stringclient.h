@@ -11,11 +11,13 @@ class StringClient : public QObject {
 public:
    explicit StringClient(int port, QObject *parent = 0);
    ~StringClient();
-   void send(const QString &msg);
+   void send(const QString &msg);   
+   QString nick_name();
 
 
 signals:
    void ready_msg(QString const &message);
+   void ready_private_msg(QString const &message);
    void ready_online(rapidjson::Document const & doc);
 
 private slots:

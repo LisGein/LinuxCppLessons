@@ -15,14 +15,17 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     stringclient.cpp \
-    registration.cpp
+    registration.cpp \
+    insetdialog.cpp
 
 HEADERS  += mainwindow.h \
     stringclient.h \
-    registration.h
+    registration.h \
+    insetdialog.h
 
 FORMS    += mainwindow.ui \
-    registration.ui
+    registration.ui \
+    insetdialog.ui
 
 INCLUDEPATH += ../Server/include
 

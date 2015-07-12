@@ -70,7 +70,7 @@ void ChatServer::reg_user(rapidjson::Document const & doc, QHostAddress const& h
     users_.insert(port_sender, text_message);
     text_message.append(" connected");
     QByteArray return_message = create_msg(text_message);
-    stringServer_->send_all(return_message);
+    //stringServer_->send_all(return_message);
     rapidjson::Document d;
     d.SetObject();
     rapidjson::Document::AllocatorType& allocator = d.GetAllocator();
@@ -87,7 +87,7 @@ void ChatServer::reg_user(rapidjson::Document const & doc, QHostAddress const& h
     rapidjson::StringBuffer buffer;
     rapidjson::Writer<rapidjson::StringBuffer, rapidjson::Document::EncodingType, rapidjson::ASCII<> > writer(buffer);
     d.Accept(writer);
-    stringServer_->send_all(buffer.GetString());
+    //stringServer_->send_all(buffer.GetString());
 
 }
 
@@ -156,7 +156,7 @@ QByteArray ChatServer::create_msg(QString const& msg)
     d.AddMember("name", "info message", allocator);
     d.AddMember("type", "msg", allocator);
     d.AddMember("msg", msg_value, allocator);
-
+    d.AddMember("addressee", " - ", allocator);
     rapidjson::StringBuffer buffer;
     rapidjson::Writer<rapidjson::StringBuffer, rapidjson::Document::EncodingType, rapidjson::ASCII<> > writer(buffer);
     d.Accept(writer);
