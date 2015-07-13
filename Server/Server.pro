@@ -15,11 +15,13 @@ CONFIG   += console
 
 SOURCES += main.cpp \
     stringserver.cpp \
-    chatserver.cpp
+    chatserver.cpp \
+    address.cpp
 
 HEADERS  += \
     stringserver.h \
-    chatserver.h
+    chatserver.h \
+    address.h
 
 FORMS    +=
 

@@ -4,9 +4,9 @@
 StringClient::StringClient(int port, QObject *parent)
     : last_msg_("")
     , tcp_socket_(new QTcpSocket(this))
+    , port_(port)
 {
-    tcp_socket_->connectToHost("localhost", port);
-    connect(tcp_socket_, SIGNAL(readyRead()), this, SLOT(read()));
+//"109.234.35.126"
 }
 
 StringClient::~StringClient()
@@ -65,13 +65,15 @@ void StringClient::read()
     }
 }
 
-void StringClient::login(QString const& msg)
+void StringClient::login(QString const& name, const QString &IP)
 {
-    nick_user_ = msg;
+    nick_user_ = name;
+    tcp_socket_->connectToHost(IP, port_);
+    connect(tcp_socket_, SIGNAL(readyRead()), this, SLOT(read()));
     QMap<QString, QString> message;
     message.insert("name", nick_user_);
     message.insert("type", "register");
-    message.insert("msg", msg);
+    message.insert("msg", name);
     message.insert("addressee", "");
     generete_doc(message);
 }

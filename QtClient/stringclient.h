@@ -23,12 +23,13 @@ signals:
 private slots:
    void read();
    void request_list_online();
-   void login(QString const& msg);
+   void login(QString const& name, QString const& IP);
 
 private:
    QString nick_user_;
    QString last_msg_;
    QTcpSocket* tcp_socket_;
+   int port_;
 
    void generete_doc(QMap<QString, QString> message);
 };

@@ -21,5 +21,5 @@ private slots:
     void regs();
 
 signals:
-    void login(QString const &message);
+    void login(QString const &message, QString const & IP);
 };

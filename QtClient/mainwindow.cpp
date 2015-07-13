@@ -9,7 +9,7 @@ MainWindow::MainWindow(QWidget *parent)
     auto dialog = new QDialog(this);
     ui->setupUi(this);
     registration_ = new Registration(dialog);
-    connect(registration_, SIGNAL(login(QString)), stringClient_, SLOT(login(QString)));
+    connect(registration_, SIGNAL(login(QString, QString)), stringClient_, SLOT(login(QString, QString)));
     registration_->exec();
     connect(stringClient_, SIGNAL(ready_private_msg(QString)), this, SLOT(read_private_message(QString)));
     connect(stringClient_, SIGNAL(ready_online(rapidjson::Document const&)), this, SLOT(show_online(rapidjson::Document const&)));

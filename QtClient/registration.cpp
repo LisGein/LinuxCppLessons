@@ -1,5 +1,6 @@
 #include "registration.h"
 #include "ui_registration.h"
+#include <QDebug>
 
 Registration::Registration(QWidget *parent) :
     QDialog(parent),
@@ -16,7 +17,9 @@ Registration::~Registration()
 
 void Registration::regs()
 {
-    QString message = ui->in_text->text();
-    emit login(message);
+    QString nick = ui->in_text->text();
+    QString IP = ui->IPEdit->text();
+    emit login(nick, IP);
     qobject_cast<QDialog *>(parent())->accept();
+
 }

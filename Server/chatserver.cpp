@@ -1,16 +1,17 @@
 #include "chatserver.h"
 #include "stringserver.h"
+#include <QMap>
 
 
 ChatServer::ChatServer(int port, QObject *parent)
     : tcp_server_(new QTcpServer(this))
 {
     stringServer_ = new StringServer(port);
-    connect(stringServer_, SIGNAL(ready_msg(QByteArray, QHostAddress, quint16)), this, SLOT(read_in_data(QByteArray, QHostAddress, quint16)));
-    connect(stringServer_, SIGNAL(delete_user(QHostAddress, quint16)), this, SLOT(delete_user(QHostAddress, quint16)));
-    message_processors_map_["msg"] = std::bind(&ChatServer::process_msg, this, std::placeholders::_4);
-    message_processors_map_["register"] = std::bind(&ChatServer::reg_user, this, std::placeholders::_1, std::placeholders::_2,std::placeholders:: _3);
-    message_processors_map_["private"] = std::bind(&ChatServer::private_msg, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3,  std::placeholders::_4);
+    connect(stringServer_, SIGNAL(ready_msg(QByteArray, Address)), this, SLOT(read_in_data(QByteArray, Address)));
+    connect(stringServer_, SIGNAL(delete_user(Address)), this, SLOT(delete_user(Address)));
+    message_processors_map_["msg"] = std::bind(&ChatServer::process_msg, this, std::placeholders::_3);
+    message_processors_map_["register"] = std::bind(&ChatServer::reg_user, this, std::placeholders::_1, std::placeholders::_2);
+    message_processors_map_["private"] = std::bind(&ChatServer::private_msg, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
     message_processors_map_["online"] = std::bind(&ChatServer::list_online, this);
 }
 
@@ -45,29 +46,29 @@ void ChatServer::process_msg(QByteArray message)
     stringServer_->send_all(message);
 }
 
-void ChatServer::private_msg(rapidjson::Document const & doc, QHostAddress const& host_sender, quint16 port_sender, QByteArray message)
+void ChatServer::private_msg(rapidjson::Document const & doc, Address host_sender, QByteArray message)
 {
     QString addressee = doc["addressee"].GetString();
     auto i = re_users_.find(addressee);
     if (i != re_users_.end())
     {
         stringServer_->send_private(i.value(), message);
-        stringServer_->send_private(port_sender, message);
+        stringServer_->send_private(host_sender, message);
     }
     else
     {
         QString msg_text = addressee;
         msg_text .append(" offline");
         QByteArray return_message = create_msg(msg_text);
-        stringServer_->send_private(port_sender, return_message);
+        stringServer_->send_private(host_sender, return_message);
     }
 }
 
-void ChatServer::reg_user(rapidjson::Document const & doc, QHostAddress const& host_sender, quint16 port_sender)
+void ChatServer::reg_user(rapidjson::Document const & doc, Address host_sender)//todo pair
 {
     QString text_message = doc["msg"].GetString();
-    re_users_.insert(text_message, port_sender);
-    users_.insert(port_sender, text_message);
+    re_users_.insert(text_message, host_sender);
+    users_.insert(host_sender, text_message);
     text_message.append(" connected");
     QByteArray return_message = create_msg(text_message);
     stringServer_->send_all(return_message);
@@ -91,9 +92,9 @@ void ChatServer::reg_user(rapidjson::Document const & doc, QHostAddress const& h
 
 }
 
-void ChatServer::delete_user(const QHostAddress &host_sender, quint16 port_sender)
+void ChatServer::delete_user(Address host_sender)
 {
-    auto it = users_.find(port_sender);
+    auto it = users_.find(host_sender);
     if (it != users_.end())
     {
         QString msg_text = it.value();
@@ -124,7 +125,7 @@ void ChatServer::delete_user(const QHostAddress &host_sender, quint16 port_sende
     stringServer_->send_all(buffer.GetString());
 }
 
-void ChatServer::read_in_data(QByteArray message, const QHostAddress &host_sender, quint16 port_sender)
+void ChatServer::read_in_data(QByteArray message, Address host_sender)
 {
     rapidjson::Document doc;
     doc.Parse(message);
@@ -135,7 +136,7 @@ void ChatServer::read_in_data(QByteArray message, const QHostAddress &host_sende
     {
         QString type = doc["type"].GetString();
         if (message_processors_map_.contains(type))
-            message_processors_map_[type](doc, host_sender, port_sender, message);
+            message_processors_map_[type](doc, host_sender, message);
         else
             error_parse_msg();
     }

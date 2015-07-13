@@ -5,6 +5,9 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = Perceptron
 TEMPLATE = app
 
+LIBS += -pthread
+QMAKE_CXXFLAGS += -pthread
+QT += widgets
 SOURCES += main.cpp \
     perceptron.cpp \
     dataset_t.cpp \
@@ -20,4 +23,4 @@ HEADERS += \
 FORMS += \
     mainwindow.ui
 
- QMAKE_CXXFLAGS += -std=c++0x
+ QMAKE_CXXFLAGS += -std=c++11

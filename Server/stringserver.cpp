@@ -22,8 +22,9 @@ void StringServer::disconnect_user()
     tcp_socket = static_cast<QTcpSocket*>(sender());
     tcp_socket->deleteLater();
     last_msg_.remove(tcp_socket);
-    users_.remove(tcp_socket->peerPort());
-    emit delete_user(tcp_socket->peerAddress(), tcp_socket->peerPort());
+    Address address(tcp_socket->peerAddress(), tcp_socket->peerPort());
+    users_.remove(address);
+    emit delete_user(address);
 }
 
 void StringServer::new_connect()
@@ -33,7 +34,8 @@ void StringServer::new_connect()
         QTcpSocket* tcp_socket = tcp_server_->nextPendingConnection();
         connect(tcp_socket, SIGNAL(readyRead()), SLOT(read()));
         connect(tcp_socket, SIGNAL(disconnected()), SLOT(disconnect_user()));
-        users_.insert(tcp_socket->peerPort(), tcp_socket);
+        Address address(tcp_socket->peerAddress(), tcp_socket->peerPort());
+        users_.insert(address, tcp_socket);
         last_msg_.insert(tcp_socket, "");
     }
 }
@@ -44,9 +46,9 @@ void StringServer::send_all(QByteArray msg)
         send_msg( i.value(),  msg);
 }
 
-void StringServer::send_private(quint16 port_user, QByteArray msg)
+void StringServer::send_private(Address address, QByteArray msg)
 {
-    auto it = users_.find(port_user);
+    auto it = users_.find(address);
     send_msg( it.value(),  msg);
 }
 
@@ -60,8 +62,9 @@ void StringServer::read()
         QByteArray text = tcp_socket->readLine();
         QByteArray old_msg = it.value() + text;
         it.value() = "";
+        Address address(tcp_socket->peerAddress(), tcp_socket->peerPort());
         if (old_msg[old_msg.size() -1] == '\n')
-            emit ready_msg(old_msg, tcp_socket->peerAddress(), tcp_socket->peerPort());
+            emit ready_msg(old_msg, address);
         else
             last_msg_.insert(tcp_socket, old_msg);
 

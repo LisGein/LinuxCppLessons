@@ -1,107 +1,130 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QFileDialog>
-#include "confusion_matrix.h"
+#include <QProgressDialog>
 
 const size_t X_SIZE = 256;
 const size_t Y_SIZE = 10;
 const size_t EPOCH_COUNT = 100;
 
 MainWindow::MainWindow(QWidget *parent)
-  : QMainWindow(parent)
-  , ui(new Ui::MainWindow)
-  , dir_weight_("0")
+    : QMainWindow(parent)
+    , ui(new Ui::MainWindow)
+    , dir_weight_("0")
 {
-  ui->setupUi(this);
-  connect(ui->learn, SIGNAL(clicked()),SLOT(learning()));
-  connect(ui->load,  SIGNAL(clicked()),SLOT(load_img()));
-  connect(ui->open,  SIGNAL(clicked()),SLOT(open()));
-  connect(ui->close,  SIGNAL(clicked()),SLOT(close()));
-  ui->textEdit->setReadOnly(true);
-  ui->load->setDisabled(true);
-  dataset_ = new dataset_t("dat.txt", X_SIZE, Y_SIZE);
-  dataset_->split_train_test(0.7);
-  perceptron_ = new perceptron_t(dataset_->dim());
-  connect(ui->save,  SIGNAL(clicked()),SLOT(save()));
+    ui->setupUi(this);
+    connect(ui->learn, SIGNAL(clicked()),SLOT(learning()));
+    connect(ui->load,  SIGNAL(clicked()),SLOT(load_img()));
+    connect(ui->open,  SIGNAL(clicked()),SLOT(open()));
+    connect(ui->close,  SIGNAL(clicked()),SLOT(close()));
+    ui->textEdit->setReadOnly(true);
+    ui->load->setDisabled(true);
+    connect(ui->save,  SIGNAL(clicked()),SLOT(save()));
+    connect(this,  SIGNAL(ready_result(QString)),SLOT(print_result(QString)));
 }
 
 MainWindow::~MainWindow()
 {
-  delete ui;
+    delete ui;
+}
+
+void MainWindow::print_result(QString result)
+{
+    ui->textEdit->append(result);
+}
+
+void MainWindow::learn()
+{
+    ConfusionMatrix confusion_matrix(Y_SIZE);
+    if (dir_weight_ == "0")
+        perceptron_->create_weight();
+    QProgressDialog *progress = new QProgressDialog("Learning...", "Cancel", 0, EPOCH_COUNT, this);
+    connect(progress, SIGNAL(canceled()), progress, SLOT(cancel()));
+    progress->setWindowModality(Qt::WindowModal);
+    for (size_t i = 0; i <  EPOCH_COUNT; ++i)
+    {
+        progress->setValue(i);
+        if (progress->wasCanceled())
+            break;
+        size_t correct_train = 0;
+        for(auto const &sample: dataset_->train_dataset())
+        {
+            bool correct = perceptron_->learn(sample);
+            if (correct)
+                correct_train += 1;
+        }
+
+        size_t correct_test = 0;
+        for(auto const &sample: dataset_->test_dataset())
+        {
+            std::vector<char> return_classify = perceptron_->classify(sample.first);
+            bool correct = return_classify == sample.second;
+            if (correct)
+                correct_test += 1;
+            confusion_matrix.increment(return_classify, sample.second);
+        }
+
+
+        double F = confusion_matrix.f_1();
+        QString valueAsString = "test train precision: " + QString::number(F);
+        emit ready_result(valueAsString);
+        confusion_matrix.clear_confusion_matrix();
+        if (i == EPOCH_COUNT - 1)
+            emit ready_result("end learning");
+    }
+    progress->setValue(EPOCH_COUNT);
 }
 
 void MainWindow::learning()
 {
-  ConfusionMatrix confusion_matrix(Y_SIZE);
-  if (dir_weight_ == "0")
-    perceptron_->create_weight();
+    QString dir_weight = QFileDialog::getOpenFileName(this, tr("Open File"), "/home", tr("Text (*.txt)"));
+    dataset_ = new dataset_t(dir_weight.toStdString(), X_SIZE, Y_SIZE);
+    dataset_->split_train_test(0.7);
+    perceptron_ = new perceptron_t(dataset_->dim());
+    std::thread learning_thread(&MainWindow::learn, this);
+    learning_thread.detach();
+    ui->load->setDisabled(false);
 
-  for (size_t i = 0; i <  EPOCH_COUNT; ++i)
-    {
-      size_t correct_train = 0;
-      for(auto const &sample: dataset_->train_dataset())
-        {
-          bool correct = perceptron_->learn(sample);
-          if (correct)
-            correct_train += 1;
-        }
-
-      size_t correct_test = 0;
-      for(auto const &sample: dataset_->test_dataset())
-        {
-          std::vector<char> return_classify = perceptron_->classify(sample.first);
-          bool correct = return_classify == sample.second;
-          if (correct)
-            correct_test += 1;
-          confusion_matrix.increment(return_classify, sample.second);
-        }
-
-      double F = confusion_matrix.f_1();
-      QString valueAsString = "test train precision: " + QString::number(F);
-      ui->textEdit->append(valueAsString);
-      confusion_matrix.clear_confusion_matrix();
-    }
-  ui->load->setDisabled(false);
 }
 
 void MainWindow::load_img()
 {
-  QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), "/home", tr("Images (*.png *.xpm *.jpg)"));
-  QImage img(16, 16, QImage::Format_RGB32);
-  img.load(fileName);
-  ui->label->setPixmap(QPixmap::fromImage(img));
-  ui->label->show();
-  std::vector<double> data;
-  for ( int row = 0; row < img.height(); ++row )
-    for ( int col = 0; col < img.width(); ++col )
-      {
-        QColor clrCurrent( img.pixel( row, col ) );
-        if ((clrCurrent.red()==255)&&(clrCurrent.green()==255)&&(clrCurrent.blue()==255))
-          data.push_back(1);
-        else
-          data.push_back(0);
-      }
-  std::vector<char> return_classify = perceptron_->classify(data);
-  int result;
-  for (int i = 0; i < return_classify.size();++i)
-    if (return_classify[i] == 1)
-      result = i;
-  QString valueAsString = QString::number(result);
-  ui->textEdit->setText(valueAsString);
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"), "/home", tr("Images (*.png *.xpm *.jpg)"));
+    QImage img(16, 16, QImage::Format_RGB32);
+    img.load(fileName);
+    ui->label->setPixmap(QPixmap::fromImage(img));
+    ui->label->show();
+    std::vector<double> data;
+    for ( int row = 0; row < img.height(); ++row )
+        for ( int col = 0; col < img.width(); ++col )
+        {
+            QColor clrCurrent( img.pixel( row, col ) );
+            if ((clrCurrent.red()==255)&&(clrCurrent.green()==255)&&(clrCurrent.blue()==255))
+                data.push_back(1);
+            else
+                data.push_back(0);
+        }
+    std::vector<char> return_classify = perceptron_->classify(data);
+    int result;
+    for (int i = 0; i < return_classify.size();++i)
+        if (return_classify[i] == 1)
+            result = i;
+    QString valueAsString = QString::number(result);
+    ui->textEdit->append(valueAsString);
 }
 
 void MainWindow::open()
 {
-  QString dir_weight = QFileDialog::getOpenFileName(this, tr("Open File"), "/home", tr("Text (*.txt)"));
-  dir_weight_=dir_weight.toUtf8().constData();
+    QString dir_weight = QFileDialog::getOpenFileName(this, tr("Open File"), "/home", tr("Text (*.txt)"));
+    dir_weight_=dir_weight.toUtf8().constData();
 
-  perceptron_->load(dir_weight_);
-  ui->load->setDisabled(false);
-  ui->textEdit->setText("Uploaded");
+    perceptron_->load(dir_weight_);
+    ui->load->setDisabled(false);
+    ui->textEdit->append("Uploaded");
 }
 
 void MainWindow::save()
 {
-  perceptron_->save();
-  ui->textEdit->setText("Saved");
+    perceptron_->save();
+    ui->textEdit->append("Saved");
 }
