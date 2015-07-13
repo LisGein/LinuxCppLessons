@@ -8,7 +8,7 @@
 #include <chrono>
 #include <functional>
 #include <atomic>
-#include <mutex>
+#include <QProgressDialog>
 #include "confusion_matrix.h"
 
 namespace Ui {
@@ -30,10 +30,14 @@ private:
   std::string dir_weight_;
   perceptron_t *perceptron_;
   dataset_t *dataset_;
+  size_t step_;
+  std::atomic<bool> stop_learning_;
+  QProgressDialog *progress_;
 
 
 signals:
   void ready_result(QString result);
+  void incremtent_progress();
 
 private slots:
   void learning();
@@ -41,5 +45,6 @@ private slots:
   void open();
   void save();
   void print_result(QString result);
+  void run_progress();
 };
 

@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QFileDialog>
-#include <QProgressDialog>
+
 
 const size_t X_SIZE = 256;
 const size_t Y_SIZE = 10;
@@ -11,6 +11,8 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
     , dir_weight_("0")
+    , step_(0)
+    , stop_learning_(false)
 {
     ui->setupUi(this);
     connect(ui->learn, SIGNAL(clicked()),SLOT(learning()));
@@ -38,14 +40,10 @@ void MainWindow::learn()
     ConfusionMatrix confusion_matrix(Y_SIZE);
     if (dir_weight_ == "0")
         perceptron_->create_weight();
-    QProgressDialog *progress = new QProgressDialog("Learning...", "Cancel", 0, EPOCH_COUNT, this);
-    connect(progress, SIGNAL(canceled()), progress, SLOT(cancel()));
-    progress->setWindowModality(Qt::WindowModal);
-    for (size_t i = 0; i <  EPOCH_COUNT; ++i)
+
+    size_t i = 0;
+    for (; i <  EPOCH_COUNT; ++i)
     {
-        progress->setValue(i);
-        if (progress->wasCanceled())
-            break;
         size_t correct_train = 0;
         for(auto const &sample: dataset_->train_dataset())
         {
@@ -64,15 +62,34 @@ void MainWindow::learn()
             confusion_matrix.increment(return_classify, sample.second);
         }
 
-
         double F = confusion_matrix.f_1();
         QString valueAsString = "test train precision: " + QString::number(F);
         emit ready_result(valueAsString);
         confusion_matrix.clear_confusion_matrix();
-        if (i == EPOCH_COUNT - 1)
-            emit ready_result("end learning");
+        if (stop_learning_ == true)
+        {
+            stop_learning_ = false;
+            break;
+        }
+        emit incremtent_progress();
     }
-    progress->setValue(EPOCH_COUNT);
+    if (i == EPOCH_COUNT)
+    {
+        emit incremtent_progress();
+        emit ready_result("end learning");
+    }
+}
+
+void MainWindow::run_progress()
+{
+    progress_->setValue(step_);
+    step_++;
+    if (progress_->wasCanceled())
+    {
+        stop_learning_ = true;
+        step_ = 0;
+        delete progress_;
+    }
 }
 
 void MainWindow::learning()
@@ -83,6 +100,12 @@ void MainWindow::learning()
     perceptron_ = new perceptron_t(dataset_->dim());
     std::thread learning_thread(&MainWindow::learn, this);
     learning_thread.detach();
+
+    progress_ = new QProgressDialog("Learning...", "Cancel", 0, EPOCH_COUNT - 1, this);
+    connect(progress_, SIGNAL(canceled()), progress_, SLOT(cancel()));
+    progress_->setWindowModality(Qt::WindowModal);
+    connect(this, SIGNAL(incremtent_progress()),SLOT(run_progress()));
+
     ui->load->setDisabled(false);
 
 }
