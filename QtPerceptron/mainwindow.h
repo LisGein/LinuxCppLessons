@@ -10,6 +10,7 @@
 #include <atomic>
 #include <QProgressDialog>
 #include "confusion_matrix.h"
+#include <QThread>
 
 namespace Ui {
   class MainWindow;
@@ -22,7 +23,7 @@ class MainWindow : public QMainWindow
 public:
   explicit MainWindow(QWidget *parent = 0);
   ~MainWindow();
-    void learn();
+//    void learn();
 
 private:
   Ui::MainWindow *ui;
@@ -33,11 +34,13 @@ private:
   size_t step_;
   std::atomic<bool> stop_learning_;
   QProgressDialog *progress_;
+  QThread* thread_;
+
 
 
 signals:
   void ready_result(QString result);
-  void incremtent_progress();
+  void finish_learn();
 
 private slots:
   void learning();
@@ -45,6 +48,6 @@ private slots:
   void open();
   void save();
   void print_result(QString result);
-  void run_progress();
+  void learn();
 };
 

@@ -15,13 +15,15 @@ MainWindow::MainWindow(QWidget *parent)
     , stop_learning_(false)
 {
     ui->setupUi(this);
-    connect(ui->learn, SIGNAL(clicked()),SLOT(learning()));
-    connect(ui->load,  SIGNAL(clicked()),SLOT(load_img()));
-    connect(ui->open,  SIGNAL(clicked()),SLOT(open()));
-    connect(ui->close,  SIGNAL(clicked()),SLOT(close()));
+    connect(ui->learn,  SIGNAL(clicked()), SLOT(learning()));
+    connect(ui->load,   SIGNAL(clicked()), SLOT(load_img()));
+    connect(ui->open,   SIGNAL(clicked()), SLOT(open()));
+    connect(ui->close,  SIGNAL(clicked()), SLOT(close()));
+    connect(ui->save,   SIGNAL(clicked()), SLOT(save()));
+
     ui->textEdit->setReadOnly(true);
     ui->load->setDisabled(true);
-    connect(ui->save,  SIGNAL(clicked()),SLOT(save()));
+
     connect(this,  SIGNAL(ready_result(QString)),SLOT(print_result(QString)));
 }
 
@@ -33,6 +35,14 @@ MainWindow::~MainWindow()
 void MainWindow::print_result(QString result)
 {
     ui->textEdit->append(result);
+    progress_->setValue(step_);
+    step_++;
+    if (progress_->wasCanceled())
+    {
+        stop_learning_ = true;
+        step_ = 0;
+        delete progress_;
+    }
 }
 
 void MainWindow::learn()
@@ -71,26 +81,13 @@ void MainWindow::learn()
             stop_learning_ = false;
             break;
         }
-        emit incremtent_progress();
     }
     if (i == EPOCH_COUNT)
-    {
-        emit incremtent_progress();
         emit ready_result("end learning");
-    }
+    emit finish_learn();
+
 }
 
-void MainWindow::run_progress()
-{
-    progress_->setValue(step_);
-    step_++;
-    if (progress_->wasCanceled())
-    {
-        stop_learning_ = true;
-        step_ = 0;
-        delete progress_;
-    }
-}
 
 void MainWindow::learning()
 {
@@ -98,16 +95,18 @@ void MainWindow::learning()
     dataset_ = new dataset_t(dir_weight.toStdString(), X_SIZE, Y_SIZE);
     dataset_->split_train_test(0.7);
     perceptron_ = new perceptron_t(dataset_->dim());
-    std::thread learning_thread(&MainWindow::learn, this);
-    learning_thread.detach();
 
-    progress_ = new QProgressDialog("Learning...", "Cancel", 0, EPOCH_COUNT - 1, this);
+    thread_ = new QThread;
+    connect(this, SIGNAL(finish_learn()), thread_, SLOT(quit()));
+    connect(this, SIGNAL(finish_learn()), thread_, SLOT(deleteLater()));
+    connect(thread_, SIGNAL(started()), this, SLOT(learn()));
+    thread_->start();
+
+    progress_ = new QProgressDialog("Learning...", "Cancel", 0, EPOCH_COUNT, this);
     connect(progress_, SIGNAL(canceled()), progress_, SLOT(cancel()));
     progress_->setWindowModality(Qt::WindowModal);
-    connect(this, SIGNAL(incremtent_progress()),SLOT(run_progress()));
 
     ui->load->setDisabled(false);
-
 }
 
 void MainWindow::load_img()
@@ -129,7 +128,7 @@ void MainWindow::load_img()
         }
     std::vector<char> return_classify = perceptron_->classify(data);
     int result;
-    for (int i = 0; i < return_classify.size();++i)
+    for (size_t i = 0; i < return_classify.size();++i)
         if (return_classify[i] == 1)
             result = i;
     QString valueAsString = QString::number(result);
