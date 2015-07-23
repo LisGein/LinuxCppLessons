@@ -13,8 +13,14 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    datamodel.cpp \
+    point_t.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    datamodel.h \
+    point_t.h
 
 FORMS    += mainwindow.ui
+
+QMAKE_CXXFLAGS += -std=c++11
