@@ -34,7 +34,7 @@ void DataModel::read_date()
         else if (!line.compare(0, 3, "vn "))
         {
             float vn1, vn2, vn3;
-            iss >> trash >> vn1 >> vn2 >> vn3;
+            iss >> trash >> trash >> vn1 >> vn2 >> vn3;
             point_3f point(vn1, vn2, vn3);
             vn_.push_back(point);
         }

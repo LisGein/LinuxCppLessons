@@ -15,11 +15,13 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     datamodel.cpp \
-    point_t.cpp
+    point_t.cpp \
+    matrix.cpp
 
 HEADERS  += mainwindow.h \
     datamodel.h \
-    point_t.h
+    point_t.h \
+    matrix.h
 
 FORMS    += mainwindow.ui
 
