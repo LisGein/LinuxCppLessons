@@ -81,6 +81,13 @@ struct point_3
         z++;
         return *this;
     }
+    inline point_3<T>  transform(float angle_)
+    {
+        x = x*sin(angle_);
+        z = z*cos(angle_);
+        return *this;
+    }
+
     inline point_3<T> operator *(float f) const
     {
         return point_3<T>(x*f, y*f, z*f);

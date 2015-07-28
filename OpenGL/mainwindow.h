@@ -1,6 +1,7 @@
 #pragma once
 #include "matrix.h"
 #include <QMainWindow>
+#include <QTimer>
 #include "datamodel.h"
 
 typedef std::pair<int, int> coordinates;
@@ -16,7 +17,8 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-
+private slots:
+    void update_picture();
 private:
     Ui::MainWindow *ui;
     QImage *image_;
@@ -28,9 +30,11 @@ private:
     QVector<point_2f> vt_;
     QVector<point_3f> vn_;
     point_3f light_dir_;
-    const point_3f eye_;
+    point_3f eye_;
     const point_3f center_;
     int *zbuffer_;
+    QTimer *timer_;
+    float angle_ ;
 
     void draw_face();
     void triangle(point_3i t[], point_2i uv[]);

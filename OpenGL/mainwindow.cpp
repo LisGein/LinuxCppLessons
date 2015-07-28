@@ -11,8 +11,9 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
     , light_dir_(1, 0, 0)
-    , eye_(2,1,2)
+    , eye_(5,0,1)
     , center_(1,1,1)
+    , angle_(45)
 {
     ui->setupUi(this);
     image_ = new QImage(width_, height_, QImage::Format_RGB888);
@@ -34,6 +35,9 @@ MainWindow::MainWindow(QWidget *parent)
     nm_texture_ = img->mirrored();
     img->load("african_head.obj.spec.png");
     spec_texture_ = img->mirrored();
+    timer_ = new QTimer();
+    connect(timer_, SIGNAL(timeout()), this, SLOT(update_picture()));
+    timer_->start(1000);
 
     zbuffer_ = new int[width_*height_];
     for (size_t i=0; i<width_*height_; ++i)
@@ -44,6 +48,17 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+void MainWindow::update_picture()
+{
+    image_->fill(QColor(Qt::black).rgb());
+    ui->label->setPixmap(QPixmap::fromImage(*image_,Qt::AutoColor));
+
+    eye_.transform(angle_);
+    for (size_t i=0; i<width_*height_; ++i)
+        zbuffer_[i] = std::numeric_limits<int>::min();
+    timer_->start(1000);
+    draw_face();
 }
 
 void MainWindow::set_pixel(point_3i const& P, point_2i const& uvP, int idx)
@@ -115,6 +130,7 @@ void MainWindow::draw_face()
     Projection.identity();
     Projection[3][2] = -1.f/(eye_-center_).norm();
     Matrix m  = lookat( eye_, center_, point_3f(0,1,0));
+    Matrix multy_matrix = matrix_view_port*Projection*m;
     for (int i = 0; i < faces_.size(); ++i)
     {
         QVector<point_3i> triangle3D = faces_[i];
@@ -126,7 +142,7 @@ void MainWindow::draw_face()
             point_3f verts_triangle = verts_[triangle3D[j].x];
             //std::swap(verts_triangle.x,verts_triangle.z);
             point_2f vt_triangle = vt_[faces_[i][j].y];
-            screen_coords[j] = matrix_view_port*Projection*m*verts_triangle;
+            screen_coords[j] = multy_matrix*verts_triangle;
             //screen_coords[j].z = screen_coords[j].z *(-1);
             tex_coords[j] = point_2i(vt_triangle.x * texture_.width(), vt_triangle.y * texture_.height());
         }
