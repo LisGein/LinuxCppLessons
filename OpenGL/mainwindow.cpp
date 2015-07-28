@@ -11,8 +11,8 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
     , light_dir_(1, 0, 0)
-    , eye_(0,0,3)
-    , center_(1,1,0)
+    , eye_(2,1,2)
+    , center_(1,1,1)
 {
     ui->setupUi(this);
     image_ = new QImage(width_, height_, QImage::Format_RGB888);
@@ -124,6 +124,7 @@ void MainWindow::draw_face()
         for (int j = 0; j < 3; ++j)
         {
             point_3f verts_triangle = verts_[triangle3D[j].x];
+            //std::swap(verts_triangle.x,verts_triangle.z);
             point_2f vt_triangle = vt_[faces_[i][j].y];
             screen_coords[j] = matrix_view_port*Projection*m*verts_triangle;
             //screen_coords[j].z = screen_coords[j].z *(-1);

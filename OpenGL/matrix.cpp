@@ -51,9 +51,10 @@ Matrix Matrix::operator*(Matrix& a)
 point_3f Matrix::operator*(point_3f a)
 {
     point_3f result;
-    result.x = matrix_[0][0] * a.x + matrix_[1][0] *a.y + matrix_[2][0] * a.z + matrix_[3][0];
-    result.y = matrix_[0][1] * a.x + matrix_[1][1] *a.y + matrix_[2][1] * a.z + matrix_[3][1];
-    result.z = matrix_[0][2] * a.x + matrix_[1][2] *a.y + matrix_[2][2] * a.z + matrix_[3][2];
+    float coor_diff = matrix_[3][0] * a.x + matrix_[3][1] *a.y + matrix_[3][2] * a.z + matrix_[3][3];
+    result.x = (matrix_[0][0] * a.x + matrix_[0][1] *a.y + matrix_[0][2] * a.z + matrix_[0][3])/coor_diff;
+    result.y = (matrix_[1][0] * a.x + matrix_[1][1] *a.y + matrix_[1][2] * a.z + matrix_[1][3])/coor_diff;
+    result.z = (matrix_[2][0] * a.x + matrix_[2][1] *a.y + matrix_[2][2] * a.z + matrix_[2][3])/coor_diff;
     return result;
 }
 
