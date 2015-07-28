@@ -1,5 +1,6 @@
 #pragma once
 #include <cmath>
+#include <QtGlobal>
 
 
 template <typename T>
@@ -73,6 +74,13 @@ struct point_3
         z--;
         return *this;
     }
+    inline point_3<T> operator ++(int)
+    {
+        x++;
+        y++;
+        z++;
+        return *this;
+    }
     inline point_3<T> operator *(float f) const
     {
         return point_3<T>(x*f, y*f, z*f);
@@ -93,9 +101,15 @@ struct point_3
         z /= n;
         return *this;
     }
-    point_2<T> to2i()
+    T operator[](int i)
     {
-        return point_2i(x, y);
+        Q_ASSERT((i>=0) && (i<3));
+        if (i == 0)
+            return x;
+        else if (i == 1)
+            return y;
+        else
+            return z;
     }
 };
 
@@ -106,5 +120,4 @@ template <>template <> point_2<int>::point_2(const point_2<float> &v);
 template <>template <> point_2<float>::point_2(const point_2<int> &v);
 template <>template <> point_3<int>::point_3(const point_3<float> &v);
 template <>template <> point_3<float>::point_3(const point_3<int> &v);
-
 

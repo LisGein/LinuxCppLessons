@@ -21,6 +21,7 @@ void DataModel::read_date()
             iss >> trash >> coor_x >> coor_y >> coor_z;
 
             point_3f point(coor_x, coor_y, coor_z);
+            point++;
             verts_.push_back(point);
         }
         else if (!line.compare(0, 3, "vt "))

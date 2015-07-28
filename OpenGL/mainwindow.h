@@ -23,17 +23,17 @@ private:
     QImage texture_;
     QImage nm_texture_;
     QImage spec_texture_;
-    const size_t width_;
-    const size_t height_;
-    const size_t depth_;
     QVector<vector_3i> faces_;
     QVector<point_3f> verts_;
     QVector<point_2f> vt_;
     QVector<point_3f> vn_;
     point_3f light_dir_;
+    const point_3f eye_;
+    const point_3f center_;
+    int *zbuffer_;
 
-    void line(int x0, int y0, int x1, int y1, int r, int g, int b);
     void draw_face();
-    void triagle(point_3i screen_coords[], int *zbuffer, point_2i tex_coords[]);
+    void triangle(point_3i t[], point_2i uv[]);
+    void set_pixel(point_3i const& P, point_2i const& uvP, int idx);
 };
 
