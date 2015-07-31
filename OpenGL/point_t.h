@@ -81,11 +81,11 @@ struct point_3
         z++;
         return *this;
     }
-    inline point_3<T>  transform(float angle_)
+    void rotate_to(float angle_)
     {
-        x = x*sin(angle_);
-        z = z*cos(angle_);
-        return *this;
+        float n = norm();
+        x = n*sin(angle_);
+        z = n*cos(angle_);
     }
 
     inline point_3<T> operator *(float f) const

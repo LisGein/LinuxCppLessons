@@ -13,7 +13,7 @@ MainWindow::MainWindow(QWidget *parent)
     , light_dir_(1, 0, 0)
     , eye_(5,0,1)
     , center_(1,1,1)
-    , angle_(45)
+    , angle_(0.2)
 {
     ui->setupUi(this);
     image_ = new QImage(width_, height_, QImage::Format_RGB888);
@@ -37,12 +37,12 @@ MainWindow::MainWindow(QWidget *parent)
     spec_texture_ = img->mirrored();
     timer_ = new QTimer();
     connect(timer_, SIGNAL(timeout()), this, SLOT(update_picture()));
-    timer_->start(1000);
+    timer_->start(100);
 
     zbuffer_ = new int[width_*height_];
     for (size_t i=0; i<width_*height_; ++i)
         zbuffer_[i] = std::numeric_limits<int>::min();
-    draw_face();
+    update_picture();
 }
 
 MainWindow::~MainWindow()
@@ -52,12 +52,10 @@ MainWindow::~MainWindow()
 void MainWindow::update_picture()
 {
     image_->fill(QColor(Qt::black).rgb());
-    ui->label->setPixmap(QPixmap::fromImage(*image_,Qt::AutoColor));
-
-    eye_.transform(angle_);
+    angle_ += 0.01;
+    eye_.rotate_to(angle_);
     for (size_t i=0; i<width_*height_; ++i)
         zbuffer_[i] = std::numeric_limits<int>::min();
-    timer_->start(1000);
     draw_face();
 }
 
