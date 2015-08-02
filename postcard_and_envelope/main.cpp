@@ -26,8 +26,16 @@ bool change_coor(std::pair<int, int> postcard, std::pair<int, int> envelope)
         std::pair<int, int> D(postcard.first, postcard.second);
         for (float angle = 0.1; angle <= 2*PI;)
         {
-            h_postcard = std::max(abs(rotate(B, angle).second - rotate(C, angle).second), abs(rotate(D, angle).second - rotate(A, angle).second));
-            w_postcard = std::max(abs(rotate(C, angle).first - rotate(B, angle).first), abs(rotate(D, angle).first - rotate(A, angle).first));
+            std::pair<float, float> AD(rotate(D, angle));
+            std::pair<float, float> new_A(rotate(A, angle));
+            AD.first -= new_A.first;
+            AD.second -= new_A.second;
+            std::pair<float, float> BC(rotate(C, angle));
+            std::pair<float, float> new_B(rotate(B, angle));
+            BC.first -= new_B.first;
+            BC.second -= new_B.second;
+            h_postcard = std::max(abs(BC.second), abs(AD.second));
+            w_postcard = std::max(abs(BC.first), abs(AD.first));
 
             if ((h_postcard <= envelope.second)&&(w_postcard <= envelope.first))
                 return true;
@@ -46,7 +54,7 @@ int main()
     std::pair<int, int> postcard;
     std::pair<int, int> envelope;
     fin >> postcard.first >> postcard.second >> envelope.first >> envelope.second;
-
+    fin.close();
     if (postcard.first > postcard.second)
         std::swap(postcard.first, postcard.second);
     if (envelope.first > envelope.second)
