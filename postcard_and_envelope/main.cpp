@@ -24,7 +24,7 @@ bool change_coor(std::pair<int, int> postcard, std::pair<int, int> envelope)
         std::pair<int, int> B(0, postcard.second);
         std::pair<int, int> C(postcard.first, 0);
         std::pair<int, int> D(postcard.first, postcard.second);
-        for (float angle = 0.1; angle <= 2*PI;)
+        for (float angle = 0; angle <= 2*PI;)
         {
             std::pair<float, float> AD(rotate(D, angle));
             std::pair<float, float> new_A(rotate(A, angle));
@@ -39,7 +39,7 @@ bool change_coor(std::pair<int, int> postcard, std::pair<int, int> envelope)
 
             if ((h_postcard <= envelope.second)&&(w_postcard <= envelope.first))
                 return true;
-            angle += 0.1;
+            angle += 0.001;
 
         }
     }

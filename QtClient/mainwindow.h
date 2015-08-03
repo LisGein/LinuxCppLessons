@@ -4,6 +4,7 @@
 #include "registration.h"
 #include <QListWidgetItem>
 #include "insetdialog.h"
+#include <QAudioRecorder>
 
 namespace Ui {
    class MainWindow;
@@ -23,6 +24,7 @@ private:
    StringClient *stringClient_;
    Registration *registration_;
    QMap < QString, InsetDialog*> opened_tabs_;
+   QAudioRecorder *audioRecorder_;
 
 private slots:
    void show_online(rapidjson::Document const & doc);

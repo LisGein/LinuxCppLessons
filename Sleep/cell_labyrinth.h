@@ -1,6 +1,6 @@
 #pragma once
 #include <QPair>
-#include <QMap>
+#include <map>
 #include <QVector>
 #include <QObject>
 
@@ -9,18 +9,19 @@ class Cell_labyrinth
 {
 public:
     Cell_labyrinth();
-    Cell_labyrinth(int width_labirinth, int height_labirinth, QPair<int, int> coor, QString value_coil);
+    Cell_labyrinth(QPair<int, int> coor, QPair<char, int> value_color);
 
     QString get_mark();
-    QVector<int> get_colors();
+    QSet<int> get_colors();
     QPair<int, int> get_coordinates();
-    int change_color(QVector<int> current_color);
-
+    bool change_colors(QSet<int> current_colors);
+    QChar get_value();
+    bool change();
 
 private:
     QPair<int, int> coordinates_;
-    QString value_coil_;
-    int width_;
-    int height_;
-    QVector<int> colors_;
+    QChar value_;
+    //QSet <int> colors_;
+    int start_colors_;
+    bool change_;
 };

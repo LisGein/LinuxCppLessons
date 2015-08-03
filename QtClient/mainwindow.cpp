@@ -18,6 +18,22 @@ MainWindow::MainWindow(QWidget *parent)
     ui->tabWidget->insertTab(opened_tabs_.size(), inset, "Global");
     connect(inset, SIGNAL(send(QString)), SLOT(send(QString)));
     opened_tabs_.insert("Global", inset);
+    audioRecorder_ = new QAudioRecorder;
+    connect(ui->record, SIGNAL(pressed()), audioRecorder_, SLOT(record()));
+    connect(ui->record, SIGNAL(released()), audioRecorder_, SLOT(stop()));
+
+    audioRecorder_->setAudioInput(audioRecorder_->defaultAudioInput());
+    QAudioEncoderSettings audioSettings;
+    audioSettings.setCodec("audio/PCM");
+
+    audioRecorder_->setContainerFormat("wav");
+    audioSettings.setSampleRate(16000);
+    audioSettings.setBitRate(32);
+    audioSettings.setQuality(QMultimedia::HighQuality);
+    audioSettings.setEncodingMode(QMultimedia::ConstantQualityEncoding);
+    audioRecorder_->setEncodingSettings(audioSettings);
+    audioRecorder_->setOutputLocation(QUrl::fromLocalFile("Test.wav"));
+
 }
 
 MainWindow::~MainWindow()
@@ -85,7 +101,7 @@ void MainWindow::read_private_message(QString str)
     }
     else
     {
-        auto it =opened_tabs_.find(name);
+        auto it = opened_tabs_.find(name);
         it.value()->read_message(Base64msg);
     }
 

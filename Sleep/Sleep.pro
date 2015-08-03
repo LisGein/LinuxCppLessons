@@ -15,12 +15,10 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     dataalternativereality.cpp \
-    labyrinth.cpp \
     cell_labyrinth.cpp
 
 HEADERS  += mainwindow.h \
     dataalternativereality.h \
-    labyrinth.h \
     cell_labyrinth.h
 
 FORMS    += mainwindow.ui \
