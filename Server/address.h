@@ -5,6 +5,7 @@
 class Address
 {
 public:
+    Address();
     Address(QHostAddress IP, quint16 port);
     QHostAddress IP_;
     quint16 port_;

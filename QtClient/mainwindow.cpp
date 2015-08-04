@@ -10,6 +10,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     registration_ = new Registration(dialog);
     connect(registration_, SIGNAL(login(QString, QString)), stringClient_, SLOT(login(QString, QString)));
+    connect(registration_, SIGNAL(login(QString, QString)), this, SLOT(create_udp(QString, QString)));
     registration_->exec();
     connect(stringClient_, SIGNAL(ready_private_msg(QString)), this, SLOT(read_private_message(QString)));
     connect(stringClient_, SIGNAL(ready_online(rapidjson::Document const&)), this, SLOT(show_online(rapidjson::Document const&)));
@@ -18,28 +19,60 @@ MainWindow::MainWindow(QWidget *parent)
     ui->tabWidget->insertTab(opened_tabs_.size(), inset, "Global");
     connect(inset, SIGNAL(send(QString)), SLOT(send(QString)));
     opened_tabs_.insert("Global", inset);
-    audioRecorder_ = new QAudioRecorder;
-    connect(ui->record, SIGNAL(pressed()), audioRecorder_, SLOT(record()));
-    connect(ui->record, SIGNAL(released()), audioRecorder_, SLOT(stop()));
 
-    audioRecorder_->setAudioInput(audioRecorder_->defaultAudioInput());
-    QAudioEncoderSettings audioSettings;
-    audioSettings.setCodec("audio/PCM");
-
-    audioRecorder_->setContainerFormat("wav");
-    audioSettings.setSampleRate(16000);
-    audioSettings.setBitRate(32);
-    audioSettings.setQuality(QMultimedia::HighQuality);
-    audioSettings.setEncodingMode(QMultimedia::ConstantQualityEncoding);
-    audioRecorder_->setEncodingSettings(audioSettings);
-    audioRecorder_->setOutputLocation(QUrl::fromLocalFile("Test.wav"));
-
+    QAudioFormat format;
+    format.setSampleSize(8);
+    format.setSampleRate(8000);
+    format.setCodec("audio/pcm");
+    format.setChannelCount(1);
+    format.setByteOrder(QAudioFormat::LittleEndian);
+    format.setSampleType(QAudioFormat::UnSignedInt);
+    qAudioInput_ = new QAudioInput(format, this);
+    qAudioOutput_ = new QAudioOutput(format, this);
+    connect(ui->record, SIGNAL(pressed()), this, SLOT(start_broadcast_audio()));
+    connect(ui->record, SIGNAL(released()), this, SLOT(stop_broadcast_audio()));
+    device_ = qAudioOutput_->start();
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
 
+}
+
+void MainWindow::play_audio()
+{
+    qAudioOutput_->start();
+    while (udpRecv_->hasPendingDatagrams())
+    {
+        QByteArray data;
+        data.resize(udpRecv_->pendingDatagramSize());
+        udpRecv_->readDatagram(data.data(), data.size());
+        device_->write(data);
+    }
+    qAudioOutput_->stop();
+}
+
+void MainWindow::create_udp(QString const& name, const QString &IP)
+{
+    udpSocket_ = new QUdpSocket;
+    udpRecv_  = new QUdpSocket;
+    QHostAddress address;
+    address.setAddress(IP);
+    udpSocket_->connectToHost(QHostAddress::Any, 3425);
+    udpRecv_->bind(3325);
+    connect(udpSocket_, SIGNAL(readyRead()), this, SLOT(play_audio()));
+    connect(udpRecv_, SIGNAL(readyRead()), this, SLOT(play_audio()));
+}
+
+void MainWindow::start_broadcast_audio()
+{
+    qAudioInput_->start(udpSocket_);
+}
+
+void MainWindow::stop_broadcast_audio()
+{
+    qAudioInput_->stop();
 }
 
 void MainWindow::send(QString message)

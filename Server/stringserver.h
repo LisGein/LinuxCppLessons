@@ -1,6 +1,8 @@
 #pragma once
 #include <QObject>
+#include <QFile>
 #include <QTcpServer>
+#include <QUdpSocket>
 #include <QTcpSocket>
 #include <QTextStream>
 #include "rapidjson/document.h"
@@ -25,6 +27,7 @@ private slots:
    void read();
    void new_connect();
    void disconnect_user();
+
 
 private:
    QTcpServer* tcp_server_;

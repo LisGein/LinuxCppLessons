@@ -1,5 +1,10 @@
 #include "address.h"
 
+Address::Address()
+{
+
+}
+
 Address::Address(QHostAddress IP, quint16 port)
     :IP_(IP)
     , port_(port)

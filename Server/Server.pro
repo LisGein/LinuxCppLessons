@@ -3,7 +3,7 @@
 # Project created by QtCreator 2015-07-01T05:22:40
 #
 #-------------------------------------------------
-QT       += core network
+QT       += core network multimedia
 
 QT       -= gui
 

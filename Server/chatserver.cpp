@@ -1,10 +1,12 @@
 #include "chatserver.h"
 #include "stringserver.h"
 #include <QMap>
+#include <QIODevice>
 
 
 ChatServer::ChatServer(int port, QObject *parent)
     : tcp_server_(new QTcpServer(this))
+    , udpSocket_(new QUdpSocket(this))
 {
     stringServer_ = new StringServer(port);
     connect(stringServer_, SIGNAL(ready_msg(QByteArray, Address)), this, SLOT(read_in_data(QByteArray, Address)));
@@ -13,10 +15,33 @@ ChatServer::ChatServer(int port, QObject *parent)
     message_processors_map_["register"] = std::bind(&ChatServer::reg_user, this, std::placeholders::_1, std::placeholders::_2);
     message_processors_map_["private"] = std::bind(&ChatServer::private_msg, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
     message_processors_map_["online"] = std::bind(&ChatServer::list_online, this);
+
+    if (!udpSocket_->bind(QHostAddress::Any, 3425))
+    {
+        udpSocket_->close();
+        return;
+    }
+    connect(udpSocket_, SIGNAL(readyRead()), SLOT(broadcast_audio()));
+
+
 }
 
 ChatServer::~ChatServer()
 {
+}
+
+void ChatServer::broadcast_audio()
+{
+    while (udpSocket_->hasPendingDatagrams())
+    {
+        QByteArray data;
+        data.resize(udpSocket_->pendingDatagramSize());
+        udpSocket_->readDatagram(data.data(), data.size());
+        for (int i = 0; i < users_address_.size(); ++i)
+        {
+            udpSocket_->writeDatagram(data, data.size(),users_address_[i]->peerAddress(), users_address_[i]->peerPort());
+        }
+    }
 }
 
 void ChatServer::list_online()
@@ -64,11 +89,17 @@ void ChatServer::private_msg(rapidjson::Document const & doc, Address host_sende
     }
 }
 
-void ChatServer::reg_user(rapidjson::Document const & doc, Address host_sender)//todo pair
+void ChatServer::reg_user(rapidjson::Document const & doc, Address host_sender)
 {
     QString text_message = doc["msg"].GetString();
     re_users_.insert(text_message, host_sender);
     users_.insert(host_sender, text_message);
+    QUdpSocket *udp = new QUdpSocket;
+    udp->connectToHost(host_sender.IP_, 3325);
+
+    connect(udp, SIGNAL(readyRead()), SLOT(broadcast_audio()));
+    users_address_.push_back(udp);
+
     text_message.append(" connected");
     QByteArray return_message = create_msg(text_message);
     stringServer_->send_all(return_message);
@@ -92,7 +123,7 @@ void ChatServer::reg_user(rapidjson::Document const & doc, Address host_sender)/
 
 }
 
-void ChatServer::delete_user(Address host_sender)
+void ChatServer::delete_user(Address host_sender)//ToDo del in users_address
 {
     auto it = users_.find(host_sender);
     if (it != users_.end())
@@ -105,6 +136,7 @@ void ChatServer::delete_user(Address host_sender)
 
         re_users_.remove(it.value());
         users_.remove(it.key());
+        //users_address_.erase(it.key());
     }
     rapidjson::Document d;
     d.SetObject();

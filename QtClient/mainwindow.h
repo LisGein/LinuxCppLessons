@@ -1,10 +1,11 @@
 #pragma once
 #include "stringclient.h"
 #include <QMainWindow>
+#include <QAudioInput>
+#include <QAudioOutput>
 #include "registration.h"
 #include <QListWidgetItem>
 #include "insetdialog.h"
-#include <QAudioRecorder>
 
 namespace Ui {
    class MainWindow;
@@ -24,12 +25,23 @@ private:
    StringClient *stringClient_;
    Registration *registration_;
    QMap < QString, InsetDialog*> opened_tabs_;
-   QAudioRecorder *audioRecorder_;
+   QUdpSocket* udpSocket_;
+   QUdpSocket* udpRecv_;
+   QAudioInput* qAudioInput_;
+   QAudioOutput* qAudioOutput_;
+   QIODevice *device_;
 
 private slots:
    void show_online(rapidjson::Document const & doc);
    void create_private(QListWidgetItem* select_user);
    void read_private_message(QString str);
    void send(QString message);
+   void start_broadcast_audio();
+   void stop_broadcast_audio();
+   void create_udp(QString const& name, const QString &IP);
+   void play_audio();
+
+signals:
+   void ready();
 };
 

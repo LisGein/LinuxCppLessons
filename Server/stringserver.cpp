@@ -1,7 +1,7 @@
 #include "stringserver.h"
 
 StringServer::StringServer(int port, QWidget *parent)
-    :tcp_server_(new QTcpServer(this))
+    : tcp_server_(new QTcpServer(this))
 {
     if (!tcp_server_->listen(QHostAddress::Any, port))
     {
@@ -9,12 +9,15 @@ StringServer::StringServer(int port, QWidget *parent)
         return;
     }
     connect(tcp_server_, SIGNAL(newConnection()), this, SLOT(new_connect()));
+
 }
 
 StringServer::~StringServer()
 {
 
 }
+
+
 
 void StringServer::disconnect_user()
 {

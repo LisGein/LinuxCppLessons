@@ -2,6 +2,8 @@
 #include <QObject>
 #include <QTcpSocket>
 #include <QTextStream>
+#include <QUdpSocket>
+#include <QFile>
 #include <rapidjson/document.h>
 #include <rapidjson/writer.h>
 
@@ -30,6 +32,7 @@ private:
    QString last_msg_;
    QTcpSocket* tcp_socket_;
    int port_;
+
 
    void generete_doc(QMap<QString, QString> message);
 };
