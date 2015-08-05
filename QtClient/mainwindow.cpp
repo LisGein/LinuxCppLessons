@@ -32,6 +32,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->record, SIGNAL(pressed()), this, SLOT(start_broadcast_audio()));
     connect(ui->record, SIGNAL(released()), this, SLOT(stop_broadcast_audio()));
     device_ = qAudioOutput_->start();
+    device_->open(QIODevice::ReadWrite);
 }
 
 MainWindow::~MainWindow()
@@ -42,15 +43,17 @@ MainWindow::~MainWindow()
 
 void MainWindow::play_audio()
 {
-    qAudioOutput_->start();
+    qDebug() << "sefwf";
+
+    //qAudioOutput_->start();
     while (udpRecv_->hasPendingDatagrams())
     {
         QByteArray data;
         data.resize(udpRecv_->pendingDatagramSize());
         udpRecv_->readDatagram(data.data(), data.size());
-        device_->write(data);
+        device_->write(data, data.size());
     }
-    qAudioOutput_->stop();
+    //qAudioOutput_->stop();
 }
 
 void MainWindow::create_udp(QString const& name, const QString &IP)
