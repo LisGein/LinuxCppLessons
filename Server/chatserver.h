@@ -27,7 +27,7 @@ private:
     QUdpSocket* udpSocket_;
     StringServer *stringServer_;
     QMap< Address, QString> users_;
-    QVector < QUdpSocket* > users_address_;
+    QSet < QUdpSocket* > users_address_;
     QMap< QString, Address> re_users_;
     QMap<QString, message_processor_t> message_processors_map_;
     QAudioOutput *qAudioOutput_;
