@@ -21,4 +21,5 @@ class Planet:
     def get_pos(self):
         return self.start_pos
 
+
 __author__ = 'lisgein'
