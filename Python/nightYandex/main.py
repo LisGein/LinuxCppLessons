@@ -7,8 +7,13 @@ data = pandas.read_csv('data.tsv', sep="\t", header=None, names=['date', 'id', '
 for id in data["id"].unique():
     t = data[data["id"] == id]
     plt.plot(t['latitude'], t['longitude'])
-
-route_to_stops_count = pandas.read_csv('route_to_stops_count.tsv', sep="\t", header=None, names=['hash', 'num'])
+a = 0
+print("q")
+for id in data["id"].unique():
+    a += len(data[data["id"] == id])
+    print((data[data["id"] == id]).unique())
+print(len(a))
+'''route_to_stops_count = pandas.read_csv('route_to_stops_count.tsv', sep="\t", header=None, names=['hash', 'num'])
 x = route_to_stops_count[route_to_stops_count["hash"] == 86]
 k_means = KMeans(n_clusters = x["num"][0])
 k_means.fit(data[['latitude', 'longitude']])
@@ -24,4 +29,5 @@ for i in range(x["num"][0]):
 plt.plot(a[:,0], a[:,1], 'ro')
 
 plt.show()
+'''
 __author__ = 'lisgein'
