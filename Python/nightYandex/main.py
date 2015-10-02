@@ -10,8 +10,29 @@ debug = pandas.read_csv('debug1.tsv', sep="\t")
 X = debug["latitude"].copy()
 Y = debug["longitude"].copy()
 
-#X = [1, 3, 6, 8, 20]
-#Y = [0, 4, 6, 7, 10]
+mass = [(X, Y)]
+
+new_mass_f = []
+for i in range(len(mass)):
+    X = mass[i][0]
+    Y = mass[i][1]
+    for j in range(len(X)):
+        if len(new_mass_f) > 0:
+            if (new_mass_f[len(new_mass_f)-1][0] != X[j]) or (new_mass_f[len(new_mass_f)-1][1]!=Y[j]):
+                new_mass_f.append((X[j],Y[j]))
+            else:
+                print(new_mass_f[len(new_mass_f)-1][0], X[j])
+                print(new_mass_f[len(new_mass_f)-1][1], Y[j])
+        else:
+            new_mass_f.append((X[j],Y[j]))
+new_mass = []
+X = []
+Y = []
+for i in range(len(new_mass_f)):
+    X.append(new_mass_f[i][0])
+    Y.append(new_mass_f[i][1])
+
+mass = [(X, Y)]
 eps = 0
 for i in range(len(X) - 1):
     eps = max(math.sqrt(math.pow(X[i+1] - X[i], 2) + math.pow(Y[i+1] - Y[i], 2)), eps)
@@ -20,15 +41,12 @@ min_eps = 200
 for i in range(len(X) - 1):
     min_eps = min(math.sqrt(math.pow(X[i+1] - X[i], 2) + math.pow(Y[i+1] - Y[i], 2)), min_eps)
 
-mass = [(X, Y)]
-x = 0
-y = 0
-idx = 0
+
 while (min_eps < eps):
     new_mass = []
     for i in range(len(mass)):
         array_len = len(mass[i][0])
-        if array_len > 2: #если больше дух точек в массиве
+        if array_len > 3: #если больше двух точек в массиве
             X_f = []
             Y_f = []
             X_s = []
@@ -38,13 +56,18 @@ while (min_eps < eps):
                 if (f < half):
                     X_f.append(mass[i][0][f])
                     Y_f.append(mass[i][1][f])
+                elif (f == half):
+                    X_f.append(mass[i][0][f])
+                    Y_f.append(mass[i][1][f])
+                    X_s.append(mass[i][0][f])
+                    Y_s.append(mass[i][1][f])
                 else:
                     X_s.append(mass[i][0][f])
                     Y_s.append(mass[i][1][f])
             pow_x = math.pow(abs(X_f[len(X_f)-1] - X_f[0]), 2)
             pow_Y = math.pow(abs(Y_f[len(Y_f)-1] - Y_f[0]), 2)
             swap_x = math.sqrt(pow_x + pow_Y)
-            if (swap_x <= eps):#если расстояние между последними точками меньше eps, то оставляем только последние точки
+            if (swap_x <= eps):#если расстояние между крайними точками меньше eps, то оставляем только последние точки
                 X_new = [X_f[0], X_f[len(X_f)-1]]
                 Y_new = [Y_f[0], Y_f[len(Y_f)-1]]
                 new_mass.append((X_new, Y_new))
@@ -58,21 +81,33 @@ while (min_eps < eps):
                         new_mass.append(mass[j])
         else:#иначе не трогаем этот массив
             new_mass.append(mass[i])
-    mass = new_mass
-    min_eps = eps
-    max_len = 0
-    for e in new_mass:
-        max_len = max(len(e), max_len)
-        X = e[0]
-        Y = e[1]
-        for r in range(len(X) - 1):
-            min_eps = min(math.sqrt(math.pow(X[r+1] - X[r], 2) + math.pow(Y[r+1] - Y[r], 2)), min_eps)
-    if max_len <= 2:
+    max_size = 0
+    for i in range(len(new_mass[0])):
+        for j in range(len(new_mass[i][0])):
+            max_size = max(len(new_mass[i][0]), max_size)
+    if max_size > 2:
+        mass = new_mass
+    else:
+        new_mass_f = []
+        for i in range(len(new_mass)):
+            X = new_mass[i][0]
+            Y = new_mass[i][1]
+            for j in range(len(X)):
+                if len(new_mass_f) > 0:
+                    if (new_mass_f[len(new_mass_f)-1][0] != X[j]) or (new_mass_f[len(new_mass_f)-1][1]!=Y[j]):
+                        new_mass_f.append((X[j],Y[j]))
+                else:
+                    new_mass_f.append((X[j],Y[j]))
+        X = []
+        Y = []
+        for i in range(len(new_mass_f)):
+            X.append(new_mass_f[i][0])
+            Y.append(new_mass_f[i][1])
+        mass = [(X, Y)]
+        print(len(mass[0][0]), "end\n")
+        min_eps = eps
         break
-mass = []
-for e in new_mass:
-    X = e[0]
-    Y = e[1]
-    for z in range(len(e[0])):
-        mass.append((X[z], Y[z]))
+print(mass)
+
+
 __author__ = 'lisgein'
