@@ -25,41 +25,88 @@ def main():
 
     X = debug["latitude"].copy()
     Y = debug["longitude"].copy()
-    eps = 0
-    q = 0
-    w = 0
-    e = 0
-    for i in range(len(X)):
-        for j in range(len(X)):
-            if i != j:
-                q = max(math.sqrt(math.pow(X[j] - X[i], 0) + math.pow(Y[j] - Y[i], 2)), q)
-                if (q > eps):
-                    w = i
-                    e = j
-    print(w, e)
-    idx = 0
-    new_x = []
-    new_y = []
+    new_x = [(X.pop(0))]
+    new_y = [(Y.pop(0))]
 
-    new_x.append(X.pop(0))
-    new_y.append(Y.pop(0))
-    X = del_invalid_idx_X(X)
-    Y = del_invalid_idx_Y(Y)
+    x = []
+    for i in X:
+        x.append(i)
+    X = x
+    y = []
+    for i in Y:
+        y.append(i)
+    Y = y
 
-    next_eps = 100
     while len(X) != 0:
+        next_eps = 100
         for i in range(len(X)):
-            idx = i
-            next_eps = min(math.sqrt(math.pow(X[i] - new_x[len(new_x)-1], 2) + math.pow(Y[i] - new_y[len(new_y)-1], 2)), next_eps)
-        print(new_x[len(new_x)-1], new_y[len(new_y)-1])
-        print(X[idx], Y[idx])
-        print(idx, next_eps, eps)
+            min_eps = math.sqrt(math.pow(X[i] - new_x[len(new_x)-1], 2) + math.pow(Y[i] - new_y[len(new_y)-1], 2))
+            if (min_eps < next_eps):
+                next_eps = min_eps
+                idx = i
         new_x.append(X.pop(idx))
         new_y.append(Y.pop(idx))
-        X = del_invalid_idx_X(X)
-        Y = del_invalid_idx_Y(Y)
+        x =[]
+        for i in X:
+            x.append(i)
+        X = x
+        y =[]
+        for i in Y:
+            y.append(i)
+        Y = y
 
-    print(new_x)
+    route_x = []
+    route_y = []
+    back_route_x = []
+    back_route_y = []
+    X = debug["latitude"].copy()
+    Y = debug["longitude"].copy()
+    idx_item = 0
+    for j in range(len(new_x)):
+        if (new_x[j] == X[0]) and (new_y[j] == Y[0]):
+            idx_item = j
+    x = []
+    y = []
+    for j in range(len(new_x)-idx_item-1):
+        x.append(new_x[j+idx_item+1])
+        y.append(new_y[j+idx_item+1])
+    new_x = x
+    new_y = y
+    route_x.append(X[0])
+    route_y.append(Y[0])
+
+    for i in range(len(X)):
+        if (len(new_x) != 0):
+            idx_item = 0
+            for j in range(len(new_x)):
+                if (new_x[j] == X[i]) and (new_y[j] == Y[i]):
+                    idx_item = j
+            x = []
+            y = []
+            for j in range(len(new_x)-idx_item-1):
+                x.append(new_x[j+idx_item+1])
+                y.append(new_y[j+idx_item+1])
+            new_x = x
+            new_y = y
+            route_x.append(X[i])
+            route_y.append(Y[i])
+        else:
+            back_route_x.append(X[i])
+            back_route_y.append(Y[i])
+    #
+    eps = 0
+    for i in range(len(route_x) - 1):
+        eps = max(math.sqrt(math.pow(route_x[i+1] - route_x[i], 2) + math.pow(route_y[i+1] - route_y[i], 2)), eps)
+
+    new_route_x = [route_x[0]]
+    new_route_y = [route_y[0]]
+    for i in range(len(route_x)-1):
+        dist = math.sqrt(math.pow(route_x[i+1] - new_route_x[len(new_route_x)-1], 2) +
+                         math.pow(route_y[i+1] - new_route_y[len(new_route_y)-1], 2))
+        if dist >= eps:
+            new_route_x.append(route_x[i+1])
+            new_route_y.append(route_y[i+1])
+
 """
 eps = 0
 idx = 0
