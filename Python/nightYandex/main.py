@@ -1,4 +1,5 @@
 import pandas
+import sort_coordinates
 import math
 import re
 import time
@@ -16,8 +17,85 @@ def del_invalid_idx_Y(Y):
         x.append(i)
     return x
 
+def find_round(X, Y, new_x, new_y):
+    route_x = []
+    route_y = []
+    back_route_x = []
+    back_route_y = []
+    idx_item = 0
+    for j in range(len(new_x)):
+        if (new_x[j] == X[0]) and (new_y[j] == Y[0]):
+            idx_item = j
+    x = []
+    y = []
+    for j in range(len(new_x)-idx_item-1):
+        x.append(new_x[j+idx_item+1])
+        y.append(new_y[j+idx_item+1])
+    new_x = x
+    new_y = y
+    route_x.append(X[0])
+    route_y.append(Y[0])
+
+    for i in range(len(X)):
+        if (len(new_x) != 0):
+            idx_item = 0
+            for j in range(len(new_x)):
+                if (new_x[j] == X[i]) and (new_y[j] == Y[i]):
+                    idx_item = j
+            x = []
+            y = []
+            for j in range(len(new_x)-idx_item-1):
+                x.append(new_x[j+idx_item+1])
+                y.append(new_y[j+idx_item+1])
+            new_x = x
+            new_y = y
+            route_x.append(X[i])
+            route_y.append(Y[i])
+        else:
+            break
+            back_route_x.append(X[i])
+            back_route_y.append(Y[i])
+
+
+def sort_coordinates(X, Y):
+    new_x = [(X.pop(0))]
+    new_y = [(Y.pop(0))]
+    X = del_invalid_idx_X(X)
+    Y = del_invalid_idx_X(Y)
+    idx = 0
+    while len(X) != 0:
+        next_eps = 100
+        for i in range(len(X)):#поиск минимально удалёной точки в массиве
+            min_eps = math.sqrt(math.pow(X[i] - new_x[len(new_x)-1], 2) + math.pow(Y[i] - new_y[len(new_y)-1], 2))
+            if (min_eps < next_eps):
+                next_eps = min_eps
+                idx = i
+        new_x.append(X.pop(idx))
+        new_y.append(Y.pop(idx))
+        X = del_invalid_idx_X(X)
+        Y = del_invalid_idx_X(Y)
+    array_coor = [new_x, new_y]
+    return array_coor
 
 def main():
+    data = pandas.read_csv('data1.tsv', sep="\t")
+    route_to_stops_count = pandas.read_csv('route1.tsv', sep="\t")
+    debug = pandas.read_csv('debug1.tsv', sep="\t")
+    # names=['date', 'id', 'type', 'hash', 'latitude', 'longitude']
+    X = data["latitude"].copy()
+    Y = data["longitude"].copy()
+    eps = 0
+    for i in range(len(X) - 1):
+        eps = max(math.sqrt(math.pow(X[i+1] - X[i], 2) + math.pow(Y[i+1] - Y[i], 2)), eps)
+    print(len(sort_coordinates(X, Y)))
+
+
+
+
+"""
+    q = time.strptime("12:34:54", "%H:%M:%S")
+    w = time.strptime("2:54:54", "%H:%M:%S")
+    print(q.tm_hour - w.tm_hour)
     data = pandas.read_csv('data1.tsv', sep="\t")
     route_to_stops_count = pandas.read_csv('route1.tsv', sep="\t")
     debug = pandas.read_csv('debug1.tsv', sep="\t")
@@ -107,7 +185,6 @@ def main():
             new_route_x.append(route_x[i+1])
             new_route_y.append(route_y[i+1])
 
-"""
 eps = 0
 idx = 0
 for i in range(len(X) - 1):
