@@ -1,21 +1,8 @@
 import pandas
-import sort_coordinates
-import math
 import re
-import time
-from time import gmtime, strftime
+import datetime
+import math
 
-def del_invalid_idx_X(X):
-    x =[]
-    for i in X:
-        x.append(i)
-    return x
-
-def del_invalid_idx_Y(Y):
-    x =[]
-    for i in Y:
-        x.append(i)
-    return x
 
 def find_round(X, Y, new_x, new_y):
     route_x = []
@@ -37,7 +24,7 @@ def find_round(X, Y, new_x, new_y):
     route_y.append(Y[0])
 
     for i in range(len(X)):
-        if (len(new_x) != 0):
+        if len(new_x) != 0:
             idx_item = 0
             for j in range(len(new_x)):
                 if (new_x[j] == X[i]) and (new_y[j] == Y[i]):
@@ -52,44 +39,42 @@ def find_round(X, Y, new_x, new_y):
             route_x.append(X[i])
             route_y.append(Y[i])
         else:
-            break
             back_route_x.append(X[i])
             back_route_y.append(Y[i])
 
 
-def sort_coordinates(X, Y):
-    new_x = [(X.pop(0))]
-    new_y = [(Y.pop(0))]
-    X = del_invalid_idx_X(X)
-    Y = del_invalid_idx_X(Y)
-    idx = 0
-    while len(X) != 0:
-        next_eps = 100
-        for i in range(len(X)):#поиск минимально удалёной точки в массиве
-            min_eps = math.sqrt(math.pow(X[i] - new_x[len(new_x)-1], 2) + math.pow(Y[i] - new_y[len(new_y)-1], 2))
-            if (min_eps < next_eps):
-                next_eps = min_eps
-                idx = i
-        new_x.append(X.pop(idx))
-        new_y.append(Y.pop(idx))
-        X = del_invalid_idx_X(X)
-        Y = del_invalid_idx_X(Y)
-    array_coor = [new_x, new_y]
-    return array_coor
-
 def main():
-    data = pandas.read_csv('data1.tsv', sep="\t")
+    data1= pandas.read_csv('data1.tsv', sep="\t")
+    data = pandas.read_csv('data4906.tsv', sep="\t")
     route_to_stops_count = pandas.read_csv('route1.tsv', sep="\t")
     debug = pandas.read_csv('debug1.tsv', sep="\t")
+
     # names=['date', 'id', 'type', 'hash', 'latitude', 'longitude']
-    X = data["latitude"].copy()
-    Y = data["longitude"].copy()
     eps = 0
-    for i in range(len(X) - 1):
-        eps = max(math.sqrt(math.pow(X[i+1] - X[i], 2) + math.pow(Y[i+1] - Y[i], 2)), eps)
-    print(len(sort_coordinates(X, Y)))
+    times = []
+    lat = []
+    lon = []
+    for i in range(len(data) - 1):
+        eps = max(math.sqrt(math.pow(data["latitude"][i+1] - data["latitude"][i], 2)
+                            + math.pow(data["longitude"][i+1] - data["longitude"][i], 2)), eps)
+        t = datetime.datetime.strptime(re.search('(\d+-\d+-\d+\s\d+:\d+:\d+)', data["date"][i]).group(1), "%Y-%m-%d %H:%M:%S")
+        times.append(t)
+        lat.append(data["latitude"][i])
+        lon.append(data["longitude"][i])
+    t = datetime.datetime.strptime(re.search('(\d+-\d+-\d+\s\d+:\d+:\d+)', data["date"][len(data)-1]).group(1), "%Y-%m-%d %H:%M:%S")
+    times.append(t)
+    lat.append(data["latitude"][len(data)-1])
+    lon.append(data["longitude"][len(data)-1])
+    print(len(times))
+    print(times[349] - times[0])
 
+#need know date too
+#need find function search min datetime
 
+"""
+round - 1/7 route
+we don't need time for this
+"""
 
 
 """
