@@ -1,7 +1,7 @@
 import pandas
 import re
 import datetime
-import math
+import sort_coordinates
 
 
 def find_round(X, Y, new_x, new_y):
@@ -44,34 +44,44 @@ def find_round(X, Y, new_x, new_y):
 
 
 def main():
-    data1= pandas.read_csv('data1.tsv', sep="\t")
-    data = pandas.read_csv('data4906.tsv', sep="\t")
-    route_to_stops_count = pandas.read_csv('route1.tsv', sep="\t")
-    debug = pandas.read_csv('debug1.tsv', sep="\t")
 
-    # names=['date', 'id', 'type', 'hash', 'latitude', 'longitude']
-    eps = 0
-    times = []
-    lat = []
-    lon = []
-    for i in range(len(data) - 1):
-        eps = max(math.sqrt(math.pow(data["latitude"][i+1] - data["latitude"][i], 2)
-                            + math.pow(data["longitude"][i+1] - data["longitude"][i], 2)), eps)
-        t = datetime.datetime.strptime(re.search('(\d+-\d+-\d+\s\d+:\d+:\d+)', data["date"][i]).group(1), "%Y-%m-%d %H:%M:%S")
-        times.append(t)
-        lat.append(data["latitude"][i])
-        lon.append(data["longitude"][i])
-    t = datetime.datetime.strptime(re.search('(\d+-\d+-\d+\s\d+:\d+:\d+)', data["date"][len(data)-1]).group(1), "%Y-%m-%d %H:%M:%S")
-    times.append(t)
-    lat.append(data["latitude"][len(data)-1])
-    lon.append(data["longitude"][len(data)-1])
-    print(len(times))
-    print(times[349] - times[0])
+    data = pandas.read_csv('data1.tsv', sep="\t")
+    id_unique = data["id"].unique()
+    date_points = []
+    lat_points = []
+    lon_points = []
+    format_date = "%Y-%m-%d %H:%M:%S"
+
+    for i in id_unique:
+        str_date = data[data["id"] == i]["date"].copy()
+        datepstr = []
+        for s in str_date:
+            t = datetime.datetime.strptime(s, format_date)
+            datepstr.append(t)
+        date_points.append(datepstr)
+        lat = sort_coordinates.del_invalid_idx(data[data["id"] == i]["latitude"].copy())
+        lat_points.append(lat)
+        lon = sort_coordinates.del_invalid_idx(data[data["id"] == i]["longitude"].copy())
+        lon_points.append(lon)
+    print("s")
+    x, y = sort_coordinates.ways(lat_points[2], lon_points[2])
+    print(len(x))
+
+"""
+    for i in range(len(lon_points)):
+        print(i, "i")
+        print(len(lat_points[i]))
+        print((lat_points[i]))
+        x, y = sort_coordinates.div_way(lat_points[i], lon_points[i])
+        for idx in range(len(x)):
+            lat.append(x[idx])
+            lon.append(y[idx])
+    print (len(lat[0]))
 
 #need know date too
 #need find function search min datetime
 
-"""
+
 round - 1/7 route
 we don't need time for this
 """

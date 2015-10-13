@@ -33,48 +33,31 @@ def len_way(x1, y1, x2, y2):
     return math.pow(x2 - x1, 2) + math.pow(y2 - y1, 2)
 
 
-def div_way(x, y):
+def ways(x, y):
     ways_x = []
     ways_y = []
-
-    max_eps = 0.005
-    f_point = 0
-    for j in range(len(x) - 6):
-        idx = f_point+j+2
-        if idx + 3 >= len(x):
-            idx = len(x)
-            print(idx, len(x))
-            ways_x.append(x[f_point:idx])
-            ways_y.append(y[f_point:idx])
+    idx_end = 0
+    idx_start = 0
+    end_round = False
+    max_eps = 0.0002
+    while 1:
+        if idx_end + 3 >= len(x):
+            ways_x.append(x[idx_start:len(x)])
+            ways_y.append(y[idx_start:len(y)])
             break
-        else:
-            way_f = len_way(x[0], y[0], x[idx], y[idx])
-            idx += 1
-            way_s = len_way(x[0], y[0], x[idx], y[idx])
-            idx += 1
-            way_t = len_way(x[0], y[0], x[idx], y[idx])
-            if way_f > max_eps and way_s > max_eps and way_t > max_eps:
-                while 1:
-                    idx += 1
-                    if idx == len(x):
-                        idx -= 1
-                        break
-                    way_next = len_way(x[0], y[0], x[idx], y[idx])
-                    if way_next < max_eps:
-                        idx += 1
-                        if idx == len(x):
-                            idx -= 1
+        len_way_o = len_way(x[0], y[0], x[idx_end], y[idx_end])
+        idx_end += 1
+        len_way_s = len_way(x[0], y[0], x[idx_end], y[idx_end])
+        idx_end += 1
+        len_way_e = len_way(x[0], y[0], x[idx_end], y[idx_end])
+        if end_round is False and len_way_o > max_eps and len_way_s > max_eps and len_way_e > max_eps:
+            end_round = True
+        elif end_round is True and len_way_o < max_eps and len_way_s < max_eps and len_way_e < max_eps:
+            ways_x.append(x[idx_start:idx_end])
+            ways_y.append(y[idx_start:idx_end])
+            idx_start = idx_end
+            end_round = False
 
-                        break
-
-                idx += 1
-                ways_x.append(x[f_point:idx])
-                ways_y.append(y[f_point:idx])
-                f_point = idx
-                print(idx, len(x))
-                if f_point + j + 6 >= len(x):
-                    break
-    return [ways_x, ways_y]
-
+    return ways_x, ways_y
 
 __author__ = 'lisgein'
