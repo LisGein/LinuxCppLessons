@@ -33,30 +33,52 @@ def len_way(x1, y1, x2, y2):
     return math.pow(x2 - x1, 2) + math.pow(y2 - y1, 2)
 
 
-def ways(x, y):
+def ways(x, y, time):
     ways_x = []
     ways_y = []
+    max_eps = 0.0001
+
     idx_end = 0
-    idx_start = 0
-    end_round = False
-    max_eps = 0.0002
     while 1:
-        if idx_end + 3 >= len(x):
-            ways_x.append(x[idx_start:len(x)])
-            ways_y.append(y[idx_start:len(y)])
+        idx_end += 1
+        if idx_end >= len(x):
+            idx_end = len(x) - 1
             break
-        len_way_o = len_way(x[0], y[0], x[idx_end], y[idx_end])
+        range_time = (time[idx_end] - time[0]).total_seconds()
+        point_way = len_way(x[0], y[0], x[0], y[idx_end])
+        if (range_time < 20*60) and point_way > max_eps:
+            break
+        elif idx_end >= len(x):
+            idx_end = len(x)-1
+            break
+
+    idx_start = 0
+    while 1:
         idx_end += 1
-        len_way_s = len_way(x[0], y[0], x[idx_end], y[idx_end])
-        idx_end += 1
-        len_way_e = len_way(x[0], y[0], x[idx_end], y[idx_end])
-        if end_round is False and len_way_o > max_eps and len_way_s > max_eps and len_way_e > max_eps:
-            end_round = True
-        elif end_round is True and len_way_o < max_eps and len_way_s < max_eps and len_way_e < max_eps:
-            ways_x.append(x[idx_start:idx_end])
-            ways_y.append(y[idx_start:idx_end])
+        if idx_end >= len(x):
+            idx_end = len(x)-1
+            ways_x.append(x[idx_start: idx_end])
+            ways_y.append(y[idx_start: idx_end])
+            break
+
+        point_way = len_way(x[0], y[0], x[idx_end], y[idx_end])
+        if point_way < max_eps:
+            ways_x.append(x[idx_start: idx_end])
+            ways_y.append(y[idx_start: idx_end])
             idx_start = idx_end
-            end_round = False
+            while 1:
+                idx_end += 1
+                if idx_end >= len(x):
+                    idx_end = len(x) - 1
+                    break
+                range_time = (time[idx_end] - time[idx_start]).total_seconds()
+
+                point_way = len_way(x[0], y[0], x[idx_end], y[idx_end])
+                if (range_time < 20*60) and point_way > max_eps:
+                    break
+                elif idx_end >= len(x):
+                    idx_end = len(x)-1
+                    break
 
     return ways_x, ways_y
 
