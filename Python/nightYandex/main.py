@@ -2,6 +2,7 @@ import pandas
 import math
 import datetime
 import sort_coordinates
+import rounds
 
 
 
@@ -27,7 +28,7 @@ def main():
     lat = []
     lon = []
     for i in range(len(lon_points)):
-        x, y = sort_coordinates.ways(lat_points[i], lon_points[i], date_points[i])
+        x, y = rounds.div_rounds(lat_points[i], lon_points[i], date_points[i])
         for idx in range(len(x)):
             lat.append(x[idx])
             lon.append(y[idx])
