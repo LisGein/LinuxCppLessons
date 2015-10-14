@@ -8,6 +8,7 @@ def len_way(x1, y1, x2, y2):
 def div_rounds(x, y, time):
     ways_x = []
     ways_y = []
+    timestamps = []
     max_eps = 0.0002
 
     idx_end = 0
@@ -33,9 +34,11 @@ def div_rounds(x, y, time):
             if point_way < 5.0/1000000 or idx_end - idx_start < 10:
                 ways_x[len(ways_x)-1].extend(x[idx_start: idx_end])
                 ways_y[len(ways_x)-1].extend(y[idx_start: idx_end])
+                timestamps[len(timestamps)-1].extend(time[idx_start: idx_end])
             else:
                 ways_x.append(x[idx_start: idx_end])
                 ways_y.append(y[idx_start: idx_end])
+                timestamps.append(time[idx_start: idx_end])
             break
 
         point_way = len_way(x[0], y[0], x[idx_end], y[idx_end])
@@ -44,9 +47,11 @@ def div_rounds(x, y, time):
             if point_way < 5.0/1000000 or idx_end - idx_start < 10:
                 ways_x[len(ways_x)-1].extend(x[idx_start: idx_end])
                 ways_y[len(ways_x)-1].extend(y[idx_start: idx_end])
+                timestamps[len(timestamps)-1].extend(time[idx_start: idx_end])
             else:
                 ways_x.append(x[idx_start: idx_end])
                 ways_y.append(y[idx_start: idx_end])
+                timestamps.append(time[idx_start: idx_end])
             idx_start = idx_end
             while 1:
                 idx_end += 1
@@ -62,6 +67,20 @@ def div_rounds(x, y, time):
                     idx_end = len(x)-1
                     break
 
-    return ways_x, ways_y
+    return ways_x, ways_y, timestamps
+
+
+def min_speed_points(x, y, speed):
+    point_x = []
+    point_y = []
+    speed_point = []
+    for i in range(len(x)-1):
+        if speed[i] <= 2/100000:
+            point_x.append(x[i])
+            point_y.append(y[i])
+            speed_point.append(speed[i])
+    return point_x, point_y, speed_point
+
+
 
 __author__ = 'lisgein'

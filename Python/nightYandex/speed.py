@@ -3,14 +3,12 @@ import math
 
 def find_speed(x, y, date_points):
     speed = []
-    for j in range(len(x) - 1):
-        speed_hero = []
-        for i in range(len(x[j]) - 1):
-            range_way = math.sqrt(math.pow(x[j][i+1] - x[j][i], 2)
-                                  + math.pow(y[j][i+1] - y[j][i], 2))
-            range_time = (date_points[j][i + 1] - date_points[j][i]).total_seconds()
-            speed_hero.append(range_way/range_time)
-        speed.append(speed_hero)
+    for i in range(len(x) - 1):
+        range_way = math.sqrt(math.pow(x[i+1] - x[i], 2)
+                              + math.pow(y[i+1] - y[i], 2))
+        range_time = (date_points[i + 1] - date_points[i]).total_seconds()
+        speed.append(range_way/range_time)
+    return speed
 
 
 def sort_coor(lat_points, lon_points, speed):
