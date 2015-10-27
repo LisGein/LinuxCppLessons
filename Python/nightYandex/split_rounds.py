@@ -32,33 +32,41 @@ def split_rounds(xs, ys, timestamps):
     
     while True:
         round_points = []
-        #пропускаем близкие точки
+        # пропускаем близкие точки
         while distance(curr_point, first) < leave_radius and curr_id < len(points) - 1:
             round_points.append(points[curr_id])
             curr_id += 1
             curr_point = points[curr_id]
             
-        #идем пока не не вернемся достаточно близко
+        # идем пока не не вернемся достаточно близко
         while distance(curr_point, first) > comeback_radius and curr_id < len(points) - 1:
             round_points.append(points[curr_id])
             curr_id += 1
             curr_point = points[curr_id]
             
-        #находим ближайшую в круге
+        # находим ближайшую в круге
         round_end_id = find_closest(points, curr_id, first)
         round_points.extend(points[curr_id : round_end_id + 1])
         rounds.append(round_points)
         curr_id = round_end_id + 1
        
         if curr_id >= len(points) - 1:
-            break;
+            break
             
         curr_point = points[curr_id]
-            
-        
+
     return rounds
 
-        
-            
-            
-        
+
+def mean_stay(rounds):
+    mean_stays = 0
+    for i in rounds:
+        mean_stays += (len(i))
+    mean_stays /= len(rounds)
+    eps = int(mean_stays/2)
+    
+    mean_stays_rounds = []
+    for i in rounds:
+        if mean_stays - eps < len(i) < mean_stays + eps:
+            mean_stays_rounds.append(i)
+    return mean_stays_rounds

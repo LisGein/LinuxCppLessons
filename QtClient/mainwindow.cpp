@@ -76,20 +76,20 @@ void MainWindow::create_udp(QString const& name, const QString &IP)
 
 void MainWindow::start_broadcast_audio()
 {
-  QBuffer buf_;
-  qAudioInput_->start(buf_);
-  int buffer_size = 0;
-  while (qAudioInput_->state() == QAudio::ActiveState)
-    {
-      buffer_size = qAudioInput_->bytesReady();
-      if (buffer_size == 1)
-        {
-          qAudioInput_->stop();
-          udpSocket_->writeDatagram(buf_, buf_.size(),udpSocket_->peerAddress(), udpSocket_->peerPort());
-          //buf_
+//  QBuffer buf_;
+//  qAudioInput_->start(buf_);
+//  int buffer_size = 0;
+//  while (qAudioInput_->state() == QAudio::ActiveState)
+//    {
+//      buffer_size = qAudioInput_->bytesReady();
+//      if (buffer_size == 1)
+//        {
+//          qAudioInput_->stop();
+//          udpSocket_->writeDatagram(buf_, buf_.size(),udpSocket_->peerAddress(), udpSocket_->peerPort());
+//          //buf_
 
-        }
-    }
+//        }
+//    }
 }
 
 void MainWindow::stop_broadcast_audio()
