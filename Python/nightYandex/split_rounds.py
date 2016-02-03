@@ -59,10 +59,7 @@ def split_rounds(xs, ys, timestamps):
 
 
 def mean_stay(rounds):
-    mean_stays = 0
-    for i in rounds:
-        mean_stays += (len(i))
-    mean_stays /= len(rounds)
+    mean_stays = sum(map(len, rounds), 0.) / len(rounds)
     eps = int(mean_stays/2)
 
     mean_stays_rounds = []
@@ -78,7 +75,7 @@ def distance_line(point, line):
     return distance(a, b)/distance([point[0], line[0][0]], [point[1], line[0][1]])
 
 
-def distance_way(start_point, lines):
+def filter_rounds_by_len(start_point, lines):
     len_way = 0
     ways = []
     for i in lines:
