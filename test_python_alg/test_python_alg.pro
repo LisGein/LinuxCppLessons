@@ -10,3 +10,5 @@ qtcAddDeployment()
 
 
  QMAKE_CXXFLAGS += -std=c++11
+
+QT += core gui printsupport widgets network
