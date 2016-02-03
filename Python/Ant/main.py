@@ -3,21 +3,54 @@ import collections
 
 
 class Point:
-    def __init__(self):
-        self.x = 0
-        self.y = 0
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
 
     def __add__(self, other):
-        p = Point
-        p.x = self.x + other.x
-        p.y = self.y + other.y
-        return p
+        x = self.x + other.x
+        y = self.y + other.y
+        if x >= 10:
+            x = 10 - x
+        if y >= 10:
+            y = 10 - y
+        return Point(x, y)
 
     def __sub__(self, other):
-        p = Point
-        p.x = self.x - other.x
-        p.y = self.y - other.y
-        return p
+        x = self.x - other.x
+        y = self.y - other.y
+        if x < 0:
+            x += 10
+        if y < 0:
+            y += 10
+        return Point(x, y)
+
+    def check_max(self, coor):
+        if coor > 1:
+            coor = -1
+        if coor < -1:
+            coor = 1
+        return coor
+
+    def turn_right(self, prev_point):
+        print("turn_right")
+        print(prev_point.x, prev_point.y)
+        print(self.x, self.y)
+        turn_now = self - prev_point
+        print(turn_now.x, turn_now.y)
+        if turn_now.y != 0:
+            turn_now.y = self.check_max(turn_now.y)
+            print("turn_now.y", turn_now.y)
+            self.x = turn_now.y * (-1) + prev_point.x
+            print("self.x", self.x)
+            self.y = prev_point.y
+        else:
+            turn_now.x = self.check_max(turn_now.x)
+            self.x = prev_point.x
+            self.y = turn_now.x + prev_point.y
+        print(self.x, self.y)
+        return self
+
 
 
 
@@ -64,31 +97,33 @@ class Grid:
 
     def test_ants(self):
         for ant in self.ants:
+            world_ant = self.world
             while ant.move < 100:
-                next_pos = self.world[ant.next_pos[0], ant.next_pos[1]]
-                step = (abs(ant.next_pos[0] - ant.pos[1]), abs(ant.next_pos[1] - ant.pos[1]))
+                cell = ant.next_pos
+                next_pos = world_ant[cell.y][cell.x]
+                step = ant.next_pos - ant.pos
 
                 if next_pos == 0:
-                    ant.next_pos = ant.pos + step
-                    self.current_state = ant.gen[self.current_state][0]
+                    if ant.gen[ant.current_state][0][0] == 0:
+                        ant.pos = ant.next_pos
+                        ant.next_pos = ant.next_pos + step
+                    else:
+                        ant.next_pos = ant.next_pos.turn_right(ant.pos)
+                    ant.current_state = ant.gen[ant.current_state][0][1]
                 else:
-                    self.current_state = ant.gen[self.current_state][1]
+                    ant.current_state = ant.gen[ant.current_state][1][1]
                     ant.pos = ant.next_pos
-                    ant.next_pos += step
+                    ant.next_pos = ant.next_pos + step
 
-                if ant.next_pos[0] >= 10:
-                    ant.next_pos[0] = 10 - ant.next_pos[0]
-                if ant.next_pos[1] >= 10:
-                    ant.next_pos[1] = 10 - ant.next_pos[1]
 
                 ant.move += 1
-
                 if next_pos == 2:
                     ant.apple += 1
+                world_ant[cell.y][cell.x] = 0
                 if ant.apple >= self.apple:
-                    ant.survival = ant.apple + (100 - ant.move)/100
                     break
-
+            ant.survival = ant.apple + (100 - ant.move)/100
+            print(ant.survival)
 
 
 class Ant:
@@ -99,19 +134,19 @@ class Ant:
         self.survival = 0
         self.move = 0
         self.apple = 0
-        self.pos = Point()
-        self.next_pos = Point()
+        self.pos = Point(0, 0)
+        self.next_pos = Point(1, 0)
 
     def generate_gen(self):
-        self.next_pos.x = 1
         self.first_state = random.randint(0, 6)
         self.current_state = self.first_state
         for state in range(7):
-            true_state = random.randint(0, 7)
-            false_state = random.randint(0, 7)
+            true_state = random.randint(0, 6)
+            false_state = random.randint(0, 6)
             while false_state == true_state:
-                false_state = random.randint(0, 7)
-            state_ant = [(0, true_state), (1, false_state)]
+                false_state = random.randint(0, 6)
+            false_turn = random.randint(0, 1)
+            state_ant = [(false_turn, false_state), (0, true_state)]
             self.gen.append(state_ant)
 
 
@@ -127,12 +162,16 @@ def main():
             if column == 2:
                 grid.apple += 1
 
-    q = Point()
-    w = Point()
 
-    q = q - w
-    print(q.x)
 
+    ant = Ant()
+    ant.generate_gen()
+    grid.ants.append(ant)
+    ant_next = Ant()
+    ant_next.generate_gen()
+    grid.ants.append(ant_next)
+
+    grid.test_ants()
 
 if __name__ == '__main__':
     main()
