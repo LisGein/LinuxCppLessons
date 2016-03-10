@@ -1,7 +1,7 @@
 #pragma once
 #include <boost/optional.hpp>
-
-
+#include <fstream>
+#include <boost/lexical_cast.hpp>
 enum TOKEN_TYPE
 {
     TT_INVALID,
@@ -15,12 +15,34 @@ enum TOKEN_TYPE
 
 struct token_t
 {
+    token_t()
+            : type(TT_INVALID)
+    {
+
+    }
     token_t(TOKEN_TYPE token_type)
-    : type(token_type)
+            : type(token_type)
     {
     }
-    boost::optional<int> value;
+    token_t(TOKEN_TYPE token_type, boost::optional<int> v)
+            : type(token_type)
+            , value_(v)
+    {
+    }
+    bool operator==(const token_t& right) const {
+        return (type == right.type &&  value_ == right.value_);
+    }
+
+    boost::optional<int> value_;
 //private:
     TOKEN_TYPE type;
 };
+inline  std::ostream& operator<<(std::ostream& stream, token_t const& line)
+{
+    std::string str = "token_t{ " + boost::lexical_cast<std::string>(line.type);
 
+    if (line.value_)
+        str += ", " + boost::lexical_cast<std::string>(*(line.value_));
+    str +=" }";
+    return stream << str;
+}

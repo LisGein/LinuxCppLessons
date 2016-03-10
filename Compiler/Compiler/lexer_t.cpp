@@ -3,7 +3,7 @@
 #include <cctype>
 
 
-lexer_t::lexer_t(std::string &str)
+lexer_t::lexer_t(const std::string &str)
 :next_token_(0)
 {
     std::vector<std::string> tokens;
@@ -24,7 +24,7 @@ lexer_t::lexer_t(std::string &str)
         {
             int num = atoi(tokens[i].c_str());
             token_t token(TOKEN_TYPE::TT_NUMBER);
-            token.value = num;
+            token.value_ = num;
             tokens_.push_back(token);
         }
 
@@ -36,11 +36,20 @@ bool lexer_t::has_next()
     return next_token_ < tokens_.size();
 }
 
-token_t const &lexer_t::next()
+token_t const lexer_t::next()
 {
-    token_t token(TOKEN_TYPE::TT_INVALID);
-    if (has_next())
-        token = tokens_[next_token_];
-    ++next_token_;
-    return token;
+    try //код, который может привести к ошибке, располагается тут
+    {
+        if (!has_next())
+        {
+            throw next_token_; //генерировать целое число 123
+        }
+        int next_token = next_token_;
+        ++next_token_;
+        return tokens_[next_token];
+    }
+    catch(int i)//сюда передастся число 123
+    {
+        return token_t();
+    }
 }

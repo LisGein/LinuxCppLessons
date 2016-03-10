@@ -6,9 +6,9 @@
 
 struct lexer_t
 {
-    lexer_t(std::string &str);
+    lexer_t(const std::string &str);
     bool has_next();
-    token_t const &next();
+    token_t const next();
 
 private:
     std::vector<token_t> tokens_;
