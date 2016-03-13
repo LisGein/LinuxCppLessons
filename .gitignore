@@ -56,3 +56,9 @@ Makefile*
 *.out
 *.synctex.gz
 *.pyc
+
+
+
+
+#CLion
+*.idea/
