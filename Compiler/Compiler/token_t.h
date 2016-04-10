@@ -10,7 +10,11 @@ enum TOKEN_TYPE
     TT_MINUS,
     TT_MULTIPLY,
     TT_LP,
-    TT_RP
+    TT_RP,
+    TT_END_LINE,
+    TT_BEGIN_BLOCK,
+    TT_END_BLOCK,
+
 };
 
 struct token_t
