@@ -1,5 +1,6 @@
 #include "guisubstance.h"
-#include <QHBoxLayout>
+#include <QGridLayout>
+#include <QLabel>
 #include <QTableWidget>
 
 
@@ -8,9 +9,13 @@ GuiSubstances::GuiSubstances(QWidget* parent)
    , fuel_(new QTableWidget(5, 2, this))
    , oxidant_(new QTableWidget(5, 2, this))
 {
-   setLayout(new QHBoxLayout(this));
-   layout()->addWidget(fuel_);
-   layout()->addWidget(oxidant_);
+   QGridLayout *layout = new QGridLayout(this);
+   setLayout(layout);
+
+   layout->addWidget(new QLabel(tr("Fuel")), 0, 0);
+   layout->addWidget(fuel_, 1, 0);
+   layout->addWidget(new QLabel(tr("Oxidant")), 0, 1);
+   layout->addWidget(oxidant_, 1, 1);
    fuel_->setHorizontalHeaderLabels(QString("Substance;Percent").split(";"));
    oxidant_->setHorizontalHeaderLabels(QString("Substance;Percent").split(";"));
 }
@@ -63,7 +68,7 @@ std::map<std::string, double> GuiSubstances::get_normalize_data(QTableWidget* w,
 
 }
 
-double GuiSubstances::calc_percent(const std::map<std::__cxx11::string, double>& substances)
+double GuiSubstances::calc_percent(const std::map<std::string, double>& substances)
 {
    double percent = 0.0;
    for (auto &it:substances)

@@ -60,7 +60,7 @@ void ChemicalSubstance::insert_element(const std::string& str, const std::string
 
 }
 
-ChemicalSubstance ChemicalSubstance::from_string(const std::__cxx11::string& str)
+ChemicalSubstance ChemicalSubstance::from_string(const std::string& str)
 {
    ChemicalSubstance s;
    if (!Element::periodic_table_)
@@ -170,7 +170,7 @@ bool ChemicalSubstance::compare_part_emperical(const ChemicalSubstance& second) 
    return result;
 }
 
-Element ChemicalSubstance::find_from_str(const std::__cxx11::string& str)
+Element ChemicalSubstance::find_from_str(const std::string& str)
 {
    Element elem;
    auto it = Element::periodic_table_from_name_->find(str);

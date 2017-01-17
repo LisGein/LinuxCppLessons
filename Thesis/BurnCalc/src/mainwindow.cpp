@@ -14,9 +14,13 @@ MainWindow::MainWindow(QWidget *parent)
 {
    ui->setupUi(this);
 
-   setLayout(new QVBoxLayout(this));
-   layout()->addWidget(substances);
+   QWidget *centralWidget = new QWidget(this);
+   QGridLayout *layout = new QGridLayout();
+   centralWidget->setLayout(layout);
 
+   layout->addWidget(substances);
+
+   setCentralWidget(centralWidget);
 }
 
 MainWindow::~MainWindow()

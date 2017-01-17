@@ -23,6 +23,6 @@ private:
    QLineEdit *line_out_;
 
 
-   Mixture create_mix(const std::map<std::__cxx11::string, double>& substances);
+   Mixture create_mix(const std::map<std::string, double>& substances);
 
 };

@@ -12,7 +12,7 @@ public:
    ChemicalSubstance();
    ~ChemicalSubstance();
 
-   void insert_element(const std::__cxx11::string& str, const std::__cxx11::string& index);
+   void insert_element(const std::string& str, const std::string& index);
    static ChemicalSubstance from_string(const std::string &str);
 
 

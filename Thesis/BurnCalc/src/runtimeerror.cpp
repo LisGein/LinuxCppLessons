@@ -1,6 +1,6 @@
 #include "runtimeerror.h"
 
-RunTimeError::RunTimeError(const std::__cxx11::string& what_arg, const std::__cxx11::string& message)
+RunTimeError::RunTimeError(const std::string& what_arg, const std::string& message)
    : std::runtime_error(what_arg)
    , arg_(what_arg)
    , message_(message)
@@ -8,12 +8,12 @@ RunTimeError::RunTimeError(const std::__cxx11::string& what_arg, const std::__cx
 
 }
 
-std::__cxx11::string RunTimeError::arg() const
+std::string RunTimeError::arg() const
 {
    return arg_;
 }
 
-std::__cxx11::string RunTimeError::message() const
+std::string RunTimeError::message() const
 {
    return message_;
 }
